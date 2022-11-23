@@ -1,1 +1,1 @@
-# italian_image_caption
+# SemEval23: Visual–Word Sense Disambiguation
