@@ -1,4 +1,4 @@
-name: csbert
+name: glp
 channels:
     - defaults
 dependencies:
