@@ -31,7 +31,7 @@ for k in range(3, 20):
     sse.append(kmeans.inertia_)
 
 # Plot the results to visualize the elbow
-plt.plot(range(2, 11), sse)
+plt.plot(range(3, 20), sse)
 plt.xlabel("Number of clusters")
 plt.ylabel("SSE")
 plt.show()
