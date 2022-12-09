@@ -30,6 +30,10 @@ for k in range(3, 20):
     kmeans.fit(embeddings)
     sse.append(kmeans.inertia_)
 
+for a,b in enumerate(sse):
+    print(a)
+    print(b)
+    print("----------")
 # Plot the results to visualize the elbow
 plt.plot(range(3, 20), sse)
 plt.xlabel("Number of clusters")
