@@ -1,5 +1,4 @@
 import pandas as pd
-from sklearn.cluster import KMeans
 import spacy
 import torch
 import matplotlib.pyplot as plt
