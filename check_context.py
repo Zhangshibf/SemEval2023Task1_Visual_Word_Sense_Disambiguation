@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from transformers import BertTokenizer, BertModel
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-a = pd.read_csv("train.data.v1.txt",sep = "\t",header=None)
+a = pd.read_csv("/home/CE/zhangshi/SemEval23/train.data.v1.txt",sep = "\t",header=None)
 keywords = list(a[0])
 phrases = list(a[1])
 
