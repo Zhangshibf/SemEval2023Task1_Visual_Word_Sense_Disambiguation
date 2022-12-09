@@ -1,4 +1,4 @@
-name: csbert
+name: glp
 channels:
     - defaults
 dependencies:
@@ -9,3 +9,6 @@ dependencies:
         - torch == 1.7.1
         - torchvision
         - clip
+        - matplotlib
+        - pandas
+        - sklearn
