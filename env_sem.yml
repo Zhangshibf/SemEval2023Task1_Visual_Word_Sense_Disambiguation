@@ -11,5 +11,5 @@ dependencies:
         - clip
         - matplotlib
         - pandas
-        - sklearn
+        - scikit-learn
         - spacy
