@@ -25,7 +25,7 @@ for phrase in phrases:
 
 # Use elbow method to determine optimal number of clusters
 sse = []
-for k in range(3, 20):
+for k in range(19, 50):
     kmeans = KMeans(n_clusters=k, random_state=1)
     kmeans.fit(embeddings)
     sse.append(kmeans.inertia_)
@@ -35,7 +35,7 @@ for a,b in enumerate(sse):
     print(b)
     print("----------")
 # Plot the results to visualize the elbow
-plt.plot(range(3, 20), sse)
+plt.plot(range(19, 50), sse)
 plt.xlabel("Number of clusters")
 plt.ylabel("SSE")
 plt.show()
