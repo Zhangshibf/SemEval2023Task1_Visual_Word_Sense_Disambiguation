@@ -58,21 +58,45 @@ class ImageTextDataset(Dataset):
 
         return image, text
 
-# Example usage:
+def train_one_epoch(model,dataloader,text_augmentation=False,loss="FLYP"):
+    # Train CLIP model for one epoch
+    model.train()
 
-# Create a transform to preprocess the images
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
+    for text_image, labels in dataloader:
+        # Apply text augmentation if specified
+        if text_augmentation:
+            input_data = apply_text_augmentation(input_data)
 
-# Create the dataset
-dataset = ImageTextDataset("/path/to/data", transform=transform)
+        # Make predictions with the model
+        output = model(input_data)
 
-# Create the dataloader
-dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)
+        # Compute the loss
+        if loss == "FLYP":
+            loss = compute_FLYP_loss(output, labels)
+        else:
+            loss = compute_other_loss(output, labels)
 
-# Iterate through the dataloader
-#for images, texts in dataloader:
-    # Use the images and texts to train your model
-#    model.train(images, texts)
+        # Backpropagate the loss and update the model weights
+        loss.backward()
+        optimizer.step()
+
+        return avg_loss, accuracy
+
+def train_model(model,epoch,path_train,path_out,batch_size = 256,,text_augmentation=True,loss="FLYP"):
+    #train CLIP model for several epoches
+    # Create a transform to preprocess the images
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+    # Create the dataset
+    dataset = ImageTextDataset(path_train, transform=transform)
+    # Create the dataloader
+    dataloader = DataLoader(dataset,batch_size=batch_size,shuffle=True)
+
+    for i in epoch:
+        print("--------------Epoch {}---------------".format(i))
+        avg_loss, accuracy = train_one_epoch(model, dataloader=dataloader, text_augmentation=text_augmentation, loss=loss)
+        print("--------------Loss per instance{}---------------".format(avg_loss))
+        print("--------------Accuracy {}---------------".format(accuracy))
+
