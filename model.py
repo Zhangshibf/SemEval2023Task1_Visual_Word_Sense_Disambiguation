@@ -5,6 +5,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import requests
+import torchvision.transforms as transforms
 from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
 from torch import nn
 
@@ -26,12 +27,7 @@ class clip_model():
         image_emd1 = image_outputs.last_hidden_state
         image_emd2 = image_outputs.pooler_output
 
-        concatenation = "some way to concatenate text embeddings and image embeddings"
-        output_linear = self.linear(concatenation)
-        prediction = self.softmax(output_linear)
-
-        return prediction
-
+        return text_emd1, text_emd2, image_emd1, image_emd2
 
 
 class ImageTextDataset(Dataset):
@@ -77,6 +73,6 @@ dataset = ImageTextDataset("/path/to/data", transform=transform)
 dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)
 
 # Iterate through the dataloader
-for images, texts in dataloader:
+#for images, texts in dataloader:
     # Use the images and texts to train your model
-    model.train(images, texts)
+#    model.train(images, texts)
