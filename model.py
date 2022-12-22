@@ -8,6 +8,7 @@ import requests
 import torchvision.transforms as transforms
 from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
 from torch import nn
+import pandas as pd
 
 class clip_model():
     def __int__(self):
@@ -31,26 +32,38 @@ class clip_model():
 
 
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, transform=None):
+    def __init__(self, data_dir, data_type,
+                 transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+])):
+        types = ["inaturalist","train"]
+        if data_type not in types:
+            raise ValueError("Invalid data type. Expected one of: %s" % data_type)
         self.data_dir = data_dir
         self.transform = transform
-        self.image_filenames = []
-        self.texts = []
+        self.text = list()
+        self.image_path = list()
 
-        # Load the image filenames and texts into the lists
-        for file in os.listdir(data_dir):
-            if file.endswith(".jpg"):
-                self.image_filenames.append(os.path.join(data_dir, file))
-            elif file.endswith(".txt"):
-                with open(os.path.join(data_dir, file), "r") as f:
-                    self.texts.append(f.read())
-
+        if data_type == "inaturalist":
+            #I will write this part later
+            pass
+        elif data_type == "train":
+            #this is for the original train set of the task
+            #train.data.v1.txt, train.gold.v1.txt
+            train_data= pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
+            label_data = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep="\t", header=None)
+            keywords = list(train_data[0])
+            contexts = list(train_data[1])
+            self.text = contexts
+            image_filenames = list(label_data[0])
+            for filename in image_filenames:
+                self.image_path.append(os.path.join(data_dir, "train_images_v1",filename))
+                
     def __len__(self):
-        return len(self.image_filenames)
+        return len(self.text)
 
     def __getitem__(self, idx):
         # Load the image and text
-        image = Image.open(self.image_filenames[idx])
+        image = Image.open(self.image_path[idx])
         text = self.texts[idx]
 
         if self.transform:
@@ -58,7 +71,14 @@ class ImageTextDataset(Dataset):
 
         return image, text
 
-def train_one_epoch(model,dataloader,text_augmentation=False,loss="FLYP"):
+
+#transform = transforms.Compose([
+#    transforms.ToTensor(),
+#    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+#])
+
+
+def train_one_epoch(model,dataloader,optimizer,text_augmentation=False,loss="FLYP"):
     # Train CLIP model for one epoch
     model.train()
 
@@ -82,17 +102,14 @@ def train_one_epoch(model,dataloader,text_augmentation=False,loss="FLYP"):
 
         return avg_loss, accuracy
 
-def train_model(model,epoch,path_train,path_out,batch_size = 256,,text_augmentation=True,loss="FLYP"):
+def train_model(model,epoch,path_train,path_out,batch_size = 256,text_augmentation=True,loss="FLYP"):
     #train CLIP model for several epoches
-    # Create a transform to preprocess the images
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
+
     # Create the dataset
-    dataset = ImageTextDataset(path_train, transform=transform)
+    dataset = ImageTextDataset(path_train,
+                               data_type="train")
     # Create the dataloader
-    dataloader = DataLoader(dataset,batch_size=batch_size,shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     for i in epoch:
         print("--------------Epoch {}---------------".format(i))
