@@ -40,15 +40,17 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
         image = Image.open(self.image_path[idx])
+        if image.size()[0] == 1:
+            image = image.convert('RGB')
         context = self.context[idx]
         keyword = self.keywords[idx]
         if self.transform:
             image = self.transform(image)
 
-        if image.size()[0] !=3:
-            #grey scale image
-            transform_grayscale = transforms.Lambda(lambda x: x.repeat(3, 1, 1))
-            image = transform_grayscale(image)
+
+            #convert grey scale image
+#            transform_grayscale = transforms.Lambda(lambda x: x.repeat(3, 1, 1))
+#            image = transform_grayscale(image)
 
         return keyword,context,image
 
