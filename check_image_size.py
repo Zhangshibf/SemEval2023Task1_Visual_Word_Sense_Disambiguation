@@ -16,7 +16,7 @@ for filename in image_filenames:
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
 for i in image_path:
-    image = Image.open(image_path[i])
+    image = Image.open(i)
     image = transform(image)
     size = image.shape()
     image_w.append(size[0])
