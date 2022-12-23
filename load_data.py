@@ -4,6 +4,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 import pandas as pd
 import pickle
+import argparse
 
 class ImageTextDataset(Dataset):
     def __init__(self, data_dir, data_type):
@@ -48,19 +49,11 @@ class ImageTextDataset(Dataset):
         return keyword,context,image
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Train the model')
+    parser.add_argument('--train', help="path to the train set")
+    args = parser.parse_args()
 
     # Create the dataset
-    dataset = ImageTextDataset("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1", data_type="train")
+    dataset = ImageTextDataset(args.train, data_type="train")
     # Create the dataloader
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
-    with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'wb') as f:
-        pickle.dump(dataloader, f)
-
-
-
-    with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
-        train_dataloader = pickle.load(pickle_file)
-    for i in train_dataloader:
-        print(i[0])
-        print(i[1])
-        print(i[2])
+    dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
