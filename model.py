@@ -15,8 +15,7 @@ class clip_model():
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.linear = nn.Linear(600,out_features = 2)
-        self.softmax = nn.Softmax()
+
     def forward(self,image,text):
         #encode text
         text_outputs = self.text_encoder(text)
