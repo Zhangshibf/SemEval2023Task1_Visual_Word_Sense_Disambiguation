@@ -19,8 +19,9 @@ class ImageTextDataset(Dataset):
             pass
         elif data_type == "train":
             # this is for the original train set of the task
-            # train.data.v1.txt, train.gold.v1.txt
-            self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            # reshape all images to size [1440,1810]
+            # in case of grayscale image, what should we do?
+            self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
             train_data = pd.read_csv(os.path.join(data_dir, "trial.data.v1.txt"), sep="\t", header=None)
             label_data = pd.read_csv(os.path.join(data_dir, "trial.gold.v1.txt"), sep="\t", header=None)
@@ -56,11 +57,11 @@ if __name__ == "__main__":
         pickle.dump(dataloader, f)
 """
 
-    #i need to resize the images.
-    #in case of grayscale image, what should we do?
+
+
     with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    print(type(train_dataloader))
-    print(str(train_dataloader))
-    for i in dict(train_dataloader):
-        print(i)
+    for i in train_dataloader:
+        print(i[0])
+        print(i[1])
+        print(i[2])
