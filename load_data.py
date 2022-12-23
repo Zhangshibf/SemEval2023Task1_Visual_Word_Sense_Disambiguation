@@ -61,4 +61,4 @@ if __name__ == "__main__":
     with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
     print(type(train_dataloader))
-    print(train_dataloader.tolist())
+    print(str(train_dataloader))
