@@ -40,7 +40,7 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
         image = Image.open(self.image_path[idx])
-        print(image.size)
+        print(image.mode)
         if image.size[0] == 1:
             image = image.convert('RGB')
 
