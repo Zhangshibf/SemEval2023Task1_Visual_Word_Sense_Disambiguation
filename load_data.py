@@ -3,7 +3,6 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import torchvision.transforms as transforms
 import pandas as pd
-import pickle
 import argparse
 
 class ImageTextDataset(Dataset):
@@ -46,7 +45,7 @@ class ImageTextDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-        if image.size()[0] ==1:
+        if image.size()[0] !=3:
             #grey scale image
             transform_grayscale = transforms.Lambda(lambda x: x.repeat(3, 1, 1))
             image = transform_grayscale(image)
