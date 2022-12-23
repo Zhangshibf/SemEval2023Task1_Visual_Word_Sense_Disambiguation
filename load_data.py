@@ -40,8 +40,8 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
         image = Image.open(self.image_path[idx])
-        print(image.size())
-        if image.size()[0] == 1:
+
+        if len(image) == 1:
             image = image.convert('RGB')
         context = self.context[idx]
         keyword = self.keywords[idx]
