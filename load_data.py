@@ -48,14 +48,13 @@ class ImageTextDataset(Dataset):
         return keyword,context,image
 
 if __name__ == "__main__":
-    """
+
     # Create the dataset
     dataset = ImageTextDataset("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1", data_type="train")
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
     with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'wb') as f:
         pickle.dump(dataloader, f)
-"""
 
 
 
