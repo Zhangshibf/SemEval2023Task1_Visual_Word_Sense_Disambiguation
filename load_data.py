@@ -29,7 +29,7 @@ class ImageTextDataset(Dataset):
             contexts = list(train_data[1])
 
             self.keywords = keywords
-            self.text = contexts
+            self.context = contexts
             image_filenames = list(label_data[0])
             for filename in image_filenames:
                 self.image_path.append(os.path.join(data_dir, "trial_images_v1", filename))
@@ -40,12 +40,12 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
         image = Image.open(self.image_path[idx])
-        text = self.texts[idx]
+        context = self.context[idx]
         keyword = self.keywords[idx]
         if self.transform:
             image = self.transform(image)
 
-        return keyword,text,image
+        return keyword,context,image
 
 if __name__ == "__main__":
     # Create the dataset
