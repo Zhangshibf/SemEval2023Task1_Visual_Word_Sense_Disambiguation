@@ -72,13 +72,10 @@ class ImageTextDataset(Dataset):
         return image, text
 
 
-#transform = transforms.Compose([
-#    transforms.ToTensor(),
-#    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-#])
-
 
 def train_one_epoch(model,dataloader,optimizer,text_augmentation=False,loss="FLYP"):
+    #This part is NOT done yet. Following code is just an instruction.
+
     # Train CLIP model for one epoch
     model.train()
 
@@ -101,6 +98,16 @@ def train_one_epoch(model,dataloader,optimizer,text_augmentation=False,loss="FLY
         optimizer.step()
 
         return avg_loss, accuracy
+
+def apply_text_augmentation(text,method="wordnet"):
+    possible_methods = ["wordnet","wikipedia"]
+    if method not in possible_methods:
+        raise ValueError("Invalid method type. Expected one of: %s" % possible_methods)
+    if method = "wikipedia":
+        #I will skip this part for now
+        pass
+    elif method = "wordnet":
+        
 
 def train_model(model,epoch,path_train,path_out,batch_size = 256,text_augmentation=True,loss="FLYP"):
     #train CLIP model for several epoches
