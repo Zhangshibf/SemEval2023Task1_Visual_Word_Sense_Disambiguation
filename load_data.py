@@ -6,15 +6,13 @@ import pandas as pd
 import pickle
 
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, data_type,
-                 transform=transforms.Compose(
-                     [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                      ])):
+    def __init__(self, data_dir, data_type):
         types = ["inaturalist", "train"]
         if data_type not in types:
             raise ValueError("Invalid data type. Expected one of: %s" % data_type)
+
         self.data_dir = data_dir
-        self.transform = transform
+
         self.image_path = list()
 
         if data_type == "inaturalist":
@@ -23,6 +21,8 @@ class ImageTextDataset(Dataset):
         elif data_type == "train":
             # this is for the original train set of the task
             # train.data.v1.txt, train.gold.v1.txt
+            self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                 ])
             train_data = pd.read_csv(os.path.join(data_dir, "trial.data.v1.txt"), sep="\t", header=None)
             label_data = pd.read_csv(os.path.join(data_dir, "trial.gold.v1.txt"), sep="\t", header=None)
             keywords = list(train_data[0])
@@ -48,17 +48,21 @@ class ImageTextDataset(Dataset):
         return keyword,context,image
 
 if __name__ == "__main__":
+    """
     # Create the dataset
     dataset = ImageTextDataset("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1", data_type="train")
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
     with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'wb') as f:
         pickle.dump(dataloader, f)
+"""
 
+    #i need to resize the images.
+    #in case of grayscale image, what should we do?
     with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    for i in train_dataloader:
+    for i in list(train_dataloader):
         print("--------------------------------------")
-        print(len(i))
+        print(len(i.tolist()))
         for k in len(i):
             print(i[k])
