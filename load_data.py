@@ -61,8 +61,5 @@ if __name__ == "__main__":
     #in case of grayscale image, what should we do?
     with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    for i in list(train_dataloader):
-        print("--------------------------------------")
-        print(len(i.tolist()))
-        for k in len(i):
-            print(i[k])
+    print(type(train_dataloader))
+    print(list(train_dataloader))
