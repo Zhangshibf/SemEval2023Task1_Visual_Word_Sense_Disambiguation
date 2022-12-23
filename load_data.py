@@ -57,3 +57,12 @@ if __name__ == "__main__":
     dataset = ImageTextDataset(args.train, data_type="train")
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
+
+    for i in dataloader:
+        print(len(i[0]))
+        print(i[0][:10])
+        print(len(i[1]))
+        print(i[1][:10])
+        print(len(i[2]))
+        print(i[2].size())
+        break
