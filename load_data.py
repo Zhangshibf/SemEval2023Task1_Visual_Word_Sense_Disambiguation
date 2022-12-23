@@ -62,3 +62,5 @@ if __name__ == "__main__":
         train_dataloader = pickle.load(pickle_file)
     print(type(train_dataloader))
     print(str(train_dataloader))
+    for i in dict(train_dataloader):
+        print(i)
