@@ -49,7 +49,7 @@ class ImageTextDataset(Dataset):
         return keyword,context,image
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Train the model')
+    parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--train', help="path to the train set")
     args = parser.parse_args()
 
