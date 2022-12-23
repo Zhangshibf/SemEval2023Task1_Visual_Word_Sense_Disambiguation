@@ -41,7 +41,7 @@ class ImageTextDataset(Dataset):
         # Load the image and text
         image = Image.open(self.image_path[idx])
 
-        if len(image) == 1:
+        if image.size[0] == 1:
             image = image.convert('RGB')
         context = self.context[idx]
         keyword = self.keywords[idx]
