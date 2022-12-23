@@ -24,8 +24,8 @@ class ImageTextDataset(Dataset):
             # in case of grayscale image, what should we do?
             self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
-            train_data = pd.read_csv(os.path.join(data_dir, "trian.data.v1.txt"), sep="\t", header=None)
-            label_data = pd.read_csv(os.path.join(data_dir, "trian.gold.v1.txt"), sep="\t", header=None)
+            train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
+            label_data = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep="\t", header=None)
             keywords = list(train_data[0])
             contexts = list(train_data[1])
 
@@ -33,7 +33,7 @@ class ImageTextDataset(Dataset):
             self.context = contexts
             image_filenames = list(label_data[0])
             for filename in image_filenames:
-                self.image_path.append(os.path.join(data_dir, "trian_images_v1", filename))
+                self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
 
     def __len__(self):
         return len(self.context)
