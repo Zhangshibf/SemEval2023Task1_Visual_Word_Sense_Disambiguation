@@ -46,19 +46,16 @@ class ImageTextDataset(Dataset):
             image = self.transform(image)
 
         return keyword,text,image
-"""
+
 if __name__ == "__main__":
     # Create the dataset
-    dataset = ImageTextDataset("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1", data_type="train")
+    dataset = ImageTextDataset("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-trial-v1/trial_v1", data_type="train")
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
-    with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'wb') as f:
+    with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-trail-v1/trial_v1/dataloader.pk", 'wb') as f:
         pickle.dump(dataloader, f)
 
-"""
-
-if __name__ == "__main__":
-    with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
+    with open("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-trail-v1/trial_v1/dataloader.pk", 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
     for i in train_dataloader:
         print("--------------------------------------")
