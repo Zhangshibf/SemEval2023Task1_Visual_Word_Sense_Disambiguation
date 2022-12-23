@@ -22,7 +22,7 @@ class ImageTextDataset(Dataset):
             # this is for the original train set of the task
             # reshape all images to size [1440,1810]
             # in case of grayscale image, what should we do?
-            self.transform = transforms.Compose([transforms.Lambda(lambda x: x.repeat(3, 1, 1) if x.size(0)==1 else x),transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
             train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
             label_data = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep="\t", header=None)
@@ -46,7 +46,10 @@ class ImageTextDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-
+        if image.size()[0] ==1:
+            #grey scale image
+            transform_grayscale = transforms.Lambda(lambda x: x.repeat(3, 1, 1))
+            image = transform_grayscale(image)
 
         return keyword,context,image
 
