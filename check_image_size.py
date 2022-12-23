@@ -18,7 +18,7 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 for i in image_path:
     image = Image.open(i)
     image = transform(image)
-    size = image.shape()
+    size = image.size()
     image_w.append(size[0])
     image_h.append(size[1])
 
