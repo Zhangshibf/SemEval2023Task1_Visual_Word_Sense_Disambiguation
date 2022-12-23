@@ -19,8 +19,9 @@ for i in image_path:
     image = Image.open(i)
     image = transform(image)
     size = image.size()
-    image_w.append(size[0])
-    image_h.append(size[1])
+    image_w.append(size[1])
+    image_h.append(size[2])
+
 
 print("Width {}".format(sum(image_w)/len(image_w)))
 print("Height {}".format(sum(image_h)/len(image_h)))
