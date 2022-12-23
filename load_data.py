@@ -35,7 +35,7 @@ class ImageTextDataset(Dataset):
                 self.image_path.append(os.path.join(data_dir, "trial_images_v1", filename))
 
     def __len__(self):
-        return len(self.text)
+        return len(self.context)
 
     def __getitem__(self, idx):
         # Load the image and text
