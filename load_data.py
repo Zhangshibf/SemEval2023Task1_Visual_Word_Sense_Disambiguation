@@ -32,7 +32,7 @@ class ImageTextDataset(Dataset):
             self.text = contexts
             image_filenames = list(label_data[0])
             for filename in image_filenames:
-                self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
+                self.image_path.append(os.path.join(data_dir, "trial_images_v1", filename))
 
     def __len__(self):
         return len(self.text)
