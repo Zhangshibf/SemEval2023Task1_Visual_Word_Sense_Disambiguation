@@ -7,6 +7,7 @@ import argparse
 import torch
 from nltk.corpus import wordnet as wn
 import nltk
+from PIL import ImageFile
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 class ImageTextDataset(Dataset):
@@ -79,6 +80,7 @@ class ImageTextDataset(Dataset):
 
     def __getitem__(self, idx):
         # Load the image and text
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
         image = Image.open(self.image_path[idx])
         image_name = self.image_name[idx]
         if image.mode != "RGB":
