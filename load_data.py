@@ -62,14 +62,11 @@ class ImageTextDataset(Dataset):
                             augmented_text += str(lemma.name()).replace('_', ' ') + ', '
                         augmented_text += synset.definition()
                         augmented_texts.append(augmented_text)
-                    print(augmented_texts)
 
                 if len(augmented_texts)>1:
                     #check which of the augmented texts is more similar to the short phrase
                     context_emb = sent_encoder.encode(phrase)
                     aug_emb = sent_encoder.encode(augmented_texts)
-                    print(len(context_emb))
-                    print(len(aug_emb))
                     scores = util.dot_score(context_emb, aug_emb)[0].tolist()
                     idx = np.argmax(scores)
                     self.augmentation.append(augmented_texts[idx])
