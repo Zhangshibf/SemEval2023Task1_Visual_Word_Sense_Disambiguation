@@ -4,6 +4,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 import pandas as pd
 import argparse
+import torch
 from nltk.corpus import wordnet as wn
 import nltk
 from sentence_transformers import SentenceTransformer, util
