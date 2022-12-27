@@ -73,9 +73,9 @@ class ImageTextDataset(Dataset):
                     scores = util.dot_score(context_emb, aug_emb)[0].tolist()
                     idx = np.argmax(scores)
                     self.augmentation.append(augmented_texts[idx])
-                elif len(augmented_texts) = 1:
+                elif len(augmented_texts) == 1:
                     self.augmentation.append(augmented_texts[0])
-                elif len(augmented_texts) = 0:
+                elif len(augmented_texts) == 0:
                     self.augmentation.append(phrase)
     def __len__(self):
         return len(self.context)
