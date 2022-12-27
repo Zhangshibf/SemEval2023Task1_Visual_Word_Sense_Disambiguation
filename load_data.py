@@ -62,7 +62,7 @@ class ImageTextDataset(Dataset):
                             augmented_text += str(lemma.name()).replace('_', ' ') + ', '
                         augmented_text += synset.definition()
                         augmented_texts.append(augmented_text)
-                        print(augmented_texts)
+                    print(augmented_texts)
 
                 #check which of the augmented texts is more similar to the short phrase
                 context_emb = sent_encoder.encode(phrase)
