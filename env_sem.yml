@@ -16,3 +16,4 @@ dependencies:
         - Pillow
         - numpy
         - sentence-transformers
+        - nltk
