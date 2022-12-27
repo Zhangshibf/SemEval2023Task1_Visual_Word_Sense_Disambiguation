@@ -62,8 +62,8 @@ class ImageTextDataset(Dataset):
                         augmented_text += synset.definition()
                         augmented_texts.append(augmented_text)
 
-                phrase = phrase.to(self.device)
-                augmented_texts = augmented_texts.to(self.device)
+                phrase = phrase
+                augmented_texts = augmented_texts
                 #check which of the augmented texts is more similar to the short phrase
                 context_emb = sent_encoder.encode(phrase)
                 aug_emb = sent_encoder.encode(augmented_texts)
