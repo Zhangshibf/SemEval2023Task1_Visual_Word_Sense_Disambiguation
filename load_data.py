@@ -42,7 +42,7 @@ class ImageTextDataset(Dataset):
                 self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
 
         #text augmentation
-        #an augmented text is composed of original short phrase + definition from wordnet/wikipedia
+        #an augmented text is composed of lemmas + definition from wordnet
         if text_augmentation:
             nltk.download('omw-1.4')
             nltk.download('wordnet')
