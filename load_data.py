@@ -9,7 +9,8 @@ import nltk
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, data_type,text_augmentation=False):
+    def __init__(self, data_dir, data_type,device,text_augmentation=False):
+        self.device = device
         types = ["inaturalist", "train"]
         if data_type not in types:
             raise ValueError("Invalid data type. Expected one of: %s" % data_type)
@@ -47,7 +48,7 @@ class ImageTextDataset(Dataset):
             nltk.download('omw-1.4')
             nltk.download('wordnet')
             self.augmentation = list()
-            sent_encoder = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
+            sent_encoder = SentenceTransformer('sentence-transformers/all-mpnet-base-v2').to(self.device)
             for keyword,phrase in zip(self.keywords,self.context):
 
                 #retrieve all possible augmented texts
@@ -61,14 +62,14 @@ class ImageTextDataset(Dataset):
                         augmented_text += synset.definition()
                         augmented_texts.append(augmented_text)
 
+                phrase = phrase.to(self.device)
+                augmented_texts = augmented_texts.to(self.device)
                 #check which of the augmented texts is more similar to the short phrase
                 context_emb = sent_encoder.encode(phrase)
                 aug_emb = sent_encoder.encode(augmented_texts)
                 scores = util.dot_score(context_emb, aug_emb)[0].tolist()
                 idx = np.argmax(scores)
                 self.augmentation.append(augmented_texts[idx])
-
-
     def __len__(self):
         return len(self.context)
 
@@ -95,16 +96,30 @@ if __name__ == "__main__":
     parser.add_argument('--train', help="path to the train set")
     args = parser.parse_args()
 
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Create the dataset
-    dataset = ImageTextDataset(args.train, data_type="train")
+    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
 
     for i in dataloader:
+        print("Keywords")
         print(len(i[0]))
         print(i[0][:10])
+
+        print("Context")
         print(len(i[1]))
         print(i[1][:10])
+
+        print("text augmentation")
         print(len(i[2]))
-        print(i[2].size())
+        print(i[2][:10])
+
+        print("image")
+        print(len(i[3]))
+        print(i[3].size())
+
+        print("image name")
+        print(len(i[4]))
+        print(i[4][:10])
         break
