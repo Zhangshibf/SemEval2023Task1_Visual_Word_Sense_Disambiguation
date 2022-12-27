@@ -67,8 +67,8 @@ class ImageTextDataset(Dataset):
                 #check which of the augmented texts is more similar to the short phrase
                 context_emb = sent_encoder.encode(phrase)
                 aug_emb = sent_encoder.encode(augmented_texts)
-                print(context_emb)
-                print(aug_emb)
+                print(len(context_emb))
+                print(len(aug_emb))
                 scores = util.dot_score(context_emb, aug_emb)[0].tolist()
                 idx = np.argmax(scores)
                 self.augmentation.append(augmented_texts[idx])
