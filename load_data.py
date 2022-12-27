@@ -4,15 +4,22 @@ from PIL import Image
 import torchvision.transforms as transforms
 import pandas as pd
 import argparse
-
+from nltk.corpus import wordnet as wn
+import nltk
+from sentence_transformers import SentenceTransformer, util
+import numpy as np
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, data_type):
+    def __init__(self, data_dir, data_type,text_augmentation=False):
         types = ["inaturalist", "train"]
         if data_type not in types:
             raise ValueError("Invalid data type. Expected one of: %s" % data_type)
+        augmentation_types = [True,False]
+        if text_augmentation not in augmentation_types:
+            raise ValueError("Invalid augmentation type. Expected one of: %s" % augmentation_types)
 
         self.data_dir = data_dir
         self.image_path = list()
+        self.image_name = list()
 
         if data_type == "inaturalist":
             # I will write this part later
@@ -20,7 +27,6 @@ class ImageTextDataset(Dataset):
         elif data_type == "train":
             # this is for the original train set of the task
             # reshape all images to size [1440,1810]
-            # in case of grayscale image, what should we do?
             self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
             train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
@@ -32,7 +38,36 @@ class ImageTextDataset(Dataset):
             self.context = contexts
             image_filenames = list(label_data[0])
             for filename in image_filenames:
+                self.image_name.append(filename)
                 self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
+
+        #text augmentation
+        #an augmented text is composed of original short phrase + definition from wordnet/wikipedia
+        if text_augmentation:
+            nltk.download('omw-1.4')
+            nltk.download('wordnet')
+            self.augmentation = list()
+            sent_encoder = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
+            for keyword,phrase in zip(self.keywords,self.context):
+
+                #retrieve all possible augmented texts
+                synsets = wn.synsets(keyword)
+                augmented_texts = list()
+                if len(synsets)!=0:
+                    for synset in synsets:
+                        augmented_text = ''
+                        for lemma in synset.lemmas():
+                            augmented_text += str(lemma.name()).replace('_', ' ') + ', '
+                        augmented_text += synset.definition()
+                        augmented_texts.append(augmented_text)
+
+                #check which of the augmented texts is more similar to the short phrase
+                context_emb = sent_encoder.encode(phrase)
+                aug_emb = sent_encoder.encode(augmented_texts)
+                scores = util.dot_score(context_emb, aug_emb)[0].tolist()
+                idx = np.argmax(scores)
+                self.augmentation.append(augmented_texts[idx])
+
 
     def __len__(self):
         return len(self.context)
@@ -40,6 +75,7 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
         image = Image.open(self.image_path[idx])
+        image_name = self.image_name[idx]
         if image.mode != "RGB":
             image = image.convert('RGB')
 
@@ -48,12 +84,11 @@ class ImageTextDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-
-            #convert grey scale image
-#            transform_grayscale = transforms.Lambda(lambda x: x.repeat(3, 1, 1))
-#            image = transform_grayscale(image)
-
-        return keyword,context,image
+        if self.augmentation:
+            aug = self.augmentation[idx]
+            return keyword,context,aug,image,image_name
+        else:
+            return keyword,context,image,image_name
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
