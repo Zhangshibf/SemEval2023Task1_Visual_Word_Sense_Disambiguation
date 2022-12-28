@@ -98,31 +98,34 @@ class ImageTextDataset(Dataset):
 
     def __getitem__(self, idx):
         # Load the image and text
-        ImageFile.LOAD_TRUNCATED_IMAGES = True
-        image = Image.open(self.image_path[idx])
-        image_name = self.image_name[idx]
-        if image.mode != "RGB":
-            image = image.convert('RGB')
 
+        #the positive image
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        p_image = Image.open(self.image_path[idx])
+        image_name = self.image_name[idx]
+        if p_image.mode != "RGB":
+            p_image = p_image.convert('RGB')
+        positive_image = self.transform(p_image)
+
+        #negative images
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
         for path in negative_image_paths:
-            image = Image.open(path)
-            if image.mode != "RGB":
-                image = image.convert('RGB')
-                negative_images.append(image)
+            n_image = Image.open(path)
+            if n_image.mode != "RGB":
+                n_image = n_image.convert('RGB')
+                n_image = self.transform(n_image)
+                negative_images.append(n_image)
 
         context = self.context[idx]
         keyword = self.keywords[idx]
-        if self.transform:
-            image = self.transform(image)
 
         if self.augmentation:
             aug = self.augmentation[idx]
-            return keyword,context,aug,image,image_name,negative_images,negative_image_names
+            return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
-            return keyword,context,image,image_name,negative_images,negative_image_names
+            return keyword,context,positive_image,image_name,negative_images,negative_image_names
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
