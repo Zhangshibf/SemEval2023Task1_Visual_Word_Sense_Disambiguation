@@ -30,6 +30,7 @@ class ImageTextDataset(Dataset):
         elif data_type == "train":
             # this is for the original train set of the task
             # reshape all images to size [1440,1810]
+            all_image_names = list()
             self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
             train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
@@ -37,12 +38,28 @@ class ImageTextDataset(Dataset):
             keywords = list(train_data[0])
             contexts = list(train_data[1])
 
+            for i in range(len(train_data)):
+                all_image_names.append(list(train_data.loc[i, 2:]))
+
             self.keywords = keywords
             self.context = contexts
             image_filenames = list(label_data[0])
+            negative_images = list()
+            for a, b in zip(all_image_names,image_filenames):
+                negative = a.remove(b)
+                negative_images.append(negative)
+
+            self.negative_image_names = negative_images
+
             for filename in image_filenames:
                 self.image_name.append(filename)
                 self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
+
+            for negs in negative_images:
+                temporary = list()
+                for filename in negs:
+                    temporary.append(os.path.join(data_dir, "train_images_v1", filename))
+                self.negative_path.append(temporary)
 
         #text augmentation
         #an augmented text is composed of lemmas + definition from wordnet
@@ -86,6 +103,15 @@ class ImageTextDataset(Dataset):
         if image.mode != "RGB":
             image = image.convert('RGB')
 
+        negative_images = list()
+        negative_image_paths = self.negative_path[idx]
+        negative_image_names = self.negative_image_names[idx]
+        for path in negative_image_paths:
+            image = Image.open(path)
+            if image.mode != "RGB":
+                image = image.convert('RGB')
+                negative_images.append(image)
+
         context = self.context[idx]
         keyword = self.keywords[idx]
         if self.transform:
@@ -93,9 +119,9 @@ class ImageTextDataset(Dataset):
 
         if self.augmentation:
             aug = self.augmentation[idx]
-            return keyword,context,aug,image,image_name
+            return keyword,context,aug,image,image_name,negative_images,negative_image_names
         else:
-            return keyword,context,image,image_name
+            return keyword,context,image,image_name,negative_images,negative_image_names
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
@@ -108,6 +134,7 @@ if __name__ == "__main__":
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
 
+    #keyword,context,aug,image,image_name,negative_images,negative_image_names
     for i in dataloader:
         print("Keywords")
         print(len(i[0]))
@@ -128,4 +155,14 @@ if __name__ == "__main__":
         print("image name")
         print(len(i[4]))
         print(i[4][:10])
+
+        print("negative_images")
+        print(len(i[5][0]))
+        print(i[5][0][0].size())
+        print(i[5][6][4].size())
+
+        print("negative_image_names")
+        print(len(i[6]))
+        print(i[6][:10])
+
         break
