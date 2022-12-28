@@ -121,9 +121,11 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
+
         if self.augmentation:
             aug = self.augmentation[idx]
-            return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
+            return keyword,context,aug,positive_image,image_name\
+                #,negative_images,negative_image_names
         else:
             return keyword,context,positive_image,image_name,negative_images,negative_image_names
 
