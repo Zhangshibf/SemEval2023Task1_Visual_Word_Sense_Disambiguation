@@ -47,6 +47,7 @@ class ImageTextDataset(Dataset):
             negative_images = list()
             for a, b in zip(all_image_names,image_filenames):
                 negative = a.remove(b)
+                print(negative)
                 negative_images.append(negative)
 
             self.negative_image_names = negative_images
