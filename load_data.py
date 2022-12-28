@@ -55,6 +55,7 @@ class ImageTextDataset(Dataset):
                 self.image_name.append(filename)
                 self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
 
+            self.negative_path = list()
             for negs in negative_images:
                 temporary = list()
                 for filename in negs:
