@@ -125,7 +125,8 @@ class ImageTextDataset(Dataset):
 
         if self.augmentation:
             aug = self.augmentation[idx]
-            return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
+            return keyword, context, aug, self.image_path[idx], image_name,self.negative_path[idx], negative_image_names
+            #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
             return keyword,context,positive_image,image_name,negative_images,negative_image_names
 
@@ -154,18 +155,19 @@ if __name__ == "__main__":
         print(len(i[2]))
         print(i[2][:10])
 
-        print("image")
+        print("image path")
         print(len(i[3]))
-        print(i[3].size())
+#        print(i[3].size())
 
         print("image name")
         print(len(i[4]))
         print(i[4][:10])
 
-        print("negative_images")
-        print(len(i[5][0]))
-        print(i[5][0][0].size())
-        print(i[5][6][4].size())
+        print("negative_images_path")
+        print(len(i[5]))
+#        print(len(i[5][0]))
+#        print(i[5][0][0].size())
+#        print(i[5][6][4].size())
 
         print("negative_image_names")
         print(len(i[6]))
