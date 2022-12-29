@@ -116,14 +116,12 @@ class ImageTextDataset(Dataset):
             n_image = Image.open(path)
             if n_image.mode != "RGB":
                 n_image = n_image.convert('RGB')
-                n_image = self.transform(n_image)
-                negative_images.append(n_image)
+            n_image = self.transform(n_image)
+            negative_images.append(n_image)
 
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        print("a")
-        print(len(negative_images))
 
         if self.augmentation:
             aug = self.augmentation[idx]
