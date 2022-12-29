@@ -111,14 +111,7 @@ class ImageTextDataset(Dataset):
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
-        print("a")
-        print(len(negative_image_paths))
-        print("b")
-        print(len(negative_image_names))
-        print("c")
-        print(len(keyword))
-        print("c")
-        print(len(context))
+
         for path in negative_image_paths:
             n_image = Image.open(path)
             if n_image.mode != "RGB":
@@ -129,6 +122,14 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
+        print("a")
+        print(len(negative_image_paths))
+        print("b")
+        print(len(negative_image_names))
+        print("c")
+        print(len(keyword))
+        print("c")
+        print(len(context))
 
         if self.augmentation:
             aug = self.augmentation[idx]
