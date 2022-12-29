@@ -124,12 +124,16 @@ class ImageTextDataset(Dataset):
 
         print("a")
         print(len(negative_image_paths))
+        print(negative_image_paths)
         print("b")
         print(len(negative_image_names))
+        print(negative_image_names)
         print("c")
         print(len(keyword))
+        print(keyword)
         print("c")
         print(len(context))
+        print(context)
 
         if self.augmentation:
             aug = self.augmentation[idx]
