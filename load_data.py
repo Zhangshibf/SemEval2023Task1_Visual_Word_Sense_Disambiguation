@@ -111,6 +111,12 @@ class ImageTextDataset(Dataset):
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
+        print("a")
+        print(len(self.negative_image_names))
+        print("b")
+        print(len(negative_image_paths))
+        print("c")
+        print(len(negative_image_names))
         for path in negative_image_paths:
             n_image = Image.open(path)
             if n_image.mode != "RGB":
