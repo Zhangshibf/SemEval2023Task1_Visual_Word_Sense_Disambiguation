@@ -44,29 +44,17 @@ class ImageTextDataset(Dataset):
             self.keywords = keywords
             self.context = contexts
             image_filenames = list(label_data[0])
-            negative_images = list()
+            self.negative_image_names = list()
             for a, b in zip(all_image_names,image_filenames):
-                print("a")
-                print(a)
-                print("b")
-                print(b)
                 a.remove(b)
-                print("a without b")
-                print(a)
-                print(len(a))
-                negative_images.append(a)
-                print("negative")
-                print(negative_images)
-
-
-            self.negative_image_names = negative_images
+                self.negative_image_names.append(a)
 
             for filename in image_filenames:
                 self.image_name.append(filename)
                 self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
 
             self.negative_path = list()
-            for negs in negative_images:
+            for negs in self.negative_image_names:
                 temporary = list()
                 for filename in negs:
                     temporary.append(os.path.join(data_dir, "train_images_v1", filename))
@@ -181,6 +169,6 @@ if __name__ == "__main__":
 
         print("negative_image_names")
         print(len(i[6]))
-        print(i[6][:10])
+        print(len(i[6][10]))
 
         break
