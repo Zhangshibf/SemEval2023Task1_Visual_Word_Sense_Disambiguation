@@ -16,7 +16,7 @@ from math import log
 from torch import optim
 
 
-class clip_model():
+class clip_model(nn.Module):
     def __int__(self):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
