@@ -53,13 +53,13 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         neg_image_emds = list()
 
         for text in context_augemnted:
-            text_emd1,text_emd2 = model(text,None,emb_type = "text")
+            text_emd1,text_emd2 = model(text,None,setting = "text")
             text_emds.append(text_emd2)
 
         #positive images
         images = open_images(image_paths)
         for image in images:
-            image_emd1,image_emd2 = model(None,image,emb_type = "image")
+            image_emd1,image_emd2 = model(None,image,setting = "image")
             positive_image_emds.append(image_emd2)
 
         #negative images
