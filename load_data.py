@@ -123,7 +123,7 @@ class ImageTextDataset(Dataset):
 
         if self.augmentation:
             aug = self.augmentation[idx]
-            return keyword, context, aug, self.image_path[idx], image_name,self.negative_path[idx], negative_image_names
+            return keyword, context, aug, self.image_path[idx], self.image_name[idx],self.negative_path[idx], negative_image_names
             #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
             return keyword,context,positive_image,image_name,negative_images,negative_image_names
