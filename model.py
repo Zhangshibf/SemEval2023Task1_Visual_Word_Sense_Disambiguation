@@ -43,7 +43,7 @@ class clip_model():
 def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
     loss = 0
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
+    for keywords,contexts,augmentations,image_paths,image_names,negative_images_paths,negative_image_names in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
@@ -57,22 +57,24 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
             text_emds.append(text_emd2)
 
         #positive images
+        images = open_images(image_paths)
         for image in images:
             image_emd1,image_emd2 = model(None,image,emb_type = "image")
             positive_image_emds.append(image_emd2)
 
         #negative images
 
-        for negs in negative_images:
+        for paths in negative_image_paths:
             temporary = list()
-            for image in negs:
+            neg_image = open_images(paths)
+            for image in neg_image:
                 image_emd1, image_emd2 = model(None, image, emb_type="image")
                 temporary.append(image_emd2)
             neg_image_emds.append(temporary)
 
         # Compute the loss
         if loss == "FLYP":
-            loss_per_batch = compute_FLYP_loss(text_emds,positive_image_emds,negative_image_emds)
+            loss_per_batch = compute_FLYP_loss(text_emds,positive_image_emds,neg_image_emds)
         else:
             #I don't know what are other options... maybe with a linear layer?
             pass
@@ -107,7 +109,22 @@ def evaluate(model, dataloader):
             temporary_emds = open_images(temporary)
             image_emds.append(temporary_emds)
         #calculate similarity, determine prediction
-        similarities = torch.nn.functional.pairwise_distance(text_emds, positive_image_emds)
+        total_similarities = list()
+
+        for idx in range(len(image_emds[0])):
+            column = [i[idx] for i in image_emds]
+            similarities = torch.nn.functional.pairwise_distance(text_emds, column)
+            total_similarities.append(similarities)
+            prediction = np.argmax(total_similarities,axis=0)
+
+        correct_prediction = 0
+        for i in prediction:
+            if i == 0:
+                correct_prediction+=1
+
+        accuracy = correct_prediction/len(prediction)
+
+        return accuracy
 
 
 
@@ -181,12 +198,12 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,text_augmentati
 
     for i in epoch:
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss, accuracy = train_one_epoch(model, train_dataloader, optimizer,loss="FLYP")
+        avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss="FLYP")
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
         print("--------------Evaluation On Dev---------------")
-        avg_loss, accuracy = evaluate(model, dev_dataloader)
+        accuracy = evaluate(model, dev_dataloader)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
