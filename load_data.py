@@ -98,24 +98,24 @@ class ImageTextDataset(Dataset):
         # Load the image and text
 
         #the positive image
-        ImageFile.LOAD_TRUNCATED_IMAGES = True
+"""        ImageFile.LOAD_TRUNCATED_IMAGES = True
         p_image = Image.open(self.image_path[idx])
         image_name = self.image_name[idx]
         if p_image.mode != "RGB":
             p_image = p_image.convert('RGB')
-        positive_image = self.transform(p_image)
+        positive_image = self.transform(p_image)"""
 
         #negative images
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
 
-        for path in negative_image_paths:
+"""        for path in negative_image_paths:
             n_image = Image.open(path)
             if n_image.mode != "RGB":
                 n_image = n_image.convert('RGB')
             n_image = self.transform(n_image)
-            negative_images.append(n_image)
+            negative_images.append(n_image)"""
 
         context = self.context[idx]
         keyword = self.keywords[idx]
@@ -153,22 +153,17 @@ if __name__ == "__main__":
         print(len(i[2]))
         print(i[2][:10])
 
-        print("image path")
+        print("positive image path")
         print(len(i[3]))
-#        print(i[3].size())
 
-        print("image name")
+        print("positive image name")
         print(len(i[4]))
         print(i[4][:10])
 
-        print("negative_images_path")
+        print("negative images path")
         print(len(i[5]))
-#        print(len(i[5][0]))
-#        print(i[5][0][0].size())
-#        print(i[5][6][4].size())
 
-        print("negative_image_names")
+        print("negative image names")
         print(len(i[6]))
-        print(len(i[6][10]))
 
         break
