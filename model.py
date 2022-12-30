@@ -146,6 +146,7 @@ def open_images(image_paths):
         if image.mode != "RGB":
             image = image.convert('RGB')
         image = transform(image)
+        image = image.unsqueeze(0)
         images.append(image)
     return images
 
