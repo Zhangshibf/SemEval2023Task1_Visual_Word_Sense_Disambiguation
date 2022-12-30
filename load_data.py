@@ -98,7 +98,7 @@ class ImageTextDataset(Dataset):
         # Load the image and text
 
         #the positive image
-"""        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        """        ImageFile.LOAD_TRUNCATED_IMAGES = True
         p_image = Image.open(self.image_path[idx])
         image_name = self.image_name[idx]
         if p_image.mode != "RGB":
@@ -110,7 +110,7 @@ class ImageTextDataset(Dataset):
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
 
-"""        for path in negative_image_paths:
+        """        for path in negative_image_paths:
             n_image = Image.open(path)
             if n_image.mode != "RGB":
                 n_image = n_image.convert('RGB')
