@@ -176,7 +176,10 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(list(model.text_encoder.parameters()) + list(model.image_encoder.parameters()), lr=0.001,
+                          momentum=0.9)
+
+#    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     for i in epoch:
         print("--------------Training Epoch {}---------------".format(i))
