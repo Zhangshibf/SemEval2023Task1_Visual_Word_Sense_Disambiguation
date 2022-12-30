@@ -13,6 +13,7 @@ import nltk
 from sentence_transformers import SentenceTransformer, util
 import torch
 from math import log
+from torch import optim
 
 
 class clip_model():
@@ -155,27 +156,9 @@ def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
 
     return loss
 
-    """
-    positive_distance = torch.nn.functional.pairwise_distance(text_embedding, p_image_emds)
-
-    # Compute distances between text embedding and 9 negative image embeddings
-    negative_distances = []
-    for negative_images in n_image_emds:
-        negative_distance = torch.nn.functional.pairwise_distance(text_embedding, image_embedding)
-        negative_distances.append(negative_distance)
-
-    # Compute maximum negative distance
-    max_negative_distance = torch.max(torch.stack(negative_distances))
-
-    # Compute loss
-    loss = torch.max(torch.tensor(0.), margin + positive_distance - max_negative_distance)
-"""
-
-
-
         
 
-def train_model(model,epoch,path_train,path_out,batch_size = 256,text_augmentation=True,loss="FLYP"):
+def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
@@ -190,15 +173,15 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,text_augmentati
     train_dataset, dev_dataset, test_dataset = random_split(dataset, [train_size, dev_size, test_size])
 
     # Create dataloaders for each set
-    train_dataloader = DataLoader(train_dataset, batch_size=256, shuffle=True)
-    dev_dataloader = DataLoader(dev_dataset, batch_size=256, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=256, shuffle=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-    optimizer = "something"
+    optimizer = optim.SGD(csbert_model.parameters(), lr=0.001, momentum=0.9)
 
     for i in epoch:
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss="FLYP")
+        avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss=loss)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
@@ -206,4 +189,17 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,text_augmentati
         accuracy = evaluate(model, dev_dataloader)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Build dataloader')
+    parser.add_argument('--train', help="path to the train set")
+    args = parser.parse_args()
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # Create the dataset
+    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
+    # Create the dataloader
+    dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
+    model = clip_model()
+    train_model(model, epoch = 5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
 
