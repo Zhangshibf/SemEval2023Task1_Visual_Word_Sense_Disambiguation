@@ -33,8 +33,8 @@ class ImageTextDataset(Dataset):
             all_image_names = list()
             self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                  ])
-            train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
-            label_data = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep="\t", header=None)
+            train_data = pd.read_csv(os.path.join(data_dir, "trial.data.v1.txt"), sep="\t", header=None)
+            label_data = pd.read_csv(os.path.join(data_dir, "trial.gold.v1.txt"), sep="\t", header=None)
             keywords = list(train_data[0])
             contexts = list(train_data[1])
 
@@ -51,13 +51,13 @@ class ImageTextDataset(Dataset):
 
             for filename in image_filenames:
                 self.image_name.append(filename)
-                self.image_path.append(os.path.join(data_dir, "train_images_v1", filename))
+                self.image_path.append(os.path.join(data_dir, "trial_images_v1", filename))
 
             self.negative_path = list()
             for negs in self.negative_image_names:
                 temporary = list()
                 for filename in negs:
-                    temporary.append(os.path.join(data_dir, "train_images_v1", filename))
+                    temporary.append(os.path.join(data_dir, "trial_images_v1", filename))
                 self.negative_path.append(temporary)
 
         #text augmentation
