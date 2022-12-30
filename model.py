@@ -17,7 +17,7 @@ from torch import optim
 
 
 class clip_model(nn.Module):
-    def __int__(self):
+    def __init__(self):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -176,10 +176,10 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-    optimizer = optim.SGD(list(model.text_encoder.parameters()) + list(model.image_encoder.parameters()), lr=0.001,
+#    optimizer = optim.SGD(list(model.text_encoder.parameters()) + list(model.image_encoder.parameters()), lr=0.001,
                           momentum=0.9)
 
-#    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     for i in epoch:
         print("--------------Training Epoch {}---------------".format(i))
