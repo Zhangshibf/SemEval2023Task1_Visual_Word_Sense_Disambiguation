@@ -42,7 +42,6 @@ class clip_model(nn.Module):
 
 def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-    processor = CLIPProcessor()
 
     loss = 0
     # Train CLIP model for one epoch
@@ -56,8 +55,8 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         neg_image_emds = list()
 
         for text in context_augemnted:
-            # Tokenize the input string
-            input_ids = processor.preprocess(text, tokenizer)
+            # Tokenize the input text
+            input_ids = tokenizer.encode(text)
             # Convert the input_ids to a tensor
             input_tensor = torch.tensor([input_ids])
 
