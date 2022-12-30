@@ -12,6 +12,7 @@ from nltk.corpus import wordnet as wn
 import nltk
 from sentence_transformers import SentenceTransformer, util
 import torch
+from math import log
 
 
 class clip_model():
@@ -40,49 +41,109 @@ class clip_model():
 
 
 def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
+    loss = 0
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,images,image_names in dataloader:
+    for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
+        #generate embeddings for context + augmentation
+        context_augemnted = list()
+        for i,j in zip(contexts,augmentations):
+            context_augemnted.append((i+" "+j))
+        text_emds = list()
+        positive_image_emds = list()
+        neg_image_emds = list()
+
+        for text in context_augemnted:
+            text_emd1,text_emd2 = model(text,None,emb_type = "text")
+            text_emds.append(text_emd2)
+
+        #positive images
+        for image in images:
+            image_emd1,image_emd2 = model(None,image,emb_type = "image")
+            positive_image_emds.append(image_emd2)
+
+        #negative images
+
+        for negs in negative_images:
+            temporary = list()
+            for image in negs:
+                image_emd1, image_emd2 = model(None, image, emb_type="image")
+                temporary.append(image_emd2)
+            neg_image_emds.append(temporary)
+
+        # Compute the loss
+        if loss == "FLYP":
+            loss_per_batch = compute_FLYP_loss(text_emds,positive_image_emds,negative_image_emds)
+        else:
+            #I don't know what are other options... maybe with a linear layer?
+            pass
+        loss+=loss_per_batch
+        model.zero_grad()
+        # Backpropagate the loss and update the model weights
+        loss.backward()
+        optimizer.step()
+
+    return loss
+
+def evaluate(model, dataloader):
+    model.eval()
+    for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
             context_augemnted.append((i+" "+j))
         text_emds = list()
         image_emds = list()
+        positive_image_emds = list()
+        neg_image_emds = list()
 
         for text in context_augemnted:
-            text_emd1,text_emd2 = model(text,emb_type = "text")
+            text_emd1,text_emd2 = model(text,None,emb_type = "text")
             text_emds.append(text_emd2)
 
-        for image in images:
-            image_emd1,image_emd2 = model(image,emb_type = "image")
-            image_emds.append(image_emd2)
+        for p_i,n_is in zip(images,negative_images):
+            temporary = list()
+            temporary.append(p_i)
+            temporary.extend(n_is)
+            temporary_emds = open_images(temporary)
+            image_emds.append(temporary_emds)
+        #calculate similarity, determine prediction
+        similarities = torch.nn.functional.pairwise_distance(text_emds, positive_image_emds)
 
-        #for a text-image pair.
-        #The negative samples for the text are positive sample of other texts in the same bacth + the nine negative sample given by dataset
-        #the negative samples for the image are the other texts in the same batch.
-        # Compute the loss
-        if loss == "FLYP":
-            #calculate the similarity score between text_emd and images of the same batch
-            similarity_score = "something"
-            loss = compute_FLYP_loss(similarity_scores)
-        else:
-            #I don't know what are other options... maybe with a linear layer?
-            pass
 
-        model.zero_grad()
-        # Backpropagate the loss and update the model weights
-        loss.backward()
-        optimizer.step()
 
-        return avg_loss, accuracy
+def open_images(image_paths):
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
+    images = list()
+    for path in image_paths:
+        image = Image.open(path)
+        if image.mode != "RGB":
+            image = image.convert('RGB')
+        images.append(image)
+    return images
 
-def compute_FLYP_loss(text_embedding, image_embeddings, margin=0.1):
+def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
     # Compute distance between text embedding and corresponding image embedding
-    positive_distance = torch.nn.functional.pairwise_distance(text_embedding, image_embeddings[0])
+    distances = list()
+    for text_emd in text_emds:
+        distances.append(torch.nn.functional.pairwise_distance(text_emd, p_image_emds))
+    total_loss = 0
+    for i in range(len(text_emds)):
+        text_images_distance = sum(distances[i])
+        image_texts_distance = sum(list(k[i] for k in distances))
+        similarity = distances[i][i]
+        loss_per_pair = -log(similarity/text_images_distance)-log(similarity/image_texts_distance)
+        total_loss+=loss_per_pair
 
-    # Compute distances between text embedding and negative image embeddings
+    loss = total_loss/len(text_emds)
+
+    return loss
+
+    """
+    positive_distance = torch.nn.functional.pairwise_distance(text_embedding, p_image_emds)
+
+    # Compute distances between text embedding and 9 negative image embeddings
     negative_distances = []
-    for image_embedding in image_embeddings[1:]:
+    for negative_images in n_image_emds:
         negative_distance = torch.nn.functional.pairwise_distance(text_embedding, image_embedding)
         negative_distances.append(negative_distance)
 
@@ -91,11 +152,9 @@ def compute_FLYP_loss(text_embedding, image_embeddings, margin=0.1):
 
     # Compute loss
     loss = torch.max(torch.tensor(0.), margin + positive_distance - max_negative_distance)
+"""
 
-    return loss
 
-def evaluate(model, dataloader):
-    model.eval()
 
         
 
