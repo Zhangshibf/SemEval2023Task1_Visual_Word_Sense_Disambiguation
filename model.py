@@ -198,7 +198,7 @@ if __name__ == "__main__":
     # Create the dataset
     dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
     # Create the dataloader
-    dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
     model = clip_model()
     train_model(model, epoch = 5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
 
