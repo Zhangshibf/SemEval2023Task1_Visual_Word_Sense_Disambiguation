@@ -87,7 +87,7 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
     return loss
 
 def evaluate(model, dataloader):
-#    model.eval()
+    model.eval()
     for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
@@ -159,7 +159,7 @@ def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
 
 def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     #train CLIP model for several epoches
-#    model.train()
+    model.train()
     # Create the dataset
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     dataset = ImageTextDataset(path_train, data_type="train",device = device, text_augmentation=True)
