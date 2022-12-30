@@ -21,7 +21,6 @@ class clip_model():
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
-
     def forward(self, text, image,setting):
         setting_types = ["text","image"]
         if setting not in setting_types:
@@ -88,7 +87,7 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
     return loss
 
 def evaluate(model, dataloader):
-    model.eval()
+#    model.eval()
     for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
@@ -160,7 +159,7 @@ def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
 
 def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     #train CLIP model for several epoches
-    model.train()
+#    model.train()
     # Create the dataset
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     dataset = ImageTextDataset(path_train, data_type="train",device = device, text_augmentation=True)
@@ -177,7 +176,7 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-    optimizer = optim.SGD(csbert_model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     for i in epoch:
         print("--------------Training Epoch {}---------------".format(i))
