@@ -1,4 +1,4 @@
-#models: ViLT, FLAVA, CLIP
+#fine tune CLIP model
 import os
 import torch
 from load_data import *
@@ -41,6 +41,9 @@ class clip_model(nn.Module):
 
 
 def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+    processor = CLIPProcessor()
+
     loss = 0
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_paths,image_names,negative_images_paths,negative_image_names in dataloader:
@@ -53,7 +56,12 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         neg_image_emds = list()
 
         for text in context_augemnted:
-            text_emd1,text_emd2 = model(text,None,setting = "text")
+            # Tokenize the input string
+            input_ids = processor.preprocess(text, tokenizer)
+            # Convert the input_ids to a tensor
+            input_tensor = torch.tensor([input_ids])
+
+            text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
             text_emds.append(text_emd2)
 
         #positive images
