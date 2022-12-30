@@ -137,11 +137,15 @@ def evaluate(model, dataloader):
 
 def open_images(image_paths):
     ImageFile.LOAD_TRUNCATED_IMAGES = True
+    transform = transforms.Compose(
+        [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+         ])
     images = list()
     for path in image_paths:
         image = Image.open(path)
         if image.mode != "RGB":
             image = image.convert('RGB')
+        image = transform(image)
         images.append(image)
     return images
 
