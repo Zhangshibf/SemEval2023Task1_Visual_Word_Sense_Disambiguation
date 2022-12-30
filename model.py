@@ -182,7 +182,7 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
 
 
 
-    for i in epoch:
+    for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss=loss)
         print("--------------Loss per instance{}---------------".format(avg_loss))
