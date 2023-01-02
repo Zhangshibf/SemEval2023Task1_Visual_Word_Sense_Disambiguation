@@ -117,9 +117,8 @@ class ImageTextDataset(Dataset):
             aug = self.augmentation[idx]
 
             return keyword, context, aug,names, paths
-            #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
-            return keyword,context,positive_image,image_name,negative_images,negative_image_names
+            pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
@@ -132,7 +131,7 @@ if __name__ == "__main__":
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
 
-    #keyword,context,aug,image,image_name,negative_images,negative_image_names
+    #keyword,context,aug,image_path,image_names
     for i in dataloader:
         print("Keywords")
         print(len(i[0]))
