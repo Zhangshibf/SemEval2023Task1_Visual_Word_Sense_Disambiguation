@@ -26,9 +26,9 @@ processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.86.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.155.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.68.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.9.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.72.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.158.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.7.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.132.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.36.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.27.jpg']
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-#transform = transforms.Compose(
-#    [transforms.Resize([1440, 1810]),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-#     ])
+transform = transforms.Compose(
+    [transforms.Resize([1440, 1810]),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+     ])
 for path in image_paths:
     image = Image.open(path)
     if image.mode != "RGB":
