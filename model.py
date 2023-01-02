@@ -154,7 +154,7 @@ def open_images(image_paths):
         image = processor(images=image, return_tensors="pt")
         images.append(image)
         print(len(images))
-        images = TORCH.STACK(images)
+        images = torch.stack(images)
         print(images.shape())
     return images
 
