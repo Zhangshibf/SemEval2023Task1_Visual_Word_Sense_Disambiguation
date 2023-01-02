@@ -45,7 +45,7 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
 
     loss = 0
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,image_paths,image_names in dataloader:
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
