@@ -150,7 +150,8 @@ if __name__ == "__main__":
         print(len(i[3]))
         print(i[3][0])
 
-        print("names")
+        print("image names")
+        print("The first one is positive image, the rest are negative images")
         print(len(i[4]))
         print(i[4][0])
 
