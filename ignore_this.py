@@ -49,7 +49,7 @@ for text in ["I have a dog","A vanilla ice cream"]:
     input_ids = tokenizer.encode(text)
     # Convert the input_ids to a tensor
     input_tensor = torch.tensor([input_ids])
-    text_emd1, text_emd2 = model(input_tensor, None, setting="text")
+    text_emd1, text_emd2 = model(setting="text",text = input_tensor)
     text_emds.append(text_emd2)
 
 print(text_emds[0])
