@@ -60,22 +60,20 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
 
             text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
             text_emds.append(text_emd2)
+            """
+        #positive images
+        images = open_images(image_paths)
+        for image in images:
+            image_emd1,image_emd2 = model(None,image,setting = "image")
+            positive_image_emds.append(image_emd2)
 
-#        #positive images
-#        images = open_images(image_paths)
-#        for image in images:
-#            image_emd1,image_emd2 = model(None,image,setting = "image")
-#            positive_image_emds.append(image_emd2)
-
-        # negative images
-        """
-                for paths in negative_image_paths:
-                    temporary = list()
-                    neg_image = open_images(paths)
-                    for image in neg_image:
-                        image_emd1, image_emd2 = model(None, image, emb_type="image")
-                        temporary.append(image_emd2)
-                    neg_image_emds.append(temporary)
+        for paths in negative_image_paths:
+            temporary = list()
+            neg_image = open_images(paths)
+            for image in neg_image:
+                image_emd1, image_emd2 = model(None, image, emb_type="image")
+                temporary.append(image_emd2)
+            neg_image_emds.append(temporary)
                     """
 
         image_emds = list()
@@ -141,6 +139,7 @@ def evaluate(model, dataloader):
 
 
 def open_images(image_paths):
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     transform = transforms.Compose(
         [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -152,11 +151,8 @@ def open_images(image_paths):
             image = image.convert('RGB')
         image = transform(image)
 #        image = image.unsqueeze(0)
+        image = processor(images=image, return_tensors="pt")
         images.append(image)
-
-    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    images = processor(images=images, return_tensors="pt")
-
     return images
 
 def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
