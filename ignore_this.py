@@ -36,7 +36,7 @@ for path in image_paths:
         print(type(image))
 #    image = transform(image)
 #        image = image.unsqueeze(0)
-    image = processor(images=image, return_tensors="pt")
+#    image = processor(images=image, return_tensors="pt")
     inputs = processor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     last_hidden_state = outputs.last_hidden_state
