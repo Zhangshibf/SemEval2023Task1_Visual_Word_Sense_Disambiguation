@@ -47,8 +47,6 @@ class ImageTextDataset(Dataset):
             self.negative_image_names = list()
             for a, b in zip(all_image_names,image_filenames):
                 a.remove(b)
-                print(a)
-                print(b)
                 self.negative_image_names.append(a)
                 self.image_name.append(b)
                 self.image_path.append(os.path.join(data_dir, "trial_images_v1", b))
@@ -145,11 +143,11 @@ if __name__ == "__main__":
         print(len(i[2]))
         print(i[2][:10])
 
-        print("paths")
+        print("Image paths. Paths are segmented using #")
         print(len(i[3]))
         print(i[3][0])
 
-        print("image names")
+        print("Image names. Names are segmented using #")
         print("The first one is positive image, the rest are negative images")
         print(len(i[4]))
         print(i[4][0])
