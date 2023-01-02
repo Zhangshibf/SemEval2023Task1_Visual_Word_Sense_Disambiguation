@@ -145,7 +145,9 @@ def open_images(image_paths):
         [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
          ])
     images = list()
+    print(image_paths)
     for path in image_paths:
+
         image = Image.open(path)
         if image.mode != "RGB":
             image = image.convert('RGB')
@@ -153,9 +155,9 @@ def open_images(image_paths):
 #        image = image.unsqueeze(0)
         image = processor(images=image, return_tensors="pt")
         images.append(image)
-        print(len(images))
-        images = torch.stack(images)
-        print(images.shape())
+#        print(len(images))
+#        images = torch.stack(images)
+#        print(images.shape())
     return images
 
 def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
