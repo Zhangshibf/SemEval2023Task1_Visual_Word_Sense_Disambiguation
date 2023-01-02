@@ -31,8 +31,8 @@ class ImageTextDataset(Dataset):
             # this is for the original train set of the task
             # reshape all images to size [1440,1810]
             all_image_names = list()
-            self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                 ])
+#            self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+#                 ])
             train_data = pd.read_csv(os.path.join(data_dir, "trial.data.v1.txt"), sep="\t", header=None)
             label_data = pd.read_csv(os.path.join(data_dir, "trial.gold.v1.txt"), sep="\t", header=None)
             keywords = list(train_data[0])
@@ -47,6 +47,7 @@ class ImageTextDataset(Dataset):
             self.negative_image_names = list()
             for a, b in zip(all_image_names,image_filenames):
                 a.remove(b)
+                print(len(a))
                 self.negative_image_names.append(a)
 
             for filename in image_filenames:
@@ -97,25 +98,10 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
 
-        #the positive image
-        """        ImageFile.LOAD_TRUNCATED_IMAGES = True
-        p_image = Image.open(self.image_path[idx])
-        image_name = self.image_name[idx]
-        if p_image.mode != "RGB":
-            p_image = p_image.convert('RGB')
-        positive_image = self.transform(p_image)"""
-
         #negative images
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
-
-        """        for path in negative_image_paths:
-            n_image = Image.open(path)
-            if n_image.mode != "RGB":
-                n_image = n_image.convert('RGB')
-            n_image = self.transform(n_image)
-            negative_images.append(n_image)"""
 
         context = self.context[idx]
         keyword = self.keywords[idx]
@@ -123,7 +109,7 @@ class ImageTextDataset(Dataset):
 
         if self.augmentation:
             aug = self.augmentation[idx]
-            return keyword, context, aug, self.image_path[idx], self.image_name[idx],self.negative_path[idx], negative_image_names
+            return keyword, context, aug, self.image_path[idx], self.image_name[idx],negative_image_paths, negative_image_names
             #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
             return keyword,context,positive_image,image_name,negative_images,negative_image_names
