@@ -39,15 +39,23 @@ class clip_model(nn.Module):
             return image_emd1,image_emd2
 
 #model = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
 model = clip_model()
 
-#url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-#image = Image.open(requests.get(url, stream=True).raw)
-#print(type(image))
-#<class 'PIL.JpegImagePlugin.JpegImageFile'>
+tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+text_emds = list()
+for text in ["I have a dog","A vanilla ice cream"]:
+    # Tokenize the input text
+    input_ids = tokenizer.encode(text)
+    # Convert the input_ids to a tensor
+    input_tensor = torch.tensor([input_ids])
+    text_emd1, text_emd2 = model(input_tensor, None, setting="text")
+    text_emds.append(text_emd2)
 
-image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.86.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.155.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.68.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.9.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.72.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.158.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.7.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.132.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.36.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.27.jpg']
+print(text_emds[0])
+
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.86.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.155.jpg']
 images = list()
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 transform = transforms.Compose(
