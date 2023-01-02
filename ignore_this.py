@@ -20,7 +20,7 @@ class clip_model(nn.Module):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
-    def forward(self, text, image,setting):
+    def forward(self, text=None, image=None,setting):
         setting_types = ["text","image"]
         if setting not in setting_types:
             raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
@@ -31,12 +31,13 @@ class clip_model(nn.Module):
             text_emd2 = text_outputs.pooler_output
             return text_emd1,text_emd2
 
-        if setting == "image":
+        elif setting == "image":
             # encode image
             image_outputs = self.image_encoder(image)
             image_emd1 = image_outputs.last_hidden_state
             image_emd2 = image_outputs.pooler_output
             return image_emd1,image_emd2
+
 #model = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 model = clip_model()
@@ -60,7 +61,7 @@ for path in image_paths:
     image = transform(image)
     images.append(image)
 inputs = processor(images=images, return_tensors="pt")
-outputs = model("...",inputs,"image")
+outputs = model(image = inputs,"image")
 last_hidden_state = outputs.last_hidden_state
 pooled_output = outputs.pooler_output  # pooled CLS states
 
