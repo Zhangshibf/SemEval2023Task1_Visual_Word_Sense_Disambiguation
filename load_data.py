@@ -167,5 +167,6 @@ if __name__ == "__main__":
 
         print("negative image names")
         print(len(i[6]))
+        print(len(i[6][0]))
 
         break
