@@ -47,7 +47,7 @@ class ImageTextDataset(Dataset):
             self.negative_image_names = list()
             for a, b in zip(all_image_names,image_filenames):
                 a.remove(b)
-                print(len(a))
+#                print(len(a))
                 self.negative_image_names.append(a)
 
             for filename in image_filenames:
@@ -59,6 +59,7 @@ class ImageTextDataset(Dataset):
                 temporary = list()
                 for filename in negs:
                     temporary.append(os.path.join(data_dir, "trial_images_v1", filename))
+                print(len(temporary))
                 self.negative_path.append(temporary)
 
         #text augmentation
