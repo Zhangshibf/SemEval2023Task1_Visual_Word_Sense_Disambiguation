@@ -9,9 +9,7 @@ import torchvision.transforms as transforms
 from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
 from torch import nn
 import pandas as pd
-from nltk.corpus import wordnet as wn
-import nltk
-from sentence_transformers import SentenceTransformer, util
+
 import torch
 from math import log
 from torch import optim
@@ -24,7 +22,7 @@ processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 #image = Image.open(requests.get(url, stream=True).raw)
 
 #inputs = processor(images=image, return_tensors="pt")
-image_paths = []
+image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.86.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.155.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.68.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.9.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.72.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.158.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.7.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.132.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.36.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.27.jpg']
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 transform = transforms.Compose(
