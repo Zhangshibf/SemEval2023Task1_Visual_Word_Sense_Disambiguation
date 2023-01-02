@@ -34,7 +34,7 @@ for path in image_paths:
     if image.mode != "RGB":
         image = image.convert('RGB')
         print(type(image))
-#    image = transform(image)
+    image = transform(image)
 #        image = image.unsqueeze(0)
 #    image = processor(images=image, return_tensors="pt")
     inputs = processor(images=image, return_tensors="pt")
@@ -42,4 +42,4 @@ for path in image_paths:
     last_hidden_state = outputs.last_hidden_state
     pooled_output = outputs.pooler_output  # pooled CLS states
 
-    print(pooled_output.shape())
+    print(pooled_output.shape)
