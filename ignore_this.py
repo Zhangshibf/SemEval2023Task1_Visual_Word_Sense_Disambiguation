@@ -26,7 +26,7 @@ image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 transform = transforms.Compose(
-    [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    [transforms.ToPILImage(),transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
      ])
 for path in image_paths:
     image = Image.open(path)
