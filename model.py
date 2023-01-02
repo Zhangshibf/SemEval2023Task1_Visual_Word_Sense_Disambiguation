@@ -150,10 +150,9 @@ def open_images(image_paths):
         images.append(image)
 
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    images = processor(images=images, return_tensors="pt")
-    print(type(images))
-    print(type(images[0]))
-    return images[0]
+    images = processor(images=images[0], return_tensors="pt")
+
+    return images
 
 def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
     # Compute distance between text embedding and corresponding image embedding
