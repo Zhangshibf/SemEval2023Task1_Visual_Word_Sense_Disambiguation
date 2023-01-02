@@ -33,6 +33,7 @@ for path in image_paths:
     if image.mode != "RGB":
         image = image.convert('RGB')
     image = transform(image)
+    print(type(image))
 #        image = image.unsqueeze(0)
     image = processor(images=image, return_tensors="pt")
     inputs = processor(images=image, return_tensors="pt")
