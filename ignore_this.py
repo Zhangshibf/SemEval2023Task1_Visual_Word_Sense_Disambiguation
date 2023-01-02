@@ -15,8 +15,31 @@ from math import log
 from torch import optim
 from transformers import CLIPProcessor, CLIPVisionModel
 
-model = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+class clip_model(nn.Module):
+    def __init__(self):
+        super(clip_model, self).__init__()
+        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
+        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+    def forward(self, text, image,setting):
+        setting_types = ["text","image"]
+        if setting not in setting_types:
+            raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
+
+        if setting == "text":
+            text_outputs = self.text_encoder(text)
+            text_emd1 = text_outputs.last_hidden_state
+            text_emd2 = text_outputs.pooler_output
+            return text_emd1,text_emd2
+
+        elif setting == "image":
+            # encode image
+            image_outputs = self.image_encoder(image)
+            image_emd1 = image_outputs.last_hidden_state
+            image_emd2 = image_outputs.pooler_output
+            return image_emd1,image_emd2
+#model = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+model = clip_model()
 
 #url = "http://images.cocodataset.org/val2017/000000039769.jpg"
 #image = Image.open(requests.get(url, stream=True).raw)
@@ -37,7 +60,7 @@ for path in image_paths:
     image = transform(image)
     images.append(image)
 inputs = processor(images=images, return_tensors="pt")
-outputs = model(**inputs)
+outputs = model(None,**inputs,"image")
 last_hidden_state = outputs.last_hidden_state
 pooled_output = outputs.pooler_output  # pooled CLS states
 
