@@ -38,10 +38,22 @@ class clip_model(nn.Module):
             image_emd2 = image_outputs.pooler_output
             return image_emd1,image_emd2
 
+
+class bla_model(nn.Module):
+    def __init__(self):
+        super(clip_model, self).__init__()
+        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
+        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+    def forward(self, image):
+        image_outputs = self.image_encoder(image)
+        image_emd1 = image_outputs.last_hidden_state
+        image_emd2 = image_outputs.pooler_output
+        return image_emd1,image_emd2
 #model = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
 
 model = clip_model()
-
+model2 = bla_model()
+"""
 tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 text_emds = list()
 for text in ["I have a dog","A vanilla ice cream"]:
@@ -53,7 +65,7 @@ for text in ["I have a dog","A vanilla ice cream"]:
     text_emds.append(text_emd2)
 
 print(text_emds[0])
-
+"""
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.86.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.155.jpg']
 images = list()
@@ -69,7 +81,7 @@ for path in image_paths:
     image = transform(image)
     images.append(image)
 inputs = processor(images=images, return_tensors="pt")
-outputs = model(setting = "image",image = inputs)
+outputs = model2(setting = "image",image = inputs)
 last_hidden_state = outputs.last_hidden_state
 pooled_output = outputs.pooler_output  # pooled CLS states
 
