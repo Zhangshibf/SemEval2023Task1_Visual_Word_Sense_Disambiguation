@@ -45,14 +45,12 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
 
     loss = 0
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,image_paths,image_names,negative_images_paths,negative_image_names in dataloader:
+    for keywords,contexts,augmentations,image_paths,image_names in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
             context_augemnted.append((i+" "+j))
         text_emds = list()
-        positive_image_emds = list()
-        neg_image_emds = list()
 
         for text in context_augemnted:
             # Tokenize the input text
@@ -63,21 +61,29 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
             text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
             text_emds.append(text_emd2)
 
-        #positive images
-        images = open_images(image_paths)
-        for image in images:
-            image_emd1,image_emd2 = model(None,image,setting = "image")
-            positive_image_emds.append(image_emd2)
+#        #positive images
+#        images = open_images(image_paths)
+#        for image in images:
+#            image_emd1,image_emd2 = model(None,image,setting = "image")
+#            positive_image_emds.append(image_emd2)
 
-        #negative images
+        # negative images
+        """
+                for paths in negative_image_paths:
+                    temporary = list()
+                    neg_image = open_images(paths)
+                    for image in neg_image:
+                        image_emd1, image_emd2 = model(None, image, emb_type="image")
+                        temporary.append(image_emd2)
+                    neg_image_emds.append(temporary)
+                    """
 
-        for paths in negative_image_paths:
-            temporary = list()
-            neg_image = open_images(paths)
-            for image in neg_image:
-                image_emd1, image_emd2 = model(None, image, emb_type="image")
-                temporary.append(image_emd2)
-            neg_image_emds.append(temporary)
+        image_emds = list()
+        for i in image_paths:
+            paths = i.split("#")
+            images = open_images(paths)
+            image_emd1,image_emd2 = model(None,images,setting = "image")
+            image_emds.append(image_emd2)
 
         # Compute the loss
         if loss == "FLYP":
@@ -102,8 +108,7 @@ def evaluate(model, dataloader):
             context_augemnted.append((i+" "+j))
         text_emds = list()
         image_emds = list()
-        positive_image_emds = list()
-        neg_image_emds = list()
+
 
         for text in context_augemnted:
             text_emd1,text_emd2 = model(text,None,emb_type = "text")
@@ -150,7 +155,7 @@ def open_images(image_paths):
         images.append(image)
 
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    images = processor(images=images[0], return_tensors="pt")
+    images = processor(images=images, return_tensors="pt")
 
     return images
 
@@ -193,11 +198,6 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-#    optimizer = optim.SGD(list(model.text_encoder.parameters()) + list(model.image_encoder.parameters()), lr=0.001,
-#                          momentum=0.9)
-
-
-
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss=loss)
@@ -206,8 +206,11 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
 
         print("--------------Evaluation On Dev---------------")
         accuracy = evaluate(model, dev_dataloader)
-        print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
+
+    print("--------------Final Evaluation On Test---------------")
+    accuracy = evaluate(model, Test_dataloader)
+    print("--------------Accuracy {}---------------".format(accuracy))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
