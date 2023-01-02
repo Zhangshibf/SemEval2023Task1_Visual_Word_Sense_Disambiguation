@@ -148,6 +148,9 @@ def open_images(image_paths):
         image = transform(image)
         image = image.unsqueeze(0)
         images.append(image)
+
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    images = processor(images=images, return_tensors="pt")
     return images
 
 def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
