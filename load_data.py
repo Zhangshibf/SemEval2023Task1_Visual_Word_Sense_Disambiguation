@@ -102,6 +102,8 @@ class ImageTextDataset(Dataset):
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
+        print(len(negative_image_paths))
+        print(len(negative_image_paths))
 
         context = self.context[idx]
         keyword = self.keywords[idx]
@@ -109,6 +111,7 @@ class ImageTextDataset(Dataset):
 
         if self.augmentation:
             aug = self.augmentation[idx]
+
             return keyword, context, aug, self.image_path[idx], self.image_name[idx],negative_image_paths, negative_image_names
             #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
