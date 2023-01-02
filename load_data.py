@@ -59,7 +59,6 @@ class ImageTextDataset(Dataset):
                 temporary = list()
                 for filename in negs:
                     temporary.append(os.path.join(data_dir, "trial_images_v1", filename))
-                print(len(temporary))
                 self.negative_path.append(temporary)
 
         #text augmentation
@@ -142,7 +141,6 @@ if __name__ == "__main__":
 
         print("positive image path")
         print(len(i[3]))
-        print(i[3])
 
         print("positive image name")
         print(len(i[4]))
@@ -150,7 +148,6 @@ if __name__ == "__main__":
 
         print("negative images path")
         print(len(i[5]))
-        print(i[5])
 
         print("negative image names")
         print(len(i[6]))
