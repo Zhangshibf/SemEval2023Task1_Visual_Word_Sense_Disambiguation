@@ -102,8 +102,8 @@ class ImageTextDataset(Dataset):
         negative_images = list()
         negative_image_paths = self.negative_path[idx]
         negative_image_names = self.negative_image_names[idx]
-        print(len(negative_image_paths))
-        print(len(negative_image_paths))
+        negative_image_paths = "#".join(negative_image_paths)
+        negative_image_names = "#".join(negative_image_names)
 
         context = self.context[idx]
         keyword = self.keywords[idx]
