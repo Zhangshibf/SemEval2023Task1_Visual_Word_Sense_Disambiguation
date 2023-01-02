@@ -49,10 +49,8 @@ class ImageTextDataset(Dataset):
                 a.remove(b)
 #                print(len(a))
                 self.negative_image_names.append(a)
-
-            for filename in image_filenames:
-                self.image_name.append(filename)
-                self.image_path.append(os.path.join(data_dir, "trial_images_v1", filename))
+                self.image_name.append(b)
+                self.image_path.append(os.path.join(data_dir, "trial_images_v1", b))
 
             self.negative_path = list()
             for negs in self.negative_image_names:
