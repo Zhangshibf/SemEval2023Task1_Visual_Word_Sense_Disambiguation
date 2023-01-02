@@ -43,4 +43,3 @@ for path in image_paths:
     pooled_output = outputs.pooler_output  # pooled CLS states
 
     print(pooled_output.shape())
-"""
