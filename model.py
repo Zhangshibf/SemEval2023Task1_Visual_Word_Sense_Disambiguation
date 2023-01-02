@@ -146,7 +146,7 @@ def open_images(image_paths):
         if image.mode != "RGB":
             image = image.convert('RGB')
         image = transform(image)
-        image = image.unsqueeze(0)
+#        image = image.unsqueeze(0)
         images.append(image)
 
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -220,4 +220,3 @@ if __name__ == "__main__":
     dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
     model = clip_model()
     train_model(model, epoch = 5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
-
