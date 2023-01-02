@@ -47,7 +47,8 @@ class ImageTextDataset(Dataset):
             self.negative_image_names = list()
             for a, b in zip(all_image_names,image_filenames):
                 a.remove(b)
-#                print(len(a))
+                print(a)
+                print(b)
                 self.negative_image_names.append(a)
                 self.image_name.append(b)
                 self.image_path.append(os.path.join(data_dir, "trial_images_v1", b))
@@ -106,11 +107,16 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
+        positive_path = self.image_path[idx]
+        positive_name = self.image_name[idx]
+
+        print(positive_name)
+        print(negative_image_names)
 
         if self.augmentation:
             aug = self.augmentation[idx]
 
-            return keyword, context, aug, self.image_path[idx], self.image_name[idx],negative_image_paths, negative_image_names
+            return keyword, context, aug,positive_path , positive_name,negative_image_paths, negative_image_names
             #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:
             return keyword,context,positive_image,image_name,negative_images,negative_image_names
