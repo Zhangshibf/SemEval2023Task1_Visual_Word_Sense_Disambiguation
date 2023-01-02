@@ -41,7 +41,7 @@ class clip_model(nn.Module):
 
 class bla_model(nn.Module):
     def __init__(self):
-        super(clip_model, self).__init__()
+        super(bla_model, self).__init__()
         self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
     def forward(self, image):
