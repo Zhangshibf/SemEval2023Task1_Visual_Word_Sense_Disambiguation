@@ -155,6 +155,7 @@ if __name__ == "__main__":
 
         print("positive image path")
         print(len(i[3]))
+        print(i[3])
 
         print("positive image name")
         print(len(i[4]))
@@ -165,5 +166,6 @@ if __name__ == "__main__":
 
         print("negative image names")
         print(len(i[6]))
+        print(i[6])
 
         break
