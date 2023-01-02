@@ -31,7 +31,7 @@ class clip_model(nn.Module):
             text_emd2 = text_outputs.pooler_output
             return text_emd1,text_emd2
 
-        elif setting == "image":
+        if setting == "image":
             # encode image
             image_outputs = self.image_encoder(image)
             image_emd1 = image_outputs.last_hidden_state
