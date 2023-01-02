@@ -60,7 +60,7 @@ for path in image_paths:
     image = transform(image)
     images.append(image)
 inputs = processor(images=images, return_tensors="pt")
-outputs = model(None,**inputs,"image")
+outputs = model(None,inputs,"image")
 last_hidden_state = outputs.last_hidden_state
 pooled_output = outputs.pooler_output  # pooled CLS states
 
