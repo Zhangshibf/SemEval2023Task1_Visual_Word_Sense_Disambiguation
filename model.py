@@ -60,21 +60,6 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
 
             text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
             text_emds.append(text_emd2)
-            """
-        #positive images
-        images = open_images(image_paths)
-        for image in images:
-            image_emd1,image_emd2 = model(None,image,setting = "image")
-            positive_image_emds.append(image_emd2)
-
-        for paths in negative_image_paths:
-            temporary = list()
-            neg_image = open_images(paths)
-            for image in neg_image:
-                image_emd1, image_emd2 = model(None, image, emb_type="image")
-                temporary.append(image_emd2)
-            neg_image_emds.append(temporary)
-                    """
 
         image_emds = list()
         for i in image_paths:
@@ -145,19 +130,14 @@ def open_images(image_paths):
         [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
          ])
     images = list()
-    print(image_paths)
     for path in image_paths:
-
         image = Image.open(path)
         if image.mode != "RGB":
             image = image.convert('RGB')
         image = transform(image)
-#        image = image.unsqueeze(0)
         image = processor(images=image, return_tensors="pt")
         images.append(image)
-#        print(len(images))
-#        images = torch.stack(images)
-#        print(images.shape())
+
     return images
 
 def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
