@@ -42,7 +42,7 @@ class clip_model(nn.Module):
             return image_emd1,image_emd2
 
 
-def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
+def train_one_epoch(model,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 
     loss = 0
@@ -57,7 +57,6 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         for text in context_augemnted:
             # Tokenize the input text
             input_ids = tokenizer.encode(text)
-            # Convert the input_ids to a tensor
             input_tensor = torch.tensor([input_ids])
 
             text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
@@ -67,18 +66,13 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         for i in image_paths:
             paths = i.split("#")
             images = open_images(paths)
-            temporary = list()
             for k in images:
                 image_emd1,image_emd2 = model(None,k['pixel_values'],setting = "image")
-                temporary.append(image_emd2)
-            image_emds.append(temporary)
+                image_emds.append(image_emd2)
 
         # Compute the loss
-        if loss == "FLYP":
-            loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
-        else:
-            #I don't know what are other options... maybe with a linear layer?
-            pass
+
+        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
         loss+=loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
@@ -148,11 +142,10 @@ def open_images(image_paths):
 def compute_FLYP_loss(text_emds,image_emds):
     # Compute distance between text embedding and corresponding image embedding
     distances = list()
-    p_image_emds = [i[0] for i in image_emds]
+    total_loss = 0
 
     for text_emd in text_emds:
-        distances.append(torch.nn.functional.pairwise_distance(text_emd, p_image_emds))
-    total_loss = 0
+        distances.append(torch.nn.functional.pairwise_distance(text_emd, image_emds))
     for i in range(len(text_emds)):
         text_images_distance = sum(distances[i])
         image_texts_distance = sum(list(k[i] for k in distances))
