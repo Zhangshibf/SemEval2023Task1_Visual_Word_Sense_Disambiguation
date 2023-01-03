@@ -139,6 +139,7 @@ def open_images(image_paths):
     return images
 
 def compute_FLYP_loss(text_emds,image_emds):
+    loss = 0.03
     """
     # Compute distance between text embedding and corresponding image embedding
     distances = list()
@@ -159,7 +160,7 @@ def compute_FLYP_loss(text_emds,image_emds):
 
     loss = total_loss/len(text_emds)
     """
-    return loss=0.03
+    return loss
 
         
 
