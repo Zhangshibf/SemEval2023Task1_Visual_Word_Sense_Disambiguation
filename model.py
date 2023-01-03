@@ -66,7 +66,7 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         image_emds = list()
         for i in image_paths:
             paths = i.split("#")
-            images = open_images(paths)
+            images = torch.FloatTensor(open_images(paths))
             print(type(images))
             image_emd1,image_emd2 = model(None,images,setting = "image")
             image_emds.append(image_emd2)
