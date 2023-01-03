@@ -1,11 +1,12 @@
-#fine tune CLIP model
+import clip
+import open_clip
 import os
 import torch
 from load_data import *
-from torch.utils.data import Dataset, DataLoader,random_split
+from torch.utils.data import Dataset, DataLoader, random_split
 import requests
 import torchvision.transforms as transforms
-from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
+from transformers import CLIPProcessor, CLIPTokenizer, CLIPTextModel, CLIPVisionModel
 from torch import nn
 import pandas as pd
 from nltk.corpus import wordnet as wn
@@ -16,41 +17,33 @@ from math import log
 from torch import optim
 
 
-#there is something wrong with the structure of this model. I need to fix this.
-class clip_model(nn.Module):
-    def __init__(self):
-        super(clip_model, self).__init__()
-        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
-    def forward(self, text, image,setting):
-        setting_types = ["text","image"]
-        if setting not in setting_types:
-            raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
+class CLIPEncoder(torch.nn.Module):
+    def __init__(self, args, keep_lang=False):
+        super().__init__()
+        self.model, self.train_preprocess, self.val_preprocess = open_clip.create_model_and_transforms(
+            args.model, pretrained='laion400m_e31')
+        self.cache_dir = args.cache_dir
 
-        if setting == "text":
-            text_outputs = self.text_encoder(text)
-            text_emd1 = text_outputs.last_hidden_state
-            text_emd2 = text_outputs.pooler_output
-            return text_emd1,text_emd2
+    def forward(self, images, text=None):
+        return self.model(images, text)
 
-        elif setting == "image":
-            # encode image
-            image_outputs = self.image_encoder(image)
-            image_emd1 = image_outputs.last_hidden_state
-            image_emd2 = image_outputs.pooler_output
-            return image_emd1,image_emd2
+    def save(self, filename):
+        print(f'Saving clip encoder to {filename}')
+        utils.torch_save(self, filename)
+        # torch.save(self.model, filename)
 
 
-def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
+
+def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 
     loss = 0
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        #generate embeddings for context + augmentation
+    for keywords, contexts, augmentations, image_names, image_paths in dataloader:
+        # generate embeddings for context + augmentation
         context_augemnted = list()
-        for i,j in zip(contexts,augmentations):
-            context_augemnted.append((i+" "+j))
+        for i, j in zip(contexts, augmentations):
+            context_augemnted.append((i + " " + j))
         text_emds = list()
 
         for text in context_augemnted:
@@ -59,23 +52,23 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
             # Convert the input_ids to a tensor
             input_tensor = torch.tensor([input_ids])
 
-            text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
+            text_emd1, text_emd2 = model(input_tensor, None, setting="text")
             text_emds.append(text_emd2)
 
         image_emds = list()
         for i in image_paths:
             paths = i.split("#")
             images = open_images(paths)
-            image_emd1,image_emd2 = model(None,images,setting = "image")
+            image_emd1, image_emd2 = model(None, images, setting="image")
             image_emds.append(image_emd2)
 
         # Compute the loss
         if loss == "FLYP":
-            loss_per_batch = compute_FLYP_loss(text_emds,positive_image_emds,neg_image_emds)
+            loss_per_batch = compute_FLYP_loss(text_emds, positive_image_emds, neg_image_emds)
         else:
-            #I don't know what are other options... maybe with a linear layer?
+            # I don't know what are other options... maybe with a linear layer?
             pass
-        loss+=loss_per_batch
+        loss += loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
         loss.backward()
@@ -83,45 +76,44 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
 
     return loss
 
+
 def evaluate(model, dataloader):
     model.eval()
-    for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
-        #generate embeddings for context + augmentation
+    for keywords, contexts, augmentations, images, image_names, negative_images, negative_image_names in dataloader:
+        # generate embeddings for context + augmentation
         context_augemnted = list()
-        for i,j in zip(contexts,augmentations):
-            context_augemnted.append((i+" "+j))
+        for i, j in zip(contexts, augmentations):
+            context_augemnted.append((i + " " + j))
         text_emds = list()
         image_emds = list()
 
-
         for text in context_augemnted:
-            text_emd1,text_emd2 = model(text,None,emb_type = "text")
+            text_emd1, text_emd2 = model(text, None, emb_type="text")
             text_emds.append(text_emd2)
 
-        for p_i,n_is in zip(images,negative_images):
+        for p_i, n_is in zip(images, negative_images):
             temporary = list()
             temporary.append(p_i)
             temporary.extend(n_is)
             temporary_emds = open_images(temporary)
             image_emds.append(temporary_emds)
-        #calculate similarity, determine prediction
+        # calculate similarity, determine prediction
         total_similarities = list()
 
         for idx in range(len(image_emds[0])):
             column = [i[idx] for i in image_emds]
             similarities = torch.nn.functional.pairwise_distance(text_emds, column)
             total_similarities.append(similarities)
-            prediction = np.argmax(total_similarities,axis=0)
+            prediction = np.argmax(total_similarities, axis=0)
 
         correct_prediction = 0
         for i in prediction:
             if i == 0:
-                correct_prediction+=1
+                correct_prediction += 1
 
-        accuracy = correct_prediction/len(prediction)
+        accuracy = correct_prediction / len(prediction)
 
         return accuracy
-
 
 
 def open_images(image_paths):
@@ -141,7 +133,8 @@ def open_images(image_paths):
 
     return images
 
-def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
+
+def compute_FLYP_loss(text_emds, p_image_emds, n_image_emds, margin=0.1):
     # Compute distance between text embedding and corresponding image embedding
     distances = list()
     for text_emd in text_emds:
@@ -151,21 +144,20 @@ def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
         text_images_distance = sum(distances[i])
         image_texts_distance = sum(list(k[i] for k in distances))
         similarity = distances[i][i]
-        loss_per_pair = -log(similarity/text_images_distance)-log(similarity/image_texts_distance)
-        total_loss+=loss_per_pair
+        loss_per_pair = -log(similarity / text_images_distance) - log(similarity / image_texts_distance)
+        total_loss += loss_per_pair
 
-    loss = total_loss/len(text_emds)
+    loss = total_loss / len(text_emds)
 
     return loss
 
-        
 
-def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
-    #train CLIP model for several epoches
+def train_model(model, epoch, path_train, path_out, batch_size=256, loss="FLYP"):
+    # train CLIP model for several epoches
     model.train()
     # Create the dataset
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    dataset = ImageTextDataset(path_train, data_type="train",device = device, text_augmentation=True)
+    dataset = ImageTextDataset(path_train, data_type="train", device=device, text_augmentation=True)
 
     # Split the dataloader into train, dev, and test sets
     train_size = int(0.8 * len(dataset))
@@ -182,7 +174,7 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss=loss)
+        avg_loss = train_one_epoch(model, train_dataloader, optimizer, loss=loss)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
@@ -194,6 +186,7 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     accuracy = evaluate(model, Test_dataloader)
     print("--------------Accuracy {}---------------".format(accuracy))
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--train', help="path to the train set")
@@ -201,8 +194,8 @@ if __name__ == "__main__":
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Create the dataset
-    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
+    dataset = ImageTextDataset(args.train, data_type="train", device=device, text_augmentation=True)
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
     model = clip_model()
-    train_model(model, epoch = 5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
+    train_model(model, epoch=5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
