@@ -144,8 +144,11 @@ def compute_FLYP_loss(text_emds,image_emds):
     total_loss = 0
     print(len(image_emds))
     print(image_emds[0].size())
+    image_emds = torch.stack((image_emds))
+    print(image_emds.size())
+
     for text_emd in text_emds:
-        distances.append(torch.nn.functional.pairwise_distance(text_emd, torch.tensor(image_emds)))
+        distances.append(torch.nn.functional.pairwise_distance(text_emd, image_emds))
     for i in range(len(text_emds)):
         text_images_distance = sum(distances[i])
         image_texts_distance = sum(list(k[i] for k in distances))
