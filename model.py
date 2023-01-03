@@ -66,6 +66,7 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         image_emds = list()
         for i in image_paths:
             paths = i.split("#")
+            images = open_images(paths)
 #            images = torch.Tensor(open_images(paths))
             print(type(images))
             print(type(images[0]))
