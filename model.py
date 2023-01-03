@@ -67,15 +67,15 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
         for i in image_paths:
             paths = i.split("#")
             images = open_images(paths)
-#            images = torch.Tensor(open_images(paths))
-            print(type(images))
-            print(type(images[0]))
-            image_emd1,image_emd2 = model(None,images[0]['pixel_values'],setting = "image")
-            image_emds.append(image_emd2)
+            temporary = list()
+            for k in images:
+                image_emd1,image_emd2 = model(None,k['pixel_values'],setting = "image")
+                temporary.append(image_emd2)
+            image_emds.append(temporary)
 
         # Compute the loss
         if loss == "FLYP":
-            loss_per_batch = compute_FLYP_loss(text_emds,positive_image_emds,neg_image_emds)
+            loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
         else:
             #I don't know what are other options... maybe with a linear layer?
             pass
@@ -145,9 +145,11 @@ def open_images(image_paths):
 
     return images
 
-def compute_FLYP_loss(text_emds,p_image_emds,n_image_emds, margin=0.1):
+def compute_FLYP_loss(text_emds,image_emds):
     # Compute distance between text embedding and corresponding image embedding
     distances = list()
+    p_image_emds = [i[0] for i in image_emds]
+
     for text_emd in text_emds:
         distances.append(torch.nn.functional.pairwise_distance(text_emd, p_image_emds))
     total_loss = 0
