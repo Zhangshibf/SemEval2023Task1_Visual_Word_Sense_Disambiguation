@@ -23,6 +23,8 @@ image = Image.open(requests.get(url, stream=True).raw)
 
 inputs = processor(images=image, return_tensors="pt")
 print(type(inputs))
+print(inputs)
+print(type(**inputs))
 outputs = model(**inputs)
 last_hidden_state = outputs.last_hidden_state
 pooled_output = outputs.pooler_output  # pooled CLS states
@@ -66,7 +68,7 @@ class bla_model(nn.Module):
 
 model = clip_model()
 model2 = bla_model()
-"""
+
 tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 text_emds = list()
 for text in ["I have a dog","A vanilla ice cream"]:
@@ -78,7 +80,7 @@ for text in ["I have a dog","A vanilla ice cream"]:
     text_emds.append(text_emd2)
 
 print(text_emds[0])
-"""
+
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 image_paths = ['/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.86.jpg', '/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1/image.155.jpg']
 images = list()
