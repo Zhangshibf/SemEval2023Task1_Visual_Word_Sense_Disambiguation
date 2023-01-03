@@ -38,7 +38,7 @@ class CLIPEncoder(torch.nn.Module):
         super().__init__()
         self.model, self.train_preprocess, self.preprocess = open_clip.create_model_and_transforms(
             'ViT-B-32-quickgelu', pretrained='laion400m_e31')
-    def forward(self, images=None, text=None):
+    def forward(self, images, text):
         return self.model(images, text)
 
     def save(self, filename):
@@ -57,8 +57,14 @@ def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
         for i, j in zip(contexts, augmentations):
             context_augemnted.append((i + " " + j))
         text_emds = list()
+        text = context_augemnted[0]
+        image_ps = image_paths[0].split("#")
+        images = open_images(model.preprocess,image_ps)
+        image_f,text_f,logit = model(images,text)
+        print(len(image_f))
+        print("done")
 
-        for text in context_augemnted:
+"""        for text in context_augemnted:
             # Tokenize the input text
             input_ids = tokenizer.encode(text)
             # Convert the input_ids to a tensor
@@ -72,7 +78,7 @@ def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
             images = open_images(model.preprocess,paths)
             image_emd,_,_ = model(images)
             image_emds.append(image_emd)
-
+"""
         # Compute the loss
         if loss == "FLYP":
             loss_per_batch = compute_FLYP_loss(text_emds, positive_image_emds, neg_image_emds)
