@@ -142,7 +142,8 @@ def compute_FLYP_loss(text_emds,image_emds):
     # Compute distance between text embedding and corresponding image embedding
     distances = list()
     total_loss = 0
-
+    print(len(image_emds))
+    print(image_emds[0].size())
     for text_emd in text_emds:
         distances.append(torch.nn.functional.pairwise_distance(text_emd, torch.tensor(image_emds)))
     for i in range(len(text_emds)):
