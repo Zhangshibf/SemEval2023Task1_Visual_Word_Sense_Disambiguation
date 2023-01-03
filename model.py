@@ -121,8 +121,6 @@ def evaluate(model, dataloader):
 
         return accuracy
 
-
-
 def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -146,7 +144,7 @@ def compute_FLYP_loss(text_emds,image_emds):
     total_loss = 0
 
     for text_emd in text_emds:
-        distances.append(torch.nn.functional.pairwise_distance(text_emd, image_emds))
+        distances.append(torch.nn.functional.pairwise_distance(text_emd, torch.tensor(image_emds)))
     for i in range(len(text_emds)):
         text_images_distance = sum(distances[i])
         image_texts_distance = sum(list(k[i] for k in distances))
