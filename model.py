@@ -139,8 +139,7 @@ def open_images(image_paths):
     return images
 
 def compute_FLYP_loss(text_emds,image_emds):
-    loss = torch.tensor([1.], requires_grad=True)
-    """
+
     # Compute distance between text embedding and corresponding image embedding
     distances = list()
     total_loss = 0
@@ -159,7 +158,7 @@ def compute_FLYP_loss(text_emds,image_emds):
         total_loss+=loss_per_pair
 
     loss = total_loss/len(text_emds)
-    """
+
     return loss
 
         
@@ -187,7 +186,6 @@ def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
-        print("--------------Accuracy {}---------------".format(accuracy))
 
         print("--------------Evaluation On Dev---------------")
         accuracy = evaluate(model, dev_dataloader)
