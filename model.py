@@ -70,7 +70,7 @@ def train_one_epoch(model,dataloader,optimizer,loss="FLYP"):
 #            images = torch.Tensor(open_images(paths))
             print(type(images))
             print(type(images[0]))
-            image_emd1,image_emd2 = model(None,**images[0],setting = "image")
+            image_emd1,image_emd2 = model(None,images[0]['pixel_values'],setting = "image")
             image_emds.append(image_emd2)
 
         # Compute the loss
