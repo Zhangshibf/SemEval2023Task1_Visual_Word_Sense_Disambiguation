@@ -33,16 +33,18 @@ class clip_model(nn.Module):
 
         if setting == "text":
             text_outputs = self.text_encoder(text)
-            text_emd1 = text_outputs.last_hidden_state
-            text_emd2 = text_outputs.pooler_output
-            return text_emd1,text_emd2
+            return text_outputs
+#            text_emd1 = text_outputs.last_hidden_state
+#            text_emd2 = text_outputs.pooler_output
+#            return text_emd1,text_emd2
 
         elif setting == "image":
             # encode image
             image_outputs = self.image_encoder(image)
-            image_emd1 = image_outputs.last_hidden_state
-            image_emd2 = image_outputs.pooler_output
-            return image_emd1,image_emd2
+            return image_outputs
+#            image_emd1 = image_outputs.last_hidden_state
+#            image_emd2 = image_outputs.pooler_output
+#            return image_emd1,image_emd2
 
 
 def train_one_epoch(model,device,dataloader,optimizer):
