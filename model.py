@@ -163,7 +163,6 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     dataset = ImageTextDataset(path_train, data_type="train",device = device, text_augmentation=True)
 
     # Split the dataloader into train, dev, and test sets
@@ -181,7 +180,7 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, train_dataloader, optimizer,loss=loss)
+        avg_loss = train_one_epoch(model, train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
@@ -204,4 +203,6 @@ if __name__ == "__main__":
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
     model = clip_model()
+    model = model.to(device)
+    dataloader = dataloader.to(device)
     train_model(model, epoch = 5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
