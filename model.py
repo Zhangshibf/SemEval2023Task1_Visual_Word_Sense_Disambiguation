@@ -7,6 +7,7 @@ import requests
 import torchvision.transforms as transforms
 from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
 from torch import nn
+from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import pandas as pd
 from nltk.corpus import wordnet as wn
 import nltk
@@ -21,8 +22,10 @@ from torch import optim
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
-        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
+        self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
+#        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
+#        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
     def forward(self, text, image,setting):
         setting_types = ["text","image"]
         if setting not in setting_types:
@@ -60,16 +63,22 @@ def train_one_epoch(model,device,dataloader,optimizer):
             input_ids = tokenizer.encode(text)
             input_tensor = torch.tensor([input_ids])
 
-            text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
-            text_emds.append(text_emd2)
+            outputs = model(input_tensor,None,setting = "text")
+            text_emds.append(outputs.text_embeds)
+
+#            text_emd1,text_emd2 = model(input_tensor,None,setting = "text")
+#            text_emds.append(text_emd2)
 
         image_emds = list()
         for i in image_paths:
             paths = i.split("#")
             images = open_images(paths)
             for k in images:
-                image_emd1,image_emd2 = model(None,k['pixel_values'],setting = "image")
-                image_emds.append(image_emd2)
+                outputs = model(None,k['pixel_values'],setting = "image")
+                image_emds.append(outputs.image_embeds)
+
+#                image_emd1,image_emd2 = model(None,k['pixel_values'],setting = "image")
+#                image_emds.append(image_emd2)
 
         # Compute the loss
 
