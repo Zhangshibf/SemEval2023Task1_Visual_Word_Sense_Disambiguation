@@ -44,11 +44,11 @@ class clip_model(nn.Module):
 
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-    model = model.to(device)
+#    model = model.to(device)
     loss = 0
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        keywords = keywords.to(device)
+#        keywords = keywords.to(device)
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
@@ -181,7 +181,7 @@ def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
+        avg_loss = train_one_epoch(model, train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
