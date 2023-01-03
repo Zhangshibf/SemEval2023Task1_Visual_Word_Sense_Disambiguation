@@ -1,6 +1,7 @@
 import clip
 import open_clip
 import os
+from load_data import *
 import torch
 from load_data import *
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -15,28 +16,39 @@ from sentence_transformers import SentenceTransformer, util
 import torch
 from math import log
 from torch import optim
-
+#fine tune CLIP model
+import os
+import torch
+from load_data import *
+from torch.utils.data import Dataset, DataLoader,random_split
+import requests
+import torchvision.transforms as transforms
+from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
+from torch import nn
+import pandas as pd
+from nltk.corpus import wordnet as wn
+import nltk
+from sentence_transformers import SentenceTransformer, util
+import torch
+from math import log
+from torch import optim
 
 class CLIPEncoder(torch.nn.Module):
-    def __init__(self, args, keep_lang=False):
+    def __init__(self):
         super().__init__()
-        self.model, self.train_preprocess, self.val_preprocess = open_clip.create_model_and_transforms(
-            args.model, pretrained='laion400m_e31')
-        self.cache_dir = args.cache_dir
-
+        self.model, self.train_preprocess, self.preprocess = open_clip.create_model_and_transforms(
+            'ViT-B-32-quickgelu', pretrained='laion400m_e31')
     def forward(self, images, text=None):
         return self.model(images, text)
 
     def save(self, filename):
         print(f'Saving clip encoder to {filename}')
         utils.torch_save(self, filename)
-        # torch.save(self.model, filename)
 
 
 
 def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-
     loss = 0
     # Train CLIP model for one epoch
     for keywords, contexts, augmentations, image_names, image_paths in dataloader:
@@ -58,7 +70,7 @@ def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
         image_emds = list()
         for i in image_paths:
             paths = i.split("#")
-            images = open_images(paths)
+            images = open_images(model.preprocess,paths)
             image_emd1, image_emd2 = model(None, images, setting="image")
             image_emds.append(image_emd2)
 
@@ -116,7 +128,7 @@ def evaluate(model, dataloader):
         return accuracy
 
 
-def open_images(image_paths):
+def open_images(preprocess,image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     transform = transforms.Compose(
@@ -124,12 +136,8 @@ def open_images(image_paths):
          ])
     images = list()
     for path in image_paths:
-        image = Image.open(path)
-        if image.mode != "RGB":
-            image = image.convert('RGB')
-        image = transform(image)
-        image = processor(images=image, return_tensors="pt")
-        images.append(image)
+        image = Image.open(path).convert('RGB')
+        images.append(preprocess(image))
 
     return images
 
@@ -197,5 +205,5 @@ if __name__ == "__main__":
     dataset = ImageTextDataset(args.train, data_type="train", device=device, text_augmentation=True)
     # Create the dataloader
     dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
-    model = clip_model()
+    model = CLIPEncoder()
     train_model(model, epoch=5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")

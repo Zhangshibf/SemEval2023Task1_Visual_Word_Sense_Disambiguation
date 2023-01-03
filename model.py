@@ -16,6 +16,7 @@ from math import log
 from torch import optim
 
 
+
 #there is something wrong with the structure of this model. I need to fix this.
 class clip_model(nn.Module):
     def __init__(self):
