@@ -42,12 +42,13 @@ class clip_model(nn.Module):
             return image_emd1,image_emd2
 
 
-def train_one_epoch(model,dataloader,optimizer):
+def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-
+    model = model.to(device)
     loss = 0
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+        keywords = keywords.to(device)
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
@@ -159,7 +160,7 @@ def compute_FLYP_loss(text_emds,image_emds):
 
         
 
-def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
+def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
@@ -180,7 +181,7 @@ def train_model(model,epoch,path_train,path_out,batch_size = 256,loss="FLYP"):
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, train_dataloader, optimizer)
+        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         print("--------------Accuracy {}---------------".format(accuracy))
 
@@ -197,12 +198,11 @@ if __name__ == "__main__":
     parser.add_argument('--train', help="path to the train set")
     args = parser.parse_args()
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Create the dataset
-    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
+#    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
     # Create the dataloader
-    dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
+#    dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
     model = clip_model()
-    model = model.to(device)
-    dataloader = dataloader.to(device)
-    train_model(model, epoch = 5, path_train=args.train, path_out="aa", batch_size=256, loss="FLYP")
+#    model = model.to(device)
+#    dataloader = dataloader.to(device)
+    train_model(model, device = 'cuda' if torch.cuda.is_available() else 'cpu',epoch = 5, path_train=args.train, path_out="aa", batch_size=256)
