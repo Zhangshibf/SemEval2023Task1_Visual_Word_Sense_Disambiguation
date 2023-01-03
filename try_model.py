@@ -63,8 +63,9 @@ def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
         image_f,text_f,logit = model(images,text)
         print(len(image_f))
         print("done")
+        """
 
-"""        for text in context_augemnted:
+        for text in context_augemnted:
             # Tokenize the input text
             input_ids = tokenizer.encode(text)
             # Convert the input_ids to a tensor
@@ -78,7 +79,8 @@ def train_one_epoch(model, dataloader, optimizer, loss="FLYP"):
             images = open_images(model.preprocess,paths)
             image_emd,_,_ = model(images)
             image_emds.append(image_emd)
-"""
+            """
+
         # Compute the loss
         if loss == "FLYP":
             loss_per_batch = compute_FLYP_loss(text_emds, positive_image_emds, neg_image_emds)
