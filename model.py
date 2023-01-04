@@ -90,8 +90,8 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 
 #        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
-        image_emds = torch.stack((image_emds))
-        text_emds = torch.stack((text_emds))
+        image_emds = torch.stack((image_emds)).squeeze(dim=1)
+        text_emds = torch.stack((text_emds)).squeeze(dim=1)
         print(image_emds.size())
         print(text_emds.size())
         loss_per_batch = criterion(text_emds,image_emds)
