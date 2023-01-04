@@ -153,44 +153,18 @@ class ContrastiveLoss(nn.Module):
         self.margin = margin
 
     def forward(self, output1, output2):
-        total = torch.zeros(1, dtype=torch.float, requires_grad=True)
-        # Calculate pairwise distances between all image and text embeddings
-        distances = torch.cdist(output1, output2, p=2)  # shape: (num_images, num_texts)
-
-        # Calculate loss for each image embedding
-        image_losses = []
-        for i in range(output1.shape[0]):
-            # Calculate distance between matching text embedding and image embedding
-            pos_distance = torch.norm(output2[torch.argmin(distances[i])] - output1[i], p=2, dim=0)
-
-            # Calculate distances between image embedding and all other text embeddings
-            neg_distances = torch.norm(output2 - output1[i], p=2, dim=1)
-            neg_distances[torch.argmin(distances[i])] = float("inf")  # exclude matching text embedding
-
-            # Calculate loss for this image embedding
-            with torch.set_grad_enabled(True):
-                loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
-            image_losses.append(loss)
-
-        # Calculate loss for each text embedding
-        text_losses = []
-        for i in range(output2.shape[0]):
-            # Calculate distance between matching image embedding and text embedding
-            pos_distance = torch.norm(output1[torch.argmin(distances[:, i])] - output2[i], p=2, dim=0)
-
-            # Calculate distances between text embedding and all other image embeddings
-            neg_distances = torch.norm(output1 - output2[i], p=2, dim=1)
-            neg_distances[torch.argmin(distances[:, i])] = float("inf")  # exclude matching image embedding
-
-            # Calculate loss for this text embedding
-            with torch.set_grad_enabled(True):
-                loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
-            text_losses.append(loss)
-
-        total+=torch.mean(torch.tensor(image_losses))
-        total+=torch.mean(torch.tensor(text_losses))
-        # Return average loss across all image and text embeddings
-        return total
+        # calculate positive distance between matching image and text embeddings
+        positive_distance = (image_embeddings - text_embeddings).pow(2).sum(1)
+        # calculate negative distance between all other image and text embeddings
+        negative_distance = torch.zeros(256)
+        for i in range(256):
+            for j in range(256):
+                if i != j:
+                    negative_distance[i] += (image_embeddings[i] - text_embeddings[j]).pow(2).sum()
+        negative_distance = negative_distance / 255
+        # calculate loss
+        loss = torch.mean((positive_distance - negative_distance + self.margin).clamp(min=0))
+        return loss
 
 
 """
