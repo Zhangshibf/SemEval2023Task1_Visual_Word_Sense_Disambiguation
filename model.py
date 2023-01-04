@@ -72,14 +72,22 @@ def train_one_epoch(model,device,dataloader,optimizer):
 #            text_emds.append(text_emd2)
 
         image_emds = list()
+        paths = [i.split("#")[0] for i in image_paths]
+        images = open_images(paths)
+        for k in images:
+            outputs = model(None, k['pixel_values'], setting="image")
+            image_emds.append(outputs.image_embeds)
+        print(len(image_emds))
+        print(len(text_emds))
+        """
         for i in image_paths:
             paths = i.split("#")
             images = open_images(paths)
             for k in images:
                 outputs = model(None,k['pixel_values'],setting = "image")
                 image_emds.append(outputs.image_embeds)
+        """
 
-        # Compute the loss
 
 #        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
         image_emds = torch.stack((image_emds))
@@ -150,20 +158,6 @@ def open_images(image_paths):
         images.append(image)
 
     return images
-class compute_FLYP_loss(nn.Module):
-    def __init__(self, m=2.0):
-        super(compute_FLYP_loss, self).__init__()
-        self.m = m  # margin or radius
-
-    def forward(self, y1, y2, d=0):
-        euc_dist = nn.functional.pairwise_distance(y1, y2)
-
-        if d == 0:
-            return torch.mean(torch.pow(euc_dist, 2))  # distance squared
-        else:  # d == 1
-            delta = self.m - euc_dist  # sort of reverse distance
-            delta = torch.clamp(delta, min=0.0, max=None)
-            return torch.mean(torch.pow(delta, 2))  # mean over all rows
 
 import torch
 from torch import nn
