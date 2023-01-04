@@ -146,7 +146,7 @@ def open_images(image_paths):
         images.append(image)
 
     return images
-class compute_FLYP_loss(text_emds,image_emds):
+class compute_FLYP_loss(nn.Module):
     def __init__(self, m=2.0):
         super(compute_FLYP_loss, self).__init__()
         self.m = m  # margin or radius
