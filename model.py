@@ -76,24 +76,13 @@ def train_one_epoch(model,device,dataloader,optimizer):
         for k in images:
             outputs = model(None, k['pixel_values'], setting="image")
             image_emds.append(outputs.image_embeds)
-        print(len(image_emds))
-        print(len(text_emds))
-        """
-        for i in image_paths:
-            paths = i.split("#")
-            images = open_images(paths)
-            for k in images:
-                outputs = model(None,k['pixel_values'],setting = "image")
-                image_emds.append(outputs.image_embeds)
-        """
-
 
 #        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
         image_emds = torch.stack((image_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
-        print(image_emds.size())
-        print(text_emds.size())
-        loss_per_batch = criterion(text_emds,image_emds)
+        loss1,loss2 = criterion(text_emds,image_emds)
+        print(loss1)
+        print(loss2)
         loss+=loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
@@ -157,8 +146,7 @@ def open_images(image_paths):
         images.append(image)
 
     return images
-import torch
-from torch import nn
+
 
 class ContrastiveLoss(nn.Module):
     def __init__(self, margin=1.0):
@@ -201,7 +189,7 @@ class ContrastiveLoss(nn.Module):
         text_losses = [loss.requires_grad_() for loss in text_losses]
 
         # Return average loss across all image and text embeddings
-        return torch.mean(torch.tensor(image_losses))+torch.mean(torch.tensor(text_losses))
+        return torch.mean(torch.tensor(image_losses)),torch.mean(torch.tensor(text_losses))
 
 
 """"
