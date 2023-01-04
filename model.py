@@ -53,7 +53,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
     loss = 0
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-#        keywords = keywords.to(device)
+
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
@@ -79,16 +79,13 @@ def train_one_epoch(model,device,dataloader,optimizer):
                 outputs = model(None,k['pixel_values'],setting = "image")
                 image_emds.append(outputs.image_embeds)
 
-#                image_emd1,image_emd2 = model(None,k['pixel_values'],setting = "image")
-#                image_emds.append(image_emd2)
-
         # Compute the loss
 
         loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
         loss+=loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
-        loss.backward()
+        loss_per_batch.backward()
         optimizer.step()
 
     return loss
@@ -149,6 +146,7 @@ def open_images(image_paths):
 
     return images
 
+"""
 def compute_FLYP_loss(text_emds,image_emds):
 
     # Compute distance between text embedding and corresponding image embedding
@@ -171,8 +169,26 @@ def compute_FLYP_loss(text_emds,image_emds):
     loss = total_loss/len(text_emds)
 
     return loss
+"""
 
-        
+
+class compute_FLYP_loss(nn.Module):
+    def __init__(self, m=2.0):
+        super(compute_FLYP_loss, self).__init__()
+        self.m = m  # margin or radius
+
+    def forward(self, y1, y2, d=0):
+        # d = 0 means y1 and y2 are supposed to be same
+        # d = 1 means y1 and y2 are supposed to be different
+
+        euc_dist = nn.functional.pairwise_distance(y1, y2)
+
+        if d == 0:
+            return torch.mean(torch.pow(euc_dist, 2))  # distance squared
+        else:  # d == 1
+            delta = self.m - euc_dist  # sort of reverse distance
+            delta = torch.clamp(delta, min=0.0, max=None)
+            return torch.mean(torch.pow(delta, 2))  # mean over all rows
 
 def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
     #train CLIP model for several epoches
@@ -203,7 +219,7 @@ def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
         print("--------------Accuracy {}---------------".format(accuracy))
 
     print("--------------Final Evaluation On Test---------------")
-    accuracy = evaluate(model, Test_dataloader)
+    accuracy = evaluate(model, test_dataloader)
     print("--------------Accuracy {}---------------".format(accuracy))
 
 if __name__ == "__main__":
