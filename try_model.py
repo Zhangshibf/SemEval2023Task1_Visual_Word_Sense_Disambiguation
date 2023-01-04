@@ -56,9 +56,9 @@ class clip_model(nn.Module):
             image_outputs = self.image_encoder(image)
             return image_outputs
 
-class compute_FLYP_loss(nn.Module):
+class ContrastiveLoss(nn.Module):
     def __init__(self, m=2.0):
-        super(compute_FLYP_loss, self).__init__()
+        super(ContrastiveLoss, self).__init__()
         self.m = m  # margin or radius
 
     def forward(self, y1, y2, d=0):
