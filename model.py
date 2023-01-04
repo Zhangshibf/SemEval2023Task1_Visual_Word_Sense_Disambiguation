@@ -197,6 +197,9 @@ class ContrastiveLoss(nn.Module):
             loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
             text_losses.append(loss)
 
+        image_losses = [loss.requires_grad_() for loss in image_losses]
+        text_losses = [loss.requires_grad_() for loss in text_losses]
+
         # Return average loss across all image and text embeddings
         return torch.mean(torch.tensor(image_losses))+torch.mean(torch.tensor(text_losses))
 
