@@ -51,6 +51,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 #    model = model.to(device)
     loss = 0
+    criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
 
@@ -82,7 +83,9 @@ def train_one_epoch(model,device,dataloader,optimizer):
         # Compute the loss
 
 #        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
-        loss_per_batch = ContrastiveLoss(text_emds,image_emds)
+        image_emds = torch.stack((image_emds))
+        text_emds = torch.stack((text_emds))
+        loss_per_batch = criterion(text_emds,image_emds)
         loss+=loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
