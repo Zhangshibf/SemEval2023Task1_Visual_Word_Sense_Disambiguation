@@ -54,7 +54,6 @@ def train_one_epoch(model,device,dataloader,optimizer):
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
@@ -253,7 +252,7 @@ class compute_FLYP_loss(nn.Module):
             delta = torch.clamp(delta, min=0.0, max=None)
             return torch.mean(torch.pow(delta, 2))  # mean over all rows
 """
-def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
+def train_model(model,device,epoch,path_train,path_out,batch_size =5):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
