@@ -146,8 +146,6 @@ def open_images(image_paths):
 
     return images
 
-import torch
-from torch import nn
 
 class ContrastiveLoss(nn.Module):
     def __init__(self, margin=1.0):
@@ -188,6 +186,7 @@ class ContrastiveLoss(nn.Module):
             with torch.set_grad_enabled(True):
                 loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
             text_losses.append(loss)
+
         total+=torch.mean(torch.tensor(image_losses))
         total+=torch.mean(torch.tensor(text_losses))
         # Return average loss across all image and text embeddings
