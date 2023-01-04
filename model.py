@@ -81,7 +81,8 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
         # Compute the loss
 
-        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
+#        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
+        loss_per_batch = ContrastiveLoss(text_emds,image_emds)
         loss+=loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
@@ -145,6 +146,63 @@ def open_images(image_paths):
         images.append(image)
 
     return images
+class compute_FLYP_loss(text_emds,image_emds):
+    def __init__(self, m=2.0):
+        super(compute_FLYP_loss, self).__init__()
+        self.m = m  # margin or radius
+
+    def forward(self, y1, y2, d=0):
+        euc_dist = nn.functional.pairwise_distance(y1, y2)
+
+        if d == 0:
+            return torch.mean(torch.pow(euc_dist, 2))  # distance squared
+        else:  # d == 1
+            delta = self.m - euc_dist  # sort of reverse distance
+            delta = torch.clamp(delta, min=0.0, max=None)
+            return torch.mean(torch.pow(delta, 2))  # mean over all rows
+
+import torch
+from torch import nn
+
+class ContrastiveLoss(nn.Module):
+    def __init__(self, margin=1.0):
+        super().__init__()
+        self.margin = margin
+
+    def forward(self, output1, output2):
+        # Calculate pairwise distances between all image and text embeddings
+        distances = torch.cdist(output1, output2, p=2)  # shape: (num_images, num_texts)
+
+        # Calculate loss for each image embedding
+        image_losses = []
+        for i in range(output1.shape[0]):
+            # Calculate distance between matching text embedding and image embedding
+            pos_distance = torch.norm(output2[torch.argmin(distances[i])] - output1[i], p=2, dim=0)
+
+            # Calculate distances between image embedding and all other text embeddings
+            neg_distances = torch.norm(output2 - output1[i], p=2, dim=1)
+            neg_distances[torch.argmin(distances[i])] = float("inf")  # exclude matching text embedding
+
+            # Calculate loss for this image embedding
+            loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
+            image_losses.append(loss)
+
+        # Calculate loss for each text embedding
+        text_losses = []
+        for i in range(output2.shape[0]):
+            # Calculate distance between matching image embedding and text embedding
+            pos_distance = torch.norm(output1[torch.argmin(distances[:, i])] - output2[i], p=2, dim=0)
+
+            # Calculate distances between text embedding and all other image embeddings
+            neg_distances = torch.norm(output1 - output2[i], p=2, dim=1)
+            neg_distances[torch.argmin(distances[:, i])] = float("inf")  # exclude matching image embedding
+
+            # Calculate loss for this text embedding
+            loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
+            text_losses.append(loss)
+
+        # Return average loss across all image and text embeddings
+        return (torch.mean(torch.tensor(image_losses)) + torch.mean(torch.tensor(text_losses))) / 2
 
 """
 def compute_FLYP_loss(text_emds,image_emds):
@@ -169,7 +227,7 @@ def compute_FLYP_loss(text_emds,image_emds):
     loss = total_loss/len(text_emds)
 
     return loss
-"""
+
 
 
 class compute_FLYP_loss(nn.Module):
@@ -189,7 +247,7 @@ class compute_FLYP_loss(nn.Module):
             delta = self.m - euc_dist  # sort of reverse distance
             delta = torch.clamp(delta, min=0.0, max=None)
             return torch.mean(torch.pow(delta, 2))  # mean over all rows
-
+"""
 def train_model(model,device,epoch,path_train,path_out,batch_size = 256):
     #train CLIP model for several epoches
     model.train()
