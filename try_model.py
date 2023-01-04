@@ -29,7 +29,7 @@ import pandas as pd
 from nltk.corpus import wordnet as wn
 import nltk
 from sentence_transformers import SentenceTransformer, util
-import torch
+import torch as T
 from math import log
 from torch import optim
 class clip_model(nn.Module):
