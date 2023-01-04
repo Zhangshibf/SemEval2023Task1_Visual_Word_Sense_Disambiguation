@@ -80,8 +80,8 @@ def train_one_epoch(model,device,dataloader,optimizer):
 #        loss_per_batch = compute_FLYP_loss(text_emds,image_emds)
         image_emds = torch.stack((image_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
-        loss1,loss2 = criterion(text_emds,image_emds)
-        loss_per_batch = (loss1+loss2)/2
+        loss_per_batch = criterion(text_emds,image_emds)
+#        loss_per_batch = (loss1+loss2)/2
         loss+=loss_per_batch
         model.zero_grad()
         # Backpropagate the loss and update the model weights
@@ -155,6 +155,7 @@ class ContrastiveLoss(nn.Module):
         self.margin = margin
 
     def forward(self, output1, output2):
+        total = torch.zeros(1, dtype=torch.float, requires_grad=True)
         # Calculate pairwise distances between all image and text embeddings
         distances = torch.cdist(output1, output2, p=2)  # shape: (num_images, num_texts)
 
@@ -187,9 +188,10 @@ class ContrastiveLoss(nn.Module):
             with torch.set_grad_enabled(True):
                 loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
             text_losses.append(loss)
-
+        total+=torch.mean(torch.tensor(image_losses))
+        total+=torch.mean(torch.tensor(text_losses))
         # Return average loss across all image and text embeddings
-        return torch.mean(torch.tensor(image_losses)), torch.mean(torch.tensor(text_losses))
+        return total
 
 
 """
