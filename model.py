@@ -5,7 +5,6 @@ from load_data import *
 from torch.utils.data import Dataset, DataLoader,random_split
 import requests
 import torchvision.transforms as transforms
-from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
 from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import pandas as pd
@@ -158,7 +157,6 @@ def open_images(image_paths):
         images.append(image)
 
     return images
-
 import torch
 from torch import nn
 
@@ -200,9 +198,51 @@ class ContrastiveLoss(nn.Module):
             text_losses.append(loss)
 
         # Return average loss across all image and text embeddings
+        return torch.mean(torch.tensor(image_losses)), torch.mean(torch.tensor(text_losses))
+
+
+""""
+class ContrastiveLoss(nn.Module):
+    def __init__(self, margin=1.0):
+        super().__init__()
+        self.margin = margin
+
+    def forward(self, output1, output2):
+        # Calculate pairwise distances between all image and text embeddings
+        distances = torch.cdist(output1, output2, p=2)  # shape: (num_images, num_texts)
+
+        # Calculate loss for each image embedding
+        image_losses = []
+        for i in range(output1.shape[0]):
+            # Calculate distance between matching text embedding and image embedding
+            pos_distance = torch.norm(output2[torch.argmin(distances[i])] - output1[i], p=2, dim=0)
+
+            # Calculate distances between image embedding and all other text embeddings
+            neg_distances = torch.norm(output2 - output1[i], p=2, dim=1)
+            neg_distances[torch.argmin(distances[i])] = float("inf")  # exclude matching text embedding
+
+            # Calculate loss for this image embedding
+            loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
+            image_losses.append(loss)
+
+        # Calculate loss for each text embedding
+        text_losses = []
+        for i in range(output2.shape[0]):
+            # Calculate distance between matching image embedding and text embedding
+            pos_distance = torch.norm(output1[torch.argmin(distances[:, i])] - output2[i], p=2, dim=0)
+
+            # Calculate distances between text embedding and all other image embeddings
+            neg_distances = torch.norm(output1 - output2[i], p=2, dim=1)
+            neg_distances[torch.argmin(distances[:, i])] = float("inf")  # exclude matching image embedding
+
+            # Calculate loss for this text embedding
+            loss = torch.mean(torch.max(torch.zeros_like(neg_distances), self.margin - pos_distance + neg_distances))
+            text_losses.append(loss)
+
+        # Return average loss across all image and text embeddings
         return (torch.mean(torch.tensor(image_losses)) + torch.mean(torch.tensor(text_losses))) / 2
 
-"""
+
 def compute_FLYP_loss(text_emds,image_emds):
 
     # Compute distance between text embedding and corresponding image embedding
