@@ -152,16 +152,16 @@ class ContrastiveLoss(nn.Module):
         super().__init__()
         self.margin = margin
 
-    def forward(self, output1, output2):
+    def forward(self, image_embeddings, text_embeddings):
         # calculate positive distance between matching image and text embeddings
         positive_distance = (image_embeddings - text_embeddings).pow(2).sum(1)
         # calculate negative distance between all other image and text embeddings
-        negative_distance = torch.zeros(256)
-        for i in range(256):
-            for j in range(256):
+        negative_distance = torch.zeros(image_embeddings.size(0))
+        for i in range(image_embeddings.size(0)):
+            for j in range(image_embeddings.size(0)):
                 if i != j:
                     negative_distance[i] += (image_embeddings[i] - text_embeddings[j]).pow(2).sum()
-        negative_distance = negative_distance / 255
+        negative_distance = negative_distance / (image_embeddings.size(0) - 1)
         # calculate loss
         loss = torch.mean((positive_distance - negative_distance + self.margin).clamp(min=0))
         return loss
