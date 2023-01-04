@@ -186,6 +186,7 @@ class ContrastiveLoss(nn.Module):
             text_losses.append(loss)
 
         image_losses = [loss.requires_grad_() for loss in image_losses]
+        print(image_losses[0])
         text_losses = [loss.requires_grad_() for loss in text_losses]
 
         # Return average loss across all image and text embeddings
