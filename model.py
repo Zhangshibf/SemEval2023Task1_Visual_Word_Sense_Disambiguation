@@ -89,25 +89,28 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def evaluate(model, dataloader):
     model.eval()
-    for keywords,contexts,augmentations,images,image_names,negative_images,negative_image_names in dataloader:
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
         for i,j in zip(contexts,augmentations):
             context_augemnted.append((i+" "+j))
         text_emds = list()
-        image_emds = list()
-
 
         for text in context_augemnted:
-            text_emd1,text_emd2 = model(text,None,emb_type = "text")
-            text_emds.append(text_emd2)
+            # Tokenize the input text
+            input_ids = tokenizer.encode(text)
+            input_tensor = torch.tensor([input_ids])
 
-        for p_i,n_is in zip(images,negative_images):
-            temporary = list()
-            temporary.append(p_i)
-            temporary.extend(n_is)
-            temporary_emds = open_images(temporary)
-            image_emds.append(temporary_emds)
+            outputs = model(input_tensor,None,setting = "text")
+            text_emds.append(outputs.text_embeds)
+
+        image_emds = list()
+        paths = [i.split("#")[0] for i in image_paths]
+        images = open_images(paths)
+        for k in images:
+            outputs = model(None, k['pixel_values'], setting="image")
+            image_emds.append(outputs.image_embeds)
+
         #calculate similarity, determine prediction
         total_similarities = list()
 
@@ -145,7 +148,7 @@ def open_images(image_paths):
 
 
 class ContrastiveLoss(nn.Module):
-    def __init__(self, margin=1.0):
+    def __init__(self, margin=0):
         super().__init__()
         self.margin = margin
 
@@ -159,6 +162,8 @@ class ContrastiveLoss(nn.Module):
                 if i != j:
                     negative_distance[i] += (image_embeddings[i] - text_embeddings[j]).pow(2).sum()
         negative_distance = negative_distance / (image_embeddings.size(0) - 1)
+        print(negative_distance)
+        print(positive_distance)
         # calculate loss
         loss = torch.mean((positive_distance - negative_distance + self.margin).clamp(min=0))
         return loss
