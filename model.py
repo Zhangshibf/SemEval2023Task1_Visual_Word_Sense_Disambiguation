@@ -70,7 +70,9 @@ def train_one_epoch(model,device,dataloader,optimizer):
         paths = [i.split("#")[0] for i in image_paths]
         images = open_images(paths)
         for k in images:
-            outputs = model(None, k['pixel_values'], setting="image")
+            input_image = k['pixel_values']
+            input_image = input_image.to(device)
+            outputs = model(None, input_image, setting="image")
             image_emds.append(outputs.image_embeds)
 
         image_emds = torch.stack((image_emds)).squeeze(dim=1).to(device)
@@ -110,6 +112,7 @@ def evaluate(model,device, dataloader):
             images = open_images(ps)
             temporary = list()
             for k in images:
+
                 outputs = model(None, k['pixel_values'], setting="image")
                 temporary.append(outputs.image_embeds)
             image_emds.append(temporary)
