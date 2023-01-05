@@ -50,7 +50,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
     loss = 0
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
-    for tokens,image_paths in dataloader:
+    for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
 
         text_emds = list()
         for t in tokens:
