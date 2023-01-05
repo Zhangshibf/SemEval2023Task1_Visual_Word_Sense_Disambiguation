@@ -93,11 +93,10 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def evaluate(model,device, dataloader):
     model.eval()
-#    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
         text_emds = list()
-        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32", model_max_length=77)
         tokens = list()
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
@@ -206,11 +205,11 @@ def train_model(model,device,epoch,path_train,path_out,batch_size =256):
         print("--------------Loss per instance{}---------------".format(avg_loss))
 
         print("--------------Evaluation On Dev---------------")
-        accuracy = evaluate(model, dev_dataloader)
+        accuracy = evaluate(model,device, dev_dataloader)
         print("--------------Accuracy {}---------------".format(accuracy))
 
     print("--------------Final Evaluation On Test---------------")
-    accuracy = evaluate(model, test_dataloader)
+    accuracy = evaluate(model, device,test_dataloader)
     print("--------------Accuracy {}---------------".format(accuracy))
 
 if __name__ == "__main__":
