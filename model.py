@@ -45,15 +45,14 @@ class clip_model(nn.Module):
 
 
 def train_one_epoch(model,device,dataloader,optimizer):
-#    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-#    model = model.to(device)
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
 
         text_emds = list()
-        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
+
         tokens = list()
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
@@ -80,7 +79,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
         loss_per_batch = criterion(text_emds,image_emds,device)
-        loss+=loss_per_batch
+        loss+=float(loss_per_batch)
         model.zero_grad()
 
         # Backpropagate the loss and update the model weights
@@ -91,7 +90,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def evaluate(model,device, dataloader):
     model.eval()
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
         text_emds = list()
