@@ -75,8 +75,12 @@ def train_one_epoch(model,device,dataloader,optimizer):
             outputs = model(None, input_image, setting="image")
             image_emds.append(outputs.image_embeds)
 
-        image_emds = torch.stack((image_emds)).squeeze(dim=1).to(device)
-        text_emds = torch.stack((text_emds)).squeeze(dim=1).to(device)
+        image_emds = torch.stack((image_emds)).squeeze(dim=1)
+        text_emds = torch.stack((text_emds)).squeeze(dim=1)
+        image_emds = image_emds.to(device)
+        text_emds = text_emds.to(device)
+        print(image_emds.get_device())
+        print(text_emds.get_device())
         loss_per_batch = criterion(text_emds,image_emds)
         loss+=loss_per_batch
         model.zero_grad()
