@@ -62,6 +62,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
             tokens.append(input_ids)
 
         for t in tokens:
+            t = t.to(device)
             outputs = model(t,None,setting = "text")
             text_emds.append(outputs.text_embeds)
 
@@ -99,6 +100,7 @@ def evaluate(model,device, dataloader):
             tokens.append(input_ids)
 
         for t in tokens:
+            t = t.to(device)
             outputs = model(t, None, setting="text")
             text_emds.append(outputs.text_embeds)
 
