@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader,random_split
 import requests
 import torchvision.transforms as transforms
 from torch import nn
-from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
+from transformers import CLIPTextConfig,CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import pandas as pd
 from nltk.corpus import wordnet as wn
 import nltk
@@ -15,9 +15,6 @@ import torch
 from math import log
 from torch import optim
 
-
-
-#there is something wrong with the structure of this model. I need to fix this.
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
