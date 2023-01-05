@@ -131,7 +131,7 @@ def evaluate(model, dataloader):
         total_similarities = np.array(total_similarities)
         print(total_similarities.shape)
         print(total_similarities)
-        prediction = np.argmax(total_similarities,axis=0)
+        prediction = np.argmax(total_similarities,axis=1)
         print(prediction)
 
         correct_prediction = 0
