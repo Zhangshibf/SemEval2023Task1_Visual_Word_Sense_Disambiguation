@@ -125,6 +125,7 @@ def evaluate(model,device, dataloader):
             ten_images = torch.stack((image_emds[idx])).squeeze().to(device)
             text = text_emds[idx].squeeze().to(device)
             similarities = torch.nn.functional.pairwise_distance(text, ten_images)
+            similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total_similarities.append(similarities)
         total_similarities = np.array(total_similarities)
