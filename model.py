@@ -173,50 +173,6 @@ class ContrastiveLoss(nn.Module):
         return loss
 
 
-"""
-def compute_FLYP_loss(text_emds,image_emds):
-
-    # Compute distance between text embedding and corresponding image embedding
-    distances = list()
-    total_loss = 0
-    print(len(image_emds))
-    print(image_emds[0].size())
-    image_emds = torch.stack((image_emds))
-    print(image_emds.size())
-
-    for text_emd in text_emds:
-        distances.append(torch.nn.functional.pairwise_distance(text_emd, image_emds))
-    for i in range(len(text_emds)):
-        text_images_distance = sum(distances[i])
-        image_texts_distance = sum(list(k[i] for k in distances))
-        similarity = distances[i][i]
-        loss_per_pair = -log(similarity/text_images_distance)-log(similarity/image_texts_distance)
-        total_loss+=loss_per_pair
-
-    loss = total_loss/len(text_emds)
-
-    return loss
-
-
-
-class compute_FLYP_loss(nn.Module):
-    def __init__(self, m=2.0):
-        super(compute_FLYP_loss, self).__init__()
-        self.m = m  # margin or radius
-
-    def forward(self, y1, y2, d=0):
-        # d = 0 means y1 and y2 are supposed to be same
-        # d = 1 means y1 and y2 are supposed to be different
-
-        euc_dist = nn.functional.pairwise_distance(y1, y2)
-
-        if d == 0:
-            return torch.mean(torch.pow(euc_dist, 2))  # distance squared
-        else:  # d == 1
-            delta = self.m - euc_dist  # sort of reverse distance
-            delta = torch.clamp(delta, min=0.0, max=None)
-            return torch.mean(torch.pow(delta, 2))  # mean over all rows
-"""
 def train_model(model,device,epoch,path_train,path_out,batch_size =256):
     #train CLIP model for several epoches
     model.train()
