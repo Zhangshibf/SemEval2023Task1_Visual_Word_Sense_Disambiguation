@@ -19,7 +19,7 @@ class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
         configuration = CLIPTextConfig(max_position_embeddings=2048)
-        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32",config= configuration)
+        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32",config= configuration,ignore_mismatched_sizes=True)
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
 #        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
 #        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
