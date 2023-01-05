@@ -81,7 +81,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         text_emds = text_emds.to(device)
         print(image_emds.get_device())
         print(text_emds.get_device())
-        loss_per_batch = criterion(text_emds,image_emds)
+        loss_per_batch = criterion(text_emds,image_emds,device)
         loss+=loss_per_batch
         model.zero_grad()
 
@@ -165,11 +165,12 @@ class ContrastiveLoss(nn.Module):
         super().__init__()
         self.margin = margin
 
-    def forward(self, image_embeddings, text_embeddings):
+    def forward(self, image_embeddings, text_embeddings,device):
         # calculate positive distance between matching image and text embeddings
-        positive_distance = (image_embeddings - text_embeddings).pow(2).sum(1)
+        positive_distance = (image_embeddings - text_embeddings).pow(2).sum(1).to(device)
         # calculate negative distance between all other image and text embeddings
-        negative_distance = torch.zeros(image_embeddings.size(0))
+        negative_distance = torch.zeros(image_embeddings.size(0)).to(device)
+
         for i in range(image_embeddings.size(0)):
             for j in range(image_embeddings.size(0)):
                 if i != j:
