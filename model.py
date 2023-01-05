@@ -125,6 +125,7 @@ def evaluate(model, dataloader):
             total_similarities.append(similarities)
             print(total_similarities)
             prediction = np.argmax(total_similarities,axis=0)
+            print(prediction)
 
         correct_prediction = 0
         for i in prediction:
