@@ -196,7 +196,6 @@ if __name__ == "__main__":
     device_str = "cuda:" + str(args.device)
     device = torch.device(device_str)
 
-    device = "cpu"
     model = clip_model()
     model = model.to(device)
     train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=256)
