@@ -179,7 +179,7 @@ class ContrastiveLoss(nn.Module):
         return loss
 
 
-def train_model(model,device,epoch,path_train,path_out,batch_size =256):
+def train_model(model,device,epoch,path_train,path_out,batch_size):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
@@ -222,4 +222,4 @@ if __name__ == "__main__":
 
     model = clip_model()
     model = model.to(device)
-    train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=256)
+    train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=128)
