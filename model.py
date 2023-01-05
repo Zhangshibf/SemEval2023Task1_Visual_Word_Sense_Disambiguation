@@ -114,12 +114,15 @@ def evaluate(model, dataloader):
                 outputs = model(None, k['pixel_values'], setting="image")
                 temporary.append(outputs.image_embeds)
             image_emds.append(temporary)
+        print(len(image_emds))
+        print(len(image_emds[0]))
+        print(image_emds[0][0].size())
+        print(image_emds)[0][0]
 
         #calculate similarity, determine prediction
         total_similarities = list()
 
         for idx in range(len(image_emds)):
-#            column = [i[idx] for i in image_emds]
             similarities = torch.nn.functional.pairwise_distance(text_emds[idx], torch.stack((image_emds[idx])))
             similarities = similarities.detach().numpy()
             total_similarities.append(similarities)
