@@ -51,6 +51,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
+
         text_emds = list()
         for t in tokens:
             outputs = model(t,None,setting = "text")
@@ -63,8 +64,8 @@ def train_one_epoch(model,device,dataloader,optimizer):
             outputs = model(None, k['pixel_values'], setting="image")
             image_emds.append(outputs.image_embeds)
 
-        image_emds = torch.stack((image_emds)).squeeze(dim=1)
-        text_emds = torch.stack((text_emds)).squeeze(dim=1)
+        image_emds = torch.stack((image_emds)).squeeze(dim=1).to(device)
+        text_emds = torch.stack((text_emds)).squeeze(dim=1).to(device)
         loss_per_batch = criterion(text_emds,image_emds)
         loss+=loss_per_batch
         model.zero_grad()
@@ -75,7 +76,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
     return loss
 
-def evaluate(model, dataloader):
+def evaluate(model,device, dataloader):
     model.eval()
 #    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
     for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
@@ -99,8 +100,8 @@ def evaluate(model, dataloader):
         total_similarities = list()
 
         for idx in range(len(image_emds)):
-            ten_images = torch.stack((image_emds[idx])).squeeze()
-            text = text_emds[idx].squeeze()
+            ten_images = torch.stack((image_emds[idx])).squeeze().to(device)
+            text = text_emds[idx].squeeze().to(device)
             similarities = torch.nn.functional.pairwise_distance(text, ten_images)
             similarities = similarities.detach().numpy()
             total_similarities.append(similarities)
@@ -189,14 +190,11 @@ def train_model(model,device,epoch,path_train,path_out,batch_size =256):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--train', help="path to the train set")
-    parser.add_argument('--cuda number',help="cuda to be used")
+    parser.add_argument('--device',help="cuda to be used")
     args = parser.parse_args()
 
-    # Create the dataset
-#    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
-    # Create the dataloader
-#    dataloader = DataLoader(dataset, batch_size=3, shuffle=True)
+    device_str = "cuda:" + str(args.device)
+    device = torch.device(device_str)
     model = clip_model()
-#    model = model.to(device)
-#    dataloader = dataloader.to(device)
-    train_model(model, device = 'cuda' if torch.cuda.is_available() else 'cpu',epoch = 5, path_train=args.train, path_out="aa", batch_size=256)
+    model = model.to(device)
+    train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=256)
