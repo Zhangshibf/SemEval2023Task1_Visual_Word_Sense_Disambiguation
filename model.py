@@ -57,7 +57,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
             # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77)])
+            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
 
         for t in tokens:
@@ -98,7 +98,7 @@ def evaluate(model,device, dataloader):
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
             # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented)])
+            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
 
         for t in tokens:
