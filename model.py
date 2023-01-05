@@ -89,6 +89,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def evaluate(model, dataloader):
     model.eval()
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
         context_augemnted = list()
@@ -105,18 +106,21 @@ def evaluate(model, dataloader):
             text_emds.append(outputs.text_embeds)
 
         image_emds = list()
-        paths = [i.split("#")[0] for i in image_paths]
-        images = open_images(paths)
-        for k in images:
-            outputs = model(None, k['pixel_values'], setting="image")
-            image_emds.append(outputs.image_embeds)
+        paths = [i.split("#")for i in image_paths]
+        for ps in paths:
+            images = open_images(ps)
+            temporary = list()
+            for k in images:
+                outputs = model(None, k['pixel_values'], setting="image")
+                temporary.append(outputs.image_embeds)
+            image_emds.append(temporary)
 
         #calculate similarity, determine prediction
         total_similarities = list()
 
-        for idx in range(len(image_emds[0])):
-            column = [i[idx] for i in image_emds]
-            similarities = torch.nn.functional.pairwise_distance(text_emds, column)
+        for idx in len(image_emds):
+#            column = [i[idx] for i in image_emds]
+            similarities = torch.nn.functional.pairwise_distance(text_emds, image_emds[idx])
             total_similarities.append(similarities)
             prediction = np.argmax(total_similarities,axis=0)
 
