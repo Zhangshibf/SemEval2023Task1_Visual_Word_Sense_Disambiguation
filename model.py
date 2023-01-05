@@ -113,8 +113,8 @@ def evaluate(model,device, dataloader):
             images = open_images(ps)
             temporary = list()
             for k in images:
-
-                outputs = model(None, k['pixel_values'], setting="image")
+                input_image = k['pixel_values'].to(device)
+                outputs = model(None,input_image, setting="image")
                 temporary.append(outputs.image_embeds)
             image_emds.append(temporary)
 
