@@ -88,13 +88,7 @@ class ImageTextDataset(Dataset):
                 elif len(augmented_texts) == 0:
                     self.augmentation.append(phrase)
 
-        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
-        self.tokens = list()
-        for i, j in zip(self.context, self.augmentation):
-            context_augmented = i + " " + j
-            # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented)])
-            self.tokens.append(input_ids)
+
     def __len__(self):
         return len(self.context)
 
@@ -119,10 +113,8 @@ class ImageTextDataset(Dataset):
 
         if self.augmentation:
             aug = self.augmentation[idx]
-        t = self.tokens[idx]
-        print(t.size())
 
-        return keyword, context, aug,t,names, paths
+        return keyword, context, aug,names, paths
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')

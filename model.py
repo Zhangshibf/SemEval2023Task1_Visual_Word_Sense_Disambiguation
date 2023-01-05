@@ -50,9 +50,17 @@ def train_one_epoch(model,device,dataloader,optimizer):
     loss = 0
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
 
         text_emds = list()
+        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
+        tokens = list()
+        for i, j in zip(context, augmentation):
+            context_augmented = i + " " + j
+            # Tokenize the input text
+            input_ids = torch.tensor([tokenizer.encode(context_augmented)])
+            tokens.append(input_ids)
+
         for t in tokens:
             outputs = model(t,None,setting = "text")
             text_emds.append(outputs.text_embeds)
@@ -79,11 +87,19 @@ def train_one_epoch(model,device,dataloader,optimizer):
 def evaluate(model,device, dataloader):
     model.eval()
 #    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-    for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
         text_emds = list()
+        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32", model_max_length=77)
+        tokens = list()
+        for i, j in zip(context, augmentation):
+            context_augmented = i + " " + j
+            # Tokenize the input text
+            input_ids = torch.tensor([tokenizer.encode(context_augmented)])
+            tokens.append(input_ids)
+
         for t in tokens:
-            outputs = model(t,None,setting = "text")
+            outputs = model(t, None, setting="text")
             text_emds.append(outputs.text_embeds)
 
         image_emds = list()
