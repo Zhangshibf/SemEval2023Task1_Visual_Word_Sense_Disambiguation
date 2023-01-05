@@ -119,13 +119,14 @@ def evaluate(model, dataloader):
         total_similarities = list()
 
         for idx in range(len(image_emds)):
-            ten_images = torch.stack((image_emds[idx]))
+            ten_images = torch.stack((image_emds[idx])).squeeze()
+            text = text_emds[idx].squeeze()
             print(ten_images.size())
-            print(text_emds[idx].size())
-            similarities = torch.nn.functional.pairwise_distance(text_emds[idx], ten_images)
+            print(text.size())
+            similarities = torch.nn.functional.pairwise_distance(text, ten_images)
             similarities = similarities.detach().numpy()
             total_similarities.append(similarities)
-            print(total_similarities)
+        print(total_similarities)
         prediction = np.argmax(total_similarities,axis=0)
         print(prediction)
 
