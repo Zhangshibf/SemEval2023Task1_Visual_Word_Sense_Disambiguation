@@ -77,7 +77,6 @@ def train_one_epoch(model,device,dataloader,optimizer):
         image_emds = torch.stack((image_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
         loss_per_batch = criterion(text_emds,image_emds)
-        print(loss_per_batch)
         loss+=loss_per_batch
         model.zero_grad()
 
@@ -117,22 +116,15 @@ def evaluate(model, dataloader):
 
         #calculate similarity, determine prediction
         total_similarities = list()
-        print(len(image_emds))
 
         for idx in range(len(image_emds)):
             ten_images = torch.stack((image_emds[idx])).squeeze()
             text = text_emds[idx].squeeze()
-            print(ten_images.size())
-            print(text.size())
             similarities = torch.nn.functional.pairwise_distance(text, ten_images)
             similarities = similarities.detach().numpy()
-            print(similarities)
             total_similarities.append(similarities)
         total_similarities = np.array(total_similarities)
-        print(total_similarities.shape)
-        print(total_similarities)
         prediction = np.argmax(total_similarities,axis=1)
-        print(prediction)
 
         correct_prediction = 0
         for i in prediction:
@@ -176,8 +168,6 @@ class ContrastiveLoss(nn.Module):
                 if i != j:
                     negative_distance[i] += (image_embeddings[i] - text_embeddings[j]).pow(2).sum()
         negative_distance = negative_distance / (image_embeddings.size(0) - 1)
-        print(negative_distance)
-        print(positive_distance)
         # calculate loss
         loss = torch.mean((positive_distance - negative_distance + self.margin).clamp(min=0))
         return loss
