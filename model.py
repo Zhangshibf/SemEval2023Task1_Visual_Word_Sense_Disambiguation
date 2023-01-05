@@ -18,8 +18,8 @@ from torch import optim
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
-        configuration = CLIPTextConfig(max_position_embeddings=2048)
-        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32",config= configuration,ignore_mismatched_sizes=True)
+#        configuration = CLIPTextConfig(max_position_embeddings=2048)
+        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
 #        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
 #        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -45,24 +45,15 @@ class clip_model(nn.Module):
 
 
 def train_one_epoch(model,device,dataloader,optimizer):
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+#    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 #    model = model.to(device)
     loss = 0
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        #generate embeddings for context + augmentation
-        context_augemnted = list()
-        for i,j in zip(contexts,augmentations):
-            context_augemnted.append((i+" "+j))
+    for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
         text_emds = list()
-
-        for text in context_augemnted:
-            # Tokenize the input text
-            input_ids = tokenizer.encode(text)
-            input_tensor = torch.tensor([input_ids])
-
-            outputs = model(input_tensor,None,setting = "text")
+        for t in tokens:
+            outputs = model(t,None,setting = "text")
             text_emds.append(outputs.text_embeds)
 
         image_emds = list()
@@ -86,20 +77,12 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def evaluate(model, dataloader):
     model.eval()
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+#    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
+    for keywords,contexts,augmentations,tokens,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
-        context_augemnted = list()
-        for i,j in zip(contexts,augmentations):
-            context_augemnted.append((i+" "+j))
         text_emds = list()
-
-        for text in context_augemnted:
-            # Tokenize the input text
-            input_ids = tokenizer.encode(text)
-            input_tensor = torch.tensor([input_ids])
-
-            outputs = model(input_tensor,None,setting = "text")
+        for t in tokens:
+            outputs = model(t,None,setting = "text")
             text_emds.append(outputs.text_embeds)
 
         image_emds = list()
@@ -206,6 +189,7 @@ def train_model(model,device,epoch,path_train,path_out,batch_size =256):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--train', help="path to the train set")
+    parser.add_argument('--cuda number',help="cuda to be used")
     args = parser.parse_args()
 
     # Create the dataset

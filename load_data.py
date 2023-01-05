@@ -29,10 +29,7 @@ class ImageTextDataset(Dataset):
             pass
         elif data_type == "train":
             # this is for the original train set of the task
-            # reshape all images to size [1440,1810]
             all_image_names = list()
-#            self.transform = transforms.Compose([transforms.Resize([1440,1810]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-#                 ])
             train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
             label_data = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep="\t", header=None)
             keywords = list(train_data[0])
@@ -89,6 +86,14 @@ class ImageTextDataset(Dataset):
                     self.augmentation.append(augmented_texts[0])
                 elif len(augmented_texts) == 0:
                     self.augmentation.append(phrase)
+
+        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
+        self.tokens = list()
+        for i, j in zip(self.context, self.augmentation):
+            context_augmented = i + " " + j
+            # Tokenize the input text
+            input_ids = torch.tensor([tokenizer.encode(context_augmented)])
+            self.tokens.append(input_ids)
     def __len__(self):
         return len(self.context)
 
@@ -114,7 +119,7 @@ class ImageTextDataset(Dataset):
         if self.augmentation:
             aug = self.augmentation[idx]
 
-            return keyword, context, aug,names, paths
+            return keyword, context, aug,self.tokens[idx],names, paths
         else:
             pass
 
