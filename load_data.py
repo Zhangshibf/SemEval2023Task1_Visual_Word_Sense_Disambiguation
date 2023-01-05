@@ -122,9 +122,7 @@ class ImageTextDataset(Dataset):
         t = self.tokens[idx]
         print(t.size())
 
-            return keyword, context, aug,t,names, paths
-        else:
-            pass
+        return keyword, context, aug,t,names, paths
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
