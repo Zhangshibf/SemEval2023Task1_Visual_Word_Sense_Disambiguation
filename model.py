@@ -55,7 +55,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         text_emds = list()
         tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
         tokens = list()
-        for i, j in zip(context, augmentation):
+        for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
             # Tokenize the input text
             input_ids = torch.tensor([tokenizer.encode(context_augmented)])
@@ -92,7 +92,7 @@ def evaluate(model,device, dataloader):
         text_emds = list()
         tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32", model_max_length=77)
         tokens = list()
-        for i, j in zip(context, augmentation):
+        for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
             # Tokenize the input text
             input_ids = torch.tensor([tokenizer.encode(context_augmented)])
