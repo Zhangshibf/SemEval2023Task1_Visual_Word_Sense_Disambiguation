@@ -128,6 +128,8 @@ def evaluate(model, dataloader):
             similarities = similarities.detach().numpy()
             print(similarities)
             total_similarities.append(similarities)
+        total_similarities = np.array(total_similarities)
+        print(total_similarities.shape)
         print(total_similarities)
         prediction = np.argmax(total_similarities,axis=0)
         print(prediction)
