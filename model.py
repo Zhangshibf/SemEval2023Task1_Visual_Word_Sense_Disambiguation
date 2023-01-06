@@ -1,10 +1,9 @@
 #fine tune CLIP model
-import os
-import pickle
-from PIL import *
+
 from load_data import *
-from torch.utils.data import Dataset, DataLoader,random_split
-import requests
+from PIL import Image
+import argparse
+from PIL import ImageFile
 import torchvision.transforms as transforms
 from torch import nn
 from transformers import CLIPTextConfig,CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
