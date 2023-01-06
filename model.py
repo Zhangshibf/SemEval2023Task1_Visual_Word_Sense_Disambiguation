@@ -1,6 +1,7 @@
 #fine tune CLIP model
 import os
 import pickle
+from PIL import *
 from load_data import *
 from torch.utils.data import Dataset, DataLoader,random_split
 import requests
