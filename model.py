@@ -105,8 +105,8 @@ def evaluate(model,device, dataloader):
             for k in images:
                 input_image = k['pixel_values'].to(device)
                 i_emds.append(model(None, input_image, setting="image").image_embeds)
-                i_emds = torch.stack(i_emds).squeeze().to(device)
 
+            i_emds = torch.stack(i_emds).squeeze().to(device)
             similarities = torch.nn.functional.pairwise_distance(t_emds, i_emds)
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
