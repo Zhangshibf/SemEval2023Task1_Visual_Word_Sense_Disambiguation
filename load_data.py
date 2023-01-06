@@ -31,8 +31,8 @@ class ImageTextDataset(Dataset):
         elif data_type == "train":
             # this is for the original train set of the task
             all_image_names = list()
-            train_data = pd.read_csv(os.path.join(data_dir, "trial.data.v1.txt"), sep="\t", header=None)
-            label_data = pd.read_csv(os.path.join(data_dir, "trial.gold.v1.txt"), sep="\t", header=None)
+            train_data = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep="\t", header=None)
+            label_data = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep="\t", header=None)
             keywords = list(train_data[0])
             contexts = list(train_data[1])
 
@@ -47,13 +47,13 @@ class ImageTextDataset(Dataset):
                 a.remove(b)
                 self.negative_image_names.append(a)
                 self.image_name.append(b)
-                self.image_path.append(os.path.join(data_dir, "trial_images_v1", b))
+                self.image_path.append(os.path.join(data_dir, "train_images_v1", b))
 
             self.negative_path = list()
             for negs in self.negative_image_names:
                 temporary = list()
                 for filename in negs:
-                    temporary.append(os.path.join(data_dir, "trial_images_v1", filename))
+                    temporary.append(os.path.join(data_dir, "train_images_v1", filename))
                 self.negative_path.append(temporary)
 
         #text augmentation
