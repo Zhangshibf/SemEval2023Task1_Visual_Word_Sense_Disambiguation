@@ -119,35 +119,35 @@ class ImageTextDataset(Dataset):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--train', help="path to the train set")
+    parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Create the dataset
     dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
     # Create the dataloader
-    dataloader = DataLoader(dataset, batch_size=256, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=128, shuffle=True)
 
-    #keyword,context,aug,image_path,image_names
-    for i in dataloader:
-        print("Keywords")
-        print(len(i[0]))
-        print(i[0][:10])
+    dataset = ImageTextDataset(args.train, data_type="train", device=device, text_augmentation=True)
 
-        print("Context")
-        print(len(i[1]))
-        print(i[1][:10])
+    # Split the dataloader into train, dev, and test sets
+    train_size = int(0.8 * len(dataset))
+    dev_size = int(0.1 * len(dataset))
+    test_size = len(dataset) - train_size - dev_size
 
-        print("text augmentation")
-        print(len(i[2]))
-        print(i[2][:10])
+    train_dataset, dev_dataset, test_dataset = random_split(dataset, [train_size, dev_size, test_size])
 
-        print("Image paths. Paths are segmented using #")
-        print(len(i[3]))
-        print(i[3][0])
+    # Create dataloaders for each set
+    train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+    dev_dataloader = DataLoader(dev_dataset, batch_size=128, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=128, shuffle=True)
 
-        print("Image names. Names are segmented using #")
-        print("The first one is positive image, the rest are negative images")
-        print(len(i[4]))
-        print(i[4][0])
-
-        break
+    train_path = args.output+"/train.pk"
+    dev_path = args.output + "/dev.pk"
+    test_path = args.output + "/test.pk"
+    with open(train_path, 'wb') as f:
+        pickle.dump(train_dataloader, f)
+    with open(dev_path, 'wb') as f:
+        pickle.dump(dev_dataloader, f)
+    with open(test_path, 'wb') as f:
+        pickle.dump(test_dataloader, f)
