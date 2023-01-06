@@ -7,18 +7,12 @@ import requests
 import torchvision.transforms as transforms
 from torch import nn
 from transformers import CLIPTextConfig,CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
-import pandas as pd
-from nltk.corpus import wordnet as wn
-import nltk
-from sentence_transformers import SentenceTransformer, util
 import torch
-from math import log
 from torch import optim
 
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
-#        configuration = CLIPTextConfig(max_position_embeddings=2048)
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
 #        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -178,7 +172,7 @@ class ContrastiveLoss(nn.Module):
         return loss
 
 
-def train_model(model,device,epoch,path_train,path_out,batch_size):
+def train_model(model,device,epoch,path_train,path_out):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
@@ -220,16 +214,15 @@ if __name__ == "__main__":
     model = model.to(device)
 
     if args.mode == 'train':
-        train_model(model, device=device, epoch=5, path_train=args.train, path_out=args.output, batch_size=128)
+        train_model(model, device=device, epoch=5, path_train=args.train, path_out=args.output)
     elif args.mode == 'test':
 
+        with open(args.dev, 'rb') as pickle_file:
+            dev_dataloader = pickle.load(pickle_file)
 
-
-    for i in range(int(args.epoch)):
-        filepath = args.output + "/inferencemodel" + str(i)
-        model.load_state_dict(torch.load(filepath))
-        print("--------------Evaluation On Dev---------------")
-        accuracy = evaluate(model,device, dev_dataloader)
-        print("--------------Accuracy {}---------------".format(accuracy))
-
-#
+        for i in range(int(args.epoch)):
+            filepath = args.output + "/inferencemodel" + str(i)
+            model.load_state_dict(torch.load(filepath))
+            print("--------------Evaluation On Dev---------------")
+            accuracy = evaluate(model,device, dev_dataloader)
+            print("--------------Accuracy {}---------------".format(accuracy))
