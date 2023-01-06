@@ -95,6 +95,26 @@ def evaluate(model,device, dataloader):
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
 
+        image_emds = list()
+        paths = [i.split("#") for i in image_paths]
+        for t,ps in zip(tokens,paths):
+            t = t.to(device)
+            t_emds = model(t, None, setting="text").text_embeds
+            images = open_images(ps)
+            i_emds = list()
+            for k in images:
+                input_image = k['pixel_values'].to(device)
+                i_emds.append(model(None, input_image, setting="image").image_embeds)
+                i_emds = torch.stack(i_emds).squeeze().to(device)
+
+            similarities = torch.nn.functional.pairwise_distance(t_emds, i_emds)
+            similarities = similarities.cpu()
+            similarities = similarities.detach().numpy()
+            print(similarities)
+            print(np.argmax(similarities,axis=0))
+            print(np.argmax(similarities, axis=1))
+
+        """
         for t in tokens:
             t = t.to(device)
             outputs = model(t, None, setting="text")
@@ -110,6 +130,8 @@ def evaluate(model,device, dataloader):
                 outputs = model(None,input_image, setting="image")
                 temporary.append(outputs.image_embeds)
             image_emds.append(temporary)
+            
+        
 
         #calculate similarity, determine prediction
         total_similarities = list()
@@ -133,6 +155,7 @@ def evaluate(model,device, dataloader):
         accuracy = correct_prediction/len(prediction)
 
         return accuracy
+        """
 
 def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
