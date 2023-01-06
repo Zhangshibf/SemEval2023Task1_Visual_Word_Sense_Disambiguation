@@ -115,10 +115,8 @@ def evaluate(model,device, dataloader):
             total+=1
             if int(np.argmax(similarities,axis=0))==0:
                 correct+=1
-            else:
-                print(int(np.argmax(similarities,axis=0)))
 
-            return correct/total
+    return correct/total
 
 
 def open_images(image_paths):
