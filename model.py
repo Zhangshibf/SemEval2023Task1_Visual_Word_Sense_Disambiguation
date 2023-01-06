@@ -84,6 +84,8 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def evaluate(model,device, dataloader):
     model.eval()
+    correct = 0
+    total = 0
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
@@ -110,52 +112,12 @@ def evaluate(model,device, dataloader):
             similarities = torch.nn.functional.pairwise_distance(t_emds, i_emds)
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
-            print(similarities)
-            print(np.argmax(similarities,axis=0))
-            print(np.argmax(similarities, axis=1))
+            total+=1
+            if int(np.argmax(similarities,axis=0))==0:
+                correct+=1
 
-        """
-        for t in tokens:
-            t = t.to(device)
-            outputs = model(t, None, setting="text")
-            text_emds.append(outputs.text_embeds)
+            return correct/total
 
-        image_emds = list()
-        paths = [i.split("#")for i in image_paths]
-        for ps in paths:
-            images = open_images(ps)
-            temporary = list()
-            for k in images:
-                input_image = k['pixel_values'].to(device)
-                outputs = model(None,input_image, setting="image")
-                temporary.append(outputs.image_embeds)
-            image_emds.append(temporary)
-            
-        
-
-        #calculate similarity, determine prediction
-        total_similarities = list()
-
-        for idx in range(len(image_emds)):
-            ten_images = torch.stack((image_emds[idx])).squeeze().to(device)
-            text = text_emds[idx].squeeze().to(device)
-            similarities = torch.nn.functional.pairwise_distance(text, ten_images)
-            similarities = similarities.cpu()
-            similarities = similarities.detach().numpy()
-            total_similarities.append(similarities)
-        total_similarities = np.array(total_similarities)
-        prediction = np.argmax(total_similarities,axis=1)
-
-        correct_prediction = 0
-        for i in prediction:
-            if i == 0:
-                correct_prediction+=1
-        print(correct_prediction/128)
-
-        accuracy = correct_prediction/len(prediction)
-
-        return accuracy
-        """
 
 def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
