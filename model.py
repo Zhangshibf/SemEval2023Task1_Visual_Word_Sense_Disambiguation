@@ -235,4 +235,24 @@ if __name__ == "__main__":
 
     model = clip_model()
     model = model.to(device)
-    train_model(model, device = device,epoch = 5, path_train=args.train, path_out=args.output, batch_size=128)
+
+
+    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
+
+    # Split the dataloader into train, dev, and test sets
+    train_size = int(0.8 * len(dataset))
+    dev_size = int(0.1 * len(dataset))
+    test_size = len(dataset) - train_size - dev_size
+
+    train_dataset, dev_dataset, test_dataset = random_split(dataset, [train_size, dev_size, test_size])
+
+    # Create dataloaders for each set
+    dev_dataloader = DataLoader(dev_dataset, batch_size=128, shuffle=True)
+    for i in range(5):
+        filepath = args.output + "/inferencemodel" + str(i)
+        model.load_state_dict(torch.load(filepath))
+        print("--------------Evaluation On Dev---------------")
+        accuracy = evaluate(model,device, dev_dataloader)
+        print("--------------Accuracy {}---------------".format(accuracy))
+
+#    train_model(model, device = device,epoch = 5, path_train=args.train, path_out=args.output, batch_size=128)
