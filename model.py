@@ -1,6 +1,6 @@
 #fine tune CLIP model
 import os
-import torch
+import pickle
 from load_data import *
 from torch.utils.data import Dataset, DataLoader,random_split
 import requests
@@ -182,19 +182,8 @@ def train_model(model,device,epoch,path_train,path_out,batch_size):
     #train CLIP model for several epoches
     model.train()
     # Create the dataset
-    dataset = ImageTextDataset(path_train, data_type="train",device = device, text_augmentation=True)
-
-    # Split the dataloader into train, dev, and test sets
-    train_size = int(0.8 * len(dataset))
-    dev_size = int(0.1 * len(dataset))
-    test_size = len(dataset) - train_size - dev_size
-
-    train_dataset, dev_dataset, test_dataset = random_split(dataset, [train_size, dev_size, test_size])
-
-    # Create dataloaders for each set
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    with open(path_train, 'rb') as pickle_file:
+        train_dataloader = pickle.load(pickle_file)
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     for i in range(epoch):
@@ -212,22 +201,16 @@ def train_model(model,device,epoch,path_train,path_out,batch_size):
         torch.save(state, filepath)
         print("--------------Model saved at {}---------------".format(filepath))
 
-        """
-
-        print("--------------Evaluation On Dev---------------")
-        accuracy = evaluate(model,device, dev_dataloader)
-        print("--------------Accuracy {}---------------".format(accuracy))
-
-    print("--------------Final Evaluation On Test---------------")
-    accuracy = evaluate(model, device,test_dataloader)
-    print("--------------Accuracy {}---------------".format(accuracy))
-    """
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
-    parser.add_argument('--train', help="path to the train set")
+    parser.add_argument('--epoch',help = "epoch")
+    parser.add_argument('--train',help = 'path to train dataloader')
+    parser.add_argument('--dev', help='path to dev dataloader')
+    parser.add_argument('--test', help='path to test dataloader')
     parser.add_argument('--device',help="cuda to be used")
     parser.add_argument('--output',help = "path to save the model")
+    parser.add_argument('--mode',help='train to train the model, test to evaluate the model')
     args = parser.parse_args()
 
     device_str = "cuda:" + str(args.device)
@@ -236,23 +219,17 @@ if __name__ == "__main__":
     model = clip_model()
     model = model.to(device)
 
+    if args.mode == 'train':
+        train_model(model, device=device, epoch=5, path_train=args.train, path_out=args.output, batch_size=128)
+    elif args.mode == 'test':
 
-    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
 
-    # Split the dataloader into train, dev, and test sets
-    train_size = int(0.8 * len(dataset))
-    dev_size = int(0.1 * len(dataset))
-    test_size = len(dataset) - train_size - dev_size
 
-    train_dataset, dev_dataset, test_dataset = random_split(dataset, [train_size, dev_size, test_size])
-
-    # Create dataloaders for each set
-    dev_dataloader = DataLoader(dev_dataset, batch_size=128, shuffle=True)
-    for i in range(5):
+    for i in range(int(args.epoch)):
         filepath = args.output + "/inferencemodel" + str(i)
         model.load_state_dict(torch.load(filepath))
         print("--------------Evaluation On Dev---------------")
         accuracy = evaluate(model,device, dev_dataloader)
         print("--------------Accuracy {}---------------".format(accuracy))
 
-#    train_model(model, device = device,epoch = 5, path_train=args.train, path_out=args.output, batch_size=128)
+#
