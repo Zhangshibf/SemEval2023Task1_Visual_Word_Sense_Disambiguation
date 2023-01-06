@@ -201,8 +201,15 @@ def train_model(model,device,epoch,path_train,path_out,batch_size):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
-        filepath = path_out+"/model"+str(i)
+        filepath = path_out+"/inferencemodel"+str(i)
         torch.save(model.state_dict(), filepath)
+        print("--------------Model saved at {}---------------".format(filepath))
+
+        state = {'epoch': epoch,
+            'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict()}
+        filepath = path_out + "/trainingmodel" + str(i)
+        torch.save(state, filepath)
         print("--------------Model saved at {}---------------".format(filepath))
 
         """
