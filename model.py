@@ -128,6 +128,7 @@ def evaluate(model,device, dataloader):
         for i in prediction:
             if i == 0:
                 correct_prediction+=1
+        print(correct_prediction/128)
 
         accuracy = correct_prediction/len(prediction)
 
@@ -226,3 +227,6 @@ if __name__ == "__main__":
             print("--------------Evaluation On Dev---------------")
             accuracy = evaluate(model,device, dev_dataloader)
             print("--------------Accuracy {}---------------".format(accuracy))
+
+    else:
+        print("Wrong mode")
