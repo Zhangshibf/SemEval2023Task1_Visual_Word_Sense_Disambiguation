@@ -221,4 +221,4 @@ if __name__ == "__main__":
 
     model = clip_model()
     model = model.to(device)
-    train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=64)
+    train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=32)
