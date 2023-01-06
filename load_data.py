@@ -1,14 +1,11 @@
+
 import os
-from torch.utils.data import Dataset, DataLoader
-from PIL import Image
-import torchvision.transforms as transforms
+from torch.utils.data import Dataset, DataLoader,random_split
 import pandas as pd
 import argparse
 import torch
 from nltk.corpus import wordnet as wn
 import nltk
-from transformers import CLIPTokenizer
-from PIL import ImageFile
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 class ImageTextDataset(Dataset):
