@@ -201,6 +201,11 @@ def train_model(model,device,epoch,path_train,path_out,batch_size):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
+        filepath = path_out+"/model"+str(i)
+        torch.save(model.state_dict(), filepath)
+        print("--------------Model saved at {}---------------".format(filepath))
+
+        """
 
         print("--------------Evaluation On Dev---------------")
         accuracy = evaluate(model,device, dev_dataloader)
@@ -209,11 +214,13 @@ def train_model(model,device,epoch,path_train,path_out,batch_size):
     print("--------------Final Evaluation On Test---------------")
     accuracy = evaluate(model, device,test_dataloader)
     print("--------------Accuracy {}---------------".format(accuracy))
+    """
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--train', help="path to the train set")
     parser.add_argument('--device',help="cuda to be used")
+    parser.add_argument('--output',help = "path to save the model")
     args = parser.parse_args()
 
     device_str = "cuda:" + str(args.device)
@@ -221,4 +228,4 @@ if __name__ == "__main__":
 
     model = clip_model()
     model = model.to(device)
-    train_model(model, device = device,epoch = 5, path_train=args.train, path_out="aa", batch_size=32)
+    train_model(model, device = device,epoch = 5, path_train=args.train, path_out=args.output, batch_size=128)
