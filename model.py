@@ -15,8 +15,7 @@ class clip_model(nn.Module):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
-#        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
-#        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+
     def forward(self, text, image,setting):
         setting_types = ["text","image"]
         if setting not in setting_types:
@@ -25,18 +24,10 @@ class clip_model(nn.Module):
         if setting == "text":
             text_outputs = self.text_encoder(text)
             return text_outputs
-#            text_emd1 = text_outputs.last_hidden_state
-#            text_emd2 = text_outputs.pooler_output
-#            return text_emd1,text_emd2
 
         elif setting == "image":
-            # encode image
             image_outputs = self.image_encoder(image)
             return image_outputs
-#            image_emd1 = image_outputs.last_hidden_state
-#            image_emd2 = image_outputs.pooler_output
-#            return image_emd1,image_emd2
-
 
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
@@ -97,7 +88,6 @@ def evaluate(model,device, dataloader):
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
 
-        image_emds = list()
         paths = [i.split("#") for i in image_paths]
         for t,ps in zip(tokens,paths):
             t = t.to(device)
@@ -116,7 +106,7 @@ def evaluate(model,device, dataloader):
             if int(np.argmin(similarities,axis=0))==0:
                 correct+=1
             rank = np.argsort(similarities)[0]
-            mrr+=1/rank
+            mrr+=1/(rank+1)
     hit_rate = correct/total
     mrr = mrr/total
 
