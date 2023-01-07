@@ -143,8 +143,7 @@ def evaluate(model,device, dataloader):
             i_emds = torch.stack(i_emds).squeeze().to(device)
             cos = nn.CosineSimilarity(dim=1)
             similarities = cos(t_emds, i_emds)
-            print(len(similarities))
-#            similarities = torch.nn.functional.pairwise_distance(t_emds, i_emds)
+            print(similarities)
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total+=1
