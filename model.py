@@ -72,6 +72,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
     return loss
 
+"""
 def evaluate(model,device, dataloader):
     model.eval()
     correct = 0
@@ -111,7 +112,50 @@ def evaluate(model,device, dataloader):
     mrr = mrr/total
 
     return hit_rate,mrr
+    """
+def evaluate(model,device, dataloader):
+    #cosine similarity instead of L2 distance
+    model.eval()
+    correct = 0
+    total = 0
+    mrr = 0
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+        #generate embeddings for context + augmentation
+        text_emds = list()
+        tokens = list()
+        for i, j in zip(contexts, augmentations):
+            context_augmented = i + " " + j
+            # Tokenize the input text
+            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
+            tokens.append(input_ids)
 
+        paths = [i.split("#") for i in image_paths]
+        for t,ps in zip(tokens,paths):
+            t = t.to(device)
+            t_emds = model(t, None, setting="text").text_embeds
+            images = open_images(ps)
+            i_emds = list()
+            for k in images:
+                input_image = k['pixel_values'].to(device)
+                i_emds.append(model(None, input_image, setting="image").image_embeds)
+
+            i_emds = torch.stack(i_emds).squeeze().to(device)
+            cos = nn.CosineSimilarity(dim=1)
+            similarities = cos(t_emds, i_emds)
+            print(len(similarities))
+#            similarities = torch.nn.functional.pairwise_distance(t_emds, i_emds)
+            similarities = similarities.cpu()
+            similarities = similarities.detach().numpy()
+            total+=1
+            if int(np.argmin(similarities,axis=0))==0:
+                correct+=1
+            rank = np.argsort(similarities)[0]
+            mrr+=1/(rank+1)
+    hit_rate = correct/total
+    mrr = mrr/total
+
+    return hit_rate,mrr
 
 def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -132,6 +176,29 @@ def open_images(image_paths):
 
 
 class ContrastiveLoss(nn.Module):
+    #cosine similarity
+    def __init__(self, margin=1):
+        super().__init__()
+        self.margin = margin
+
+    def forward(self, image_embeddings, text_embeddings, device):
+        # calculate positive cosine similarity between matching image and text embeddings
+        positive_similarity = (image_embeddings * text_embeddings).sum(1) / (image_embeddings.norm(2, dim=1) * text_embeddings.norm(2, dim=1)).to(device)
+
+        # calculate negative cosine similarity between all other image and text embeddings
+        negative_similarity = torch.zeros(image_embeddings.size(0)).to(device)
+
+        for i in range(image_embeddings.size(0)):
+            for j in range(image_embeddings.size(0)):
+                if i != j:
+                    negative_similarity[i] += (image_embeddings[i] * text_embeddings[j]).sum() / (image_embeddings[i].norm(2) * text_embeddings[j].norm(2)).to(device)
+        negative_similarity = negative_similarity / (image_embeddings.size(0) - 1)
+        # calculate loss
+        loss = torch.mean((positive_similarity - negative_similarity + self.margin).clamp(min=0))
+        return loss
+
+"""
+class ContrastiveLoss(nn.Module):
     def __init__(self, margin=1):
         super().__init__()
         self.margin = margin
@@ -151,6 +218,7 @@ class ContrastiveLoss(nn.Module):
         # calculate loss
         loss = torch.mean((positive_distance - negative_distance + self.margin).clamp(min=0))
         return loss
+        """
 
 
 def train_model(model,device,epoch,path_train,path_out):
