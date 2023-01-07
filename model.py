@@ -71,9 +71,6 @@ def train_one_epoch(model,device,dataloader,optimizer):
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
 
-        print(image_emds.size())
-        print(text_emds.size())
-
         loss_per_batch = criterion(text_emds,image_emds,device)
         loss+=float(loss_per_batch)
         model.zero_grad()
@@ -140,7 +137,7 @@ def open_images(image_paths):
 
 
 class ContrastiveLoss(nn.Module):
-    def __init__(self, margin=0):
+    def __init__(self, margin=1):
         super().__init__()
         self.margin = margin
 
