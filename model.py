@@ -85,6 +85,7 @@ def evaluate(model,device, dataloader):
     model.eval()
     correct = 0
     total = 0
+    mrr = 0
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #generate embeddings for context + augmentation
@@ -114,8 +115,12 @@ def evaluate(model,device, dataloader):
             total+=1
             if int(np.argmin(similarities,axis=0))==0:
                 correct+=1
+            rank = np.argsort(similarities)[0]
+            mrr+=1/rank
+    hit_rate = correct/total
+    mrr = mrr/total
 
-    return correct/total
+    return hit_rate,mrr
 
 
 def open_images(image_paths):
@@ -207,14 +212,16 @@ if __name__ == "__main__":
             dev_dataloader = pickle.load(pickle_file)
 
         print("--------------Evaluation On Dev Using Original Model---------------")
-        accuracy = evaluate(model, device, dev_dataloader)
-        print("--------------Accuracy {}---------------".format(accuracy))
+        hit_rate,mrr = evaluate(model, device, dev_dataloader)
+        print("--------------Accuracy {}---------------".format(hit_rate))
+        print("--------------MRR {}---------------".format(mrr))
 
         for i in range(int(args.epoch)):
             filepath = args.output + "/inferencemodel" + str(i)
             model.load_state_dict(torch.load(filepath))
             print("--------------Evaluation On Dev---------------")
-            accuracy = evaluate(model,device, dev_dataloader)
-            print("--------------Accuracy {}---------------".format(accuracy))
+            hit_rate,mrr = evaluate(model,device, dev_dataloader)
+            print("--------------Accuracy {}---------------".format(hit_rate))
+            print("--------------MRR {}---------------".format(mrr))
     else:
         print("Wrong mode")
