@@ -44,9 +44,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
     criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-
         text_emds = list()
-
         tokens = list()
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
@@ -72,6 +70,10 @@ def train_one_epoch(model,device,dataloader,optimizer):
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
+
+        print(image_emds.size())
+        print(text_emds.size())
+
         loss_per_batch = criterion(text_emds,image_emds,device)
         loss+=float(loss_per_batch)
         model.zero_grad()
@@ -145,6 +147,7 @@ class ContrastiveLoss(nn.Module):
     def forward(self, image_embeddings, text_embeddings,device):
         # calculate positive distance between matching image and text embeddings
         positive_distance = (image_embeddings - text_embeddings).pow(2).sum(1).to(device)
+
         # calculate negative distance between all other image and text embeddings
         negative_distance = torch.zeros(image_embeddings.size(0)).to(device)
 
