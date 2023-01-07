@@ -210,7 +210,7 @@ if __name__ == "__main__":
         accuracy = evaluate(model, device, dev_dataloader)
         print("--------------Accuracy {}---------------".format(accuracy))
 
-            """
+        """
         for i in range(int(args.epoch)):
             filepath = args.output + "/inferencemodel" + str(i)
             model.load_state_dict(torch.load(filepath))
