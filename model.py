@@ -206,12 +206,17 @@ if __name__ == "__main__":
         with open(args.dev, 'rb') as pickle_file:
             dev_dataloader = pickle.load(pickle_file)
 
+        print("--------------Evaluation On Dev---------------")
+        accuracy = evaluate(model, device, dev_dataloader)
+        print("--------------Accuracy {}---------------".format(accuracy))
+
+            """
         for i in range(int(args.epoch)):
             filepath = args.output + "/inferencemodel" + str(i)
             model.load_state_dict(torch.load(filepath))
             print("--------------Evaluation On Dev---------------")
             accuracy = evaluate(model,device, dev_dataloader)
             print("--------------Accuracy {}---------------".format(accuracy))
-
+            """
     else:
         print("Wrong mode")
