@@ -147,12 +147,10 @@ def evaluate(model,device, dataloader):
             similarities = similarities.detach().numpy()
             total+=1
             rank = int(np.argsort(np.argsort(similarities))[0])
-            print(rank)
-            print(similarities)
 #            if int(np.argmin(similarities,axis=0))==0:
-            if int(rank) == 0:
+            if int(rank) == 9:
                 correct+=1
-            mrr+=1/(rank+1)
+            mrr+=1/(10-rank)
     hit_rate = correct/total
     mrr = mrr/total
 
