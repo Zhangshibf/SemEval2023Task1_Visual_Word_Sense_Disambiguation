@@ -143,13 +143,15 @@ def evaluate(model,device, dataloader):
             i_emds = torch.stack(i_emds).squeeze().to(device)
             cos = nn.CosineSimilarity(dim=1)
             similarities = cos(t_emds, i_emds)
-            print(similarities)
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total+=1
-            if int(np.argmin(similarities,axis=0))==0:
+            rank = int(np.argsort(similarities)[0])
+            print(rank)
+            print(similarities)
+#            if int(np.argmin(similarities,axis=0))==0:
+            if int(rank) == 0:
                 correct+=1
-            rank = np.argsort(similarities)[0]
             mrr+=1/(rank+1)
     hit_rate = correct/total
     mrr = mrr/total
