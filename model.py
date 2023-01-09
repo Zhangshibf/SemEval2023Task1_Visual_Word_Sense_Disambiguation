@@ -150,66 +150,7 @@ def pretraining_loss(image_embeddings, text_embeddings):
     return torch.mean(image_losses) + torch.mean(text_losses)
 
 
-"""
-    # Calculate the dot product between every image and every text embedding in the batch
-    dot_products = torch.einsum('bi,bj->bij', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
-                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
-    print(dot_products.size())
 
-    # Calculate the loss for each image in the batch
-    image_losses = -torch.log(torch.exp(dot_products[:, :, 0]) / torch.sum(torch.exp(dot_products), dim=2))
-
-    # Calculate the loss for each text in the batch
-    text_losses = -torch.log(torch.exp(dot_products[:, 0, :]) / torch.sum(torch.exp(dot_products), dim=1))
-
-    # Return the sum of the losses for all images and texts in the batch
-    return torch.mean(image_losses) + torch.mean(text_losses)"""
-
-
-"""
-class ContrastiveLoss(nn.Module):
-    #cosine similarity
-    def __init__(self, margin=1):
-        super().__init__()
-        self.margin = margin
-
-    def forward(self, image_embeddings, text_embeddings, device):
-        # calculate positive cosine similarity between matching image and text embeddings
-        positive_similarity = (image_embeddings * text_embeddings).sum(1) / (image_embeddings.norm(2, dim=1) * text_embeddings.norm(2, dim=1)).to(device)
-
-        # calculate negative cosine similarity between all other image and text embeddings
-        negative_similarity = torch.zeros(image_embeddings.size(0)).to(device)
-
-        for i in range(image_embeddings.size(0)):
-            for j in range(image_embeddings.size(0)):
-                if i != j:
-                    negative_similarity[i] += (image_embeddings[i] * text_embeddings[j]).sum() / (image_embeddings[i].norm(2) * text_embeddings[j].norm(2)).to(device)
-        negative_similarity = negative_similarity / (image_embeddings.size(0) - 1)
-        # calculate loss
-        loss = torch.mean((positive_similarity - negative_similarity + self.margin).clamp(min=0))
-        return loss
-
-class ContrastiveLoss(nn.Module):
-    def __init__(self, margin=1):
-        super().__init__()
-        self.margin = margin
-
-    def forward(self, image_embeddings, text_embeddings,device):
-        # calculate positive distance between matching image and text embeddings
-        positive_distance = (image_embeddings - text_embeddings).pow(2).sum(1).to(device)
-
-        # calculate negative distance between all other image and text embeddings
-        negative_distance = torch.zeros(image_embeddings.size(0)).to(device)
-
-        for i in range(image_embeddings.size(0)):
-            for j in range(image_embeddings.size(0)):
-                if i != j:
-                    negative_distance[i] += (image_embeddings[i] - text_embeddings[j]).pow(2).sum()
-        negative_distance = negative_distance / (image_embeddings.size(0) - 1)
-        # calculate loss
-        loss = torch.mean((positive_distance - negative_distance + self.margin).clamp(min=0))
-        return loss
-        """
 
 
 def train_model(model,device,epoch,path_train,path_out):
