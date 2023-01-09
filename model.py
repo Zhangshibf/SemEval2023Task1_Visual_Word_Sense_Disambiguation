@@ -62,7 +62,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
 
-        loss_per_batch = pretraining_loss(text_emds,image_emds,device)
+        loss_per_batch = pretraining_loss(image_emds,text_emds)
         loss+=float(loss_per_batch)
         model.zero_grad()
 
