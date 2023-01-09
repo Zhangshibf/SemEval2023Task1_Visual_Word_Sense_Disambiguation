@@ -173,20 +173,24 @@ def open_images(image_paths):
 
     return images
 
+
+
+
+
 def pretraining_loss(image_embeddings, text_embeddings):
-    # Calculate the dot product between the normalized image and text embeddings
-    dot_products = torch.einsum('bi,bj->b', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
-                                             text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
+    # Calculate the dot product between every image and every text embedding in the batch
+    dot_products = torch.einsum('bi,bj->bij', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
+                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
     print(dot_products.size())
 
-    # Calculate the sum of the dot products between the normalized image embeddings and all other text embeddings in the batch
-    other_text_dot_products = torch.sum(dot_products, dim=0, keepdim=True) - dot_products
-
     # Calculate the loss for each image in the batch
-    losses = -torch.log(torch.exp(dot_products) / (torch.exp(dot_products) + torch.exp(other_text_dot_products)))
+    image_losses = -torch.log(torch.exp(dot_products[:, :, 0]) / torch.sum(torch.exp(dot_products), dim=2))
 
-    # Return the sum of the losses for all images in the batch
-    return torch.sum(losses)
+    # Calculate the loss for each text in the batch
+    text_losses = -torch.log(torch.exp(dot_products[:, 0, :]) / torch.sum(torch.exp(dot_products), dim=1))
+
+    # Return the sum of the losses for all images and texts in the batch
+    return torch.mean(image_losses) + torch.mean(text_losses)
 
 
 """
