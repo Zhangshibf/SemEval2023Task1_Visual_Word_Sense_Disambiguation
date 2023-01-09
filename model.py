@@ -101,6 +101,7 @@ def evaluate(model,device, dataloader):
                 i_emds.append(model(None, input_image, setting="image").image_embeds)
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
+            #change here. Use dot product instead of cosine similarity
             cos = nn.CosineSimilarity(dim=1)
             similarities = cos(t_emds, i_emds)
             similarities = similarities.cpu()
@@ -138,7 +139,7 @@ def pretraining_loss(image_embeddings, text_embeddings):
     # Calculate the dot product between every image and every text embedding in the batch
     dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
-    print(dot_products.size())
+#    print(dot_products.size())
 
     # Calculate the loss for each image in the batch
     image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
@@ -259,10 +260,10 @@ if __name__ == "__main__":
         with open(args.dev, 'rb') as pickle_file:
             dev_dataloader = pickle.load(pickle_file)
 
-        print("--------------Evaluation On Dev Using Original Model---------------")
-        hit_rate,mrr = evaluate(model, device, dev_dataloader)
-        print("--------------Accuracy {}---------------".format(hit_rate))
-        print("--------------MRR {}---------------".format(mrr))
+#        print("--------------Evaluation On Dev Using Original Model---------------")
+#        hit_rate,mrr = evaluate(model, device, dev_dataloader)
+#        print("--------------Accuracy {}---------------".format(hit_rate))
+#        print("--------------MRR {}---------------".format(mrr))
 
         for i in range(int(args.epoch)):
             filepath = args.output + "/inferencemodel" + str(i)
