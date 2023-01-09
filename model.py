@@ -180,7 +180,7 @@ def pretraining_loss(image_embeddings, text_embeddings):
     print(dot_products.size())
 
     # Calculate the sum of the dot products between the normalized image embeddings and all other text embeddings in the batch
-    other_text_dot_products = torch.sum(dot_products, dim=1, keepdim=True) - dot_products
+    other_text_dot_products = torch.sum(dot_products, dim=0, keepdim=True) - dot_products
 
     # Calculate the loss for each image in the batch
     losses = -torch.log(torch.exp(dot_products) / (torch.exp(dot_products) + torch.exp(other_text_dot_products)))
