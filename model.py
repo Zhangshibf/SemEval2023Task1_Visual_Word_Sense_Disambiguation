@@ -72,47 +72,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
     return loss
 
-"""
-def evaluate(model,device, dataloader):
-    model.eval()
-    correct = 0
-    total = 0
-    mrr = 0
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        #generate embeddings for context + augmentation
-        text_emds = list()
-        tokens = list()
-        for i, j in zip(contexts, augmentations):
-            context_augmented = i + " " + j
-            # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
-            tokens.append(input_ids)
 
-        paths = [i.split("#") for i in image_paths]
-        for t,ps in zip(tokens,paths):
-            t = t.to(device)
-            t_emds = model(t, None, setting="text").text_embeds
-            images = open_images(ps)
-            i_emds = list()
-            for k in images:
-                input_image = k['pixel_values'].to(device)
-                i_emds.append(model(None, input_image, setting="image").image_embeds)
-
-            i_emds = torch.stack(i_emds).squeeze().to(device)
-            similarities = torch.nn.functional.pairwise_distance(t_emds, i_emds)
-            similarities = similarities.cpu()
-            similarities = similarities.detach().numpy()
-            total+=1
-            if int(np.argmin(similarities,axis=0))==0:
-                correct+=1
-            rank = np.argsort(similarities)[0]
-            mrr+=1/(rank+1)
-    hit_rate = correct/total
-    mrr = mrr/total
-
-    return hit_rate,mrr
-    """
 def evaluate(model,device, dataloader):
     #cosine similarity instead of L2 distance
     model.eval()
@@ -179,6 +139,21 @@ def open_images(image_paths):
 
 def pretraining_loss(image_embeddings, text_embeddings):
     # Calculate the dot product between every image and every text embedding in the batch
+    dot_products = torch.einsum('bi,bj->bb', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
+                                              text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
+
+    # Calculate the loss for each image in the batch
+    image_losses = -torch.log(torch.exp(dot_products[:, 0]) / torch.sum(torch.exp(dot_products), dim=1))
+
+    # Calculate the loss for each text in the batch
+    text_losses = -torch.log(torch.exp(dot_products[0, :]) / torch.sum(torch.exp(dot_products), dim=0))
+
+    # Return the average loss for all images and texts in the batch
+    return torch.mean(image_losses) + torch.mean(text_losses)
+
+
+"""
+    # Calculate the dot product between every image and every text embedding in the batch
     dot_products = torch.einsum('bi,bj->bij', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
                                                text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
     print(dot_products.size())
@@ -190,7 +165,7 @@ def pretraining_loss(image_embeddings, text_embeddings):
     text_losses = -torch.log(torch.exp(dot_products[:, 0, :]) / torch.sum(torch.exp(dot_products), dim=1))
 
     # Return the sum of the losses for all images and texts in the batch
-    return torch.mean(image_losses) + torch.mean(text_losses)
+    return torch.mean(image_losses) + torch.mean(text_losses)"""
 
 
 """
