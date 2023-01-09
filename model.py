@@ -32,7 +32,7 @@ class clip_model(nn.Module):
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
-    criterion = ContrastiveLoss()
+#    criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         text_emds = list()
@@ -62,7 +62,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
 
-        loss_per_batch = criterion(text_emds,image_emds,device)
+        loss_per_batch = pretraining_loss(text_emds,image_emds,device)
         loss+=float(loss_per_batch)
         model.zero_grad()
 
@@ -173,7 +173,22 @@ def open_images(image_paths):
 
     return images
 
+def pretraining_loss(image_embeddings, text_embeddings):
+    # Calculate the dot product between the normalized image and text embeddings
+    dot_products = torch.einsum('bi,bj->b', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
+                                             text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
 
+    # Calculate the sum of the dot products between the normalized image embeddings and all other text embeddings in the batch
+    other_text_dot_products = torch.sum(dot_products, dim=1, keepdim=True) - dot_products
+
+    # Calculate the loss for each image in the batch
+    losses = -torch.log(torch.exp(dot_products) / (torch.exp(dot_products) + torch.exp(other_text_dot_products)))
+
+    # Return the sum of the losses for all images in the batch
+    return torch.sum(losses)
+
+
+"""
 class ContrastiveLoss(nn.Module):
     #cosine similarity
     def __init__(self, margin=1):
@@ -196,7 +211,6 @@ class ContrastiveLoss(nn.Module):
         loss = torch.mean((positive_similarity - negative_similarity + self.margin).clamp(min=0))
         return loss
 
-"""
 class ContrastiveLoss(nn.Module):
     def __init__(self, margin=1):
         super().__init__()
