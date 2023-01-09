@@ -134,13 +134,11 @@ def open_images(image_paths):
     return images
 
 
-
-
-
 def pretraining_loss(image_embeddings, text_embeddings):
     # Calculate the dot product between every image and every text embedding in the batch
-    dot_products = torch.einsum('bi,bj->bb', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
+    dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
+    print(dot_products.size())
 
     # Calculate the loss for each image in the batch
     image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
