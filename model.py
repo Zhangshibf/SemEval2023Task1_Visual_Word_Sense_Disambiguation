@@ -102,8 +102,11 @@ def evaluate(model,device, dataloader):
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
             #change here. Use dot product instead of cosine similarity
-            cos = nn.CosineSimilarity(dim=1)
-            similarities = cos(t_emds, i_emds)
+#            cos = nn.CosineSimilarity(dim=1)
+#            similarities = cos(t_emds, i_emds)
+            t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
+            i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
+            similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total+=1
@@ -201,10 +204,10 @@ if __name__ == "__main__":
         with open(args.dev, 'rb') as pickle_file:
             dev_dataloader = pickle.load(pickle_file)
 
-#        print("--------------Evaluation On Dev Using Original Model---------------")
-#        hit_rate,mrr = evaluate(model, device, dev_dataloader)
-#        print("--------------Accuracy {}---------------".format(hit_rate))
-#        print("--------------MRR {}---------------".format(mrr))
+        print("--------------Evaluation On Dev Using Original Model---------------")
+        hit_rate,mrr = evaluate(model, device, dev_dataloader)
+        print("--------------Accuracy {}---------------".format(hit_rate))
+        print("--------------MRR {}---------------".format(mrr))
 
         for i in range(int(args.epoch)):
             filepath = args.output + "/inferencemodel" + str(i)
