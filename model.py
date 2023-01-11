@@ -40,20 +40,25 @@ def train_one_epoch(model,device,dataloader,optimizer):
             context_augmented = i + " " + j
             # Tokenize the input text
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
-            input_ids = input_ids.to(device)
+            input_ids = input_ids
             tokens.append(input_ids)
 
             paths = k.split("#")
             img = open_images(paths)
             for k in range(len(img)):
                 input_image = img[k]['pixel_values']
-                input_image = input_image.to(device)
+                input_image = input_image
                 images.append(input_image)
                 if k ==0:
                     labels.append(p_label)
                 else:
                     labels.append(n_label)
-
+        tokens = torch.stack(tokens).squeeze().to(device)
+        images = torch.stack(images).squeeze().to(device)
+        labels = torch.stack(labels).squeeze().to(device)
+        print(tokens.size())
+        print(images.size())
+        print(labels.size())
         prediction = model(tokens,images)
         loss_per_batch = torch.nn.functional.binary_cross_entropy(prediction,labels)
         loss+=float(loss_per_batch)
