@@ -72,7 +72,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         loss_per_batch.backward()
         optimizer.step()
 
-    return correct_total/instance_total,loss_per_batch/instance_total
+    return correct_total/instance_total,loss_per_batch
 
 def calculate_correct(prediction,labels):
     correct = 0
@@ -81,6 +81,9 @@ def calculate_correct(prediction,labels):
     for a,b in zip(pre,gold):
         if a==b:
             correct+=1
+    print(prediction)
+    print(labels)
+    print(correct)
 
     return correct
 
@@ -180,8 +183,8 @@ def train_model(model,device,epoch,path_train,path_out):
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
         avg_accuracy,avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
-        print("--------------Loss per instance{}---------------".format(avg_loss))
-        print("--------------Accuracy{}---------------".format(avg_accuracy))
+        print("--------------Loss {}---------------".format(avg_loss))
+        print("--------------Accuracy {}---------------".format(avg_accuracy))
         filepath = path_out+"/inferencemodel"+str(i)
         torch.save(model.state_dict(), filepath)
         print("--------------Model saved at {}---------------".format(filepath))
