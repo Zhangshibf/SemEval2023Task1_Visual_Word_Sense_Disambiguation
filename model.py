@@ -43,16 +43,16 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
         tokens= torch.tensor([tokenizer.encode(texts,max_length=77,truncation=True,padding=True)])
 
-            paths = k.split("#")
-            img = open_images(paths)
-            for k in range(len(img)):
-                input_image = img[k]['pixel_values']
-                input_image = input_image
-                images.append(input_image)
-                if k ==0:
-                    labels.append(p_label)
-                else:
-                    labels.append(n_label)
+        paths = k.split("#")
+        img = open_images(paths)
+        for k in range(len(img)):
+            input_image = img[k]['pixel_values']
+            input_image = input_image
+            images.append(input_image)
+            if k ==0:
+                labels.append(p_label)
+            else:
+                labels.append(n_label)
         tokens = torch.stack(tokens).squeeze().to(device)
         images = torch.stack(images).squeeze().to(device)
         labels = torch.stack(labels).squeeze().to(device)
