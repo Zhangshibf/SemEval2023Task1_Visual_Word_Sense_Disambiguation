@@ -87,7 +87,6 @@ def calculate_correct(prediction,labels):
             scores.append(pre[j][0])
         if np.argmax(np.array(scores))==0:
             correct+=1
-    print(correct)
 
     return correct
 
@@ -109,8 +108,6 @@ def calculate_mrr(prediction,labels):
 
 
 def evaluate(model,device, dataloader):
-    #now use normalized dot product instead of cosine similarity
-    #cosine similarity instead of L2 distance
     model.eval()
     mrr_total = 0
     correct_total = 0
