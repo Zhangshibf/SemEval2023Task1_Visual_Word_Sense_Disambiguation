@@ -43,7 +43,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
             input_ids = input_ids.to(device)
             tokens.append(input_ids)
 
-            paths = [k.split("#")]
+            paths = k.split("#")
             img = open_images(paths)
             for k in range(len(img)):
                 input_image = img[k]['pixel_values']
