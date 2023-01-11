@@ -1,12 +1,11 @@
 #fine tune CLIP model
-
 from load_data import *
 from PIL import Image
 import argparse
 from PIL import ImageFile
 import torchvision.transforms as transforms
 from torch import nn
-from transformers import CLIPTextConfig,CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
+from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 from torch import optim
 
@@ -15,58 +14,51 @@ class clip_model(nn.Module):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
+        self.linear = nn.functional.linear(1024,2)
+        self.softmax = nn.softmax()
 
-    def forward(self, text, image,setting):
-        setting_types = ["text","image"]
-        if setting not in setting_types:
-            raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
+    def forward(self, text, image):
+        text_outputs = self.text_encoder(text).text_embeds
+        image_outputs = self.image_encoder(image).image_embeds
+        concat = torch.cat((text_outputs,image_outputs), 1)
+        out = self.linear(concat)
+        prediction = self.softmax(out)
 
-        if setting == "text":
-            text_outputs = self.text_encoder(text)
-            return text_outputs
-
-        elif setting == "image":
-            image_outputs = self.image_encoder(image)
-            return image_outputs
+        return prediction
 
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
-#    criterion = ContrastiveLoss()
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        text_emds = list()
         tokens = list()
-        for i, j in zip(contexts, augmentations):
+        images = list()
+        labels = list()
+        p_label = torch.tensor([1,0])
+        n_label = torch.tensor[(0,1)]
+        for i, j,k in zip(contexts, augmentations,image_paths):
             context_augmented = i + " " + j
             # Tokenize the input text
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
+            input_ids = input_ids.to(device)
             tokens.append(input_ids)
 
-        for t in tokens:
-            t = t.to(device)
-            outputs = model(t,None,setting = "text")
-            text_emds.append(outputs.text_embeds)
+            paths = [k.split("#")]
+            img = open_images(paths)
+            for k in range(len(img)):
+                input_image = img[k]['pixel_values']
+                input_image = input_image.to(device)
+                images.append(input_image)
+                if k ==0:
+                    labels.append(p_label)
+                else:
+                    labels.append(n_label)
 
-        image_emds = list()
-        paths = [i.split("#")[0] for i in image_paths]
-        images = open_images(paths)
-        for k in images:
-            input_image = k['pixel_values']
-            input_image = input_image.to(device)
-            outputs = model(None, input_image, setting="image")
-            image_emds.append(outputs.image_embeds)
-
-        image_emds = torch.stack((image_emds)).squeeze(dim=1)
-        text_emds = torch.stack((text_emds)).squeeze(dim=1)
-        image_emds = image_emds.to(device)
-        text_emds = text_emds.to(device)
-
-        loss_per_batch = pretraining_loss(image_emds,text_emds)
+        prediction = model(tokens,images)
+        loss_per_batch = torch.nn.functional.binary_cross_entropy(prediction,labels)
         loss+=float(loss_per_batch)
-        model.zero_grad()
 
-        # Backpropagate the loss and update the model weights
+        model.zero_grad()
         loss_per_batch.backward()
         optimizer.step()
 
@@ -74,6 +66,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 
 def evaluate(model,device, dataloader):
+    #now use normalized dot product instead of cosine similarity
     #cosine similarity instead of L2 distance
     model.eval()
     correct = 0
@@ -101,9 +94,7 @@ def evaluate(model,device, dataloader):
                 i_emds.append(model(None, input_image, setting="image").image_embeds)
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
-            #change here. Use dot product instead of cosine similarity
-#            cos = nn.CosineSimilarity(dim=1)
-#            similarities = cos(t_emds, i_emds)
+
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
             i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
@@ -112,8 +103,6 @@ def evaluate(model,device, dataloader):
             total+=1
 
             rank = int(np.argsort(np.argsort(similarities))[0][0])
-#            rank = int(np.argsort(np.argsort(similarities))[0])
-#            if int(np.argmin(similarities,axis=0))==0:
             if int(rank) == 9:
                 correct+=1
             mrr+=1/(10-rank)
@@ -126,7 +115,7 @@ def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     transform = transforms.Compose(
-        [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        [transforms.Resize([720, 900]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
          ])
     images = list()
     for path in image_paths:
@@ -139,12 +128,11 @@ def open_images(image_paths):
 
     return images
 
-
+#change this into 1 positive vs 9 negative
 def pretraining_loss(image_embeddings, text_embeddings):
     # Calculate the dot product between every image and every text embedding in the batch
     dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
-#    print(dot_products.size())
 
     # Calculate the loss for each image in the batch
     image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
@@ -153,9 +141,6 @@ def pretraining_loss(image_embeddings, text_embeddings):
     text_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=0))
 
     return torch.mean(image_losses) + torch.mean(text_losses)
-
-
-
 
 
 def train_model(model,device,epoch,path_train,path_out):
