@@ -57,7 +57,7 @@ for k in images:
     outputs = model(None, input_image, setting="image")
     image_emds.append(outputs.image_embeds)
 
-text_emds_p, image_emds_p = model(tokens, images[0], setting="balbla")
+text_emds_p, image_emds_p = model(tokens, images[0]['pixel_values'], setting="balbla")
 
 print(text_emds)
 print(text_emds_p)
