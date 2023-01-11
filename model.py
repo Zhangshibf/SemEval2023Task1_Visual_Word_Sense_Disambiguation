@@ -32,16 +32,16 @@ def train_one_epoch(model,device,dataloader,optimizer):
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         tokens = list()
+        texts = list()
         images = list()
         labels = list()
         p_label = torch.tensor([1,0])
         n_label = torch.tensor([0,1])
         for i, j,k in zip(contexts, augmentations,image_paths):
             context_augmented = i + " " + j
-            # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
-            input_ids = input_ids
-            tokens.append(input_ids)
+            texts.append(context_augmented)
+
+        tokens= torch.tensor([tokenizer.encode(texts,max_length=77,truncation=True,padding=True)])
 
             paths = k.split("#")
             img = open_images(paths)
