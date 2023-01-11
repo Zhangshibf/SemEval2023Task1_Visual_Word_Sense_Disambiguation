@@ -53,6 +53,9 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
             context_augmented = i + " " + j
             texts.append(context_augmented)
+
+        texts = [[i]*10 for i in texts]
+        texts = [item for sublist in texts for item in sublist]
         tokens= clip.tokenize(texts).to(device)
         print(tokens)
         tokens = tokens.to(device)

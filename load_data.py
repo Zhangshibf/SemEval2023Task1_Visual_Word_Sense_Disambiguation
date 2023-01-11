@@ -1,4 +1,3 @@
-
 import os
 import pickle
 from torch.utils.data import Dataset, DataLoader,random_split
@@ -123,11 +122,6 @@ if __name__ == "__main__":
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Create the dataset
     dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
-    # Create the dataloader
-    dataloader = DataLoader(dataset, batch_size=128, shuffle=True)
-
-    dataset = ImageTextDataset(args.train, data_type="train", device=device, text_augmentation=True)
-
     # Split the dataloader into train, dev, and test sets
     train_size = int(0.8 * len(dataset))
     dev_size = int(0.1 * len(dataset))
@@ -136,9 +130,9 @@ if __name__ == "__main__":
     train_dataset, dev_dataset, test_dataset = random_split(dataset, [train_size, dev_size, test_size])
 
     # Create dataloaders for each set
-    train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True)
-    dev_dataloader = DataLoader(dev_dataset, batch_size=128, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=128, shuffle=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+    dev_dataloader = DataLoader(dev_dataset, batch_size=8, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=True)
 
     train_path = args.output+"/train.pk"
     dev_path = args.output + "/dev.pk"
