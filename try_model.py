@@ -1,44 +1,20 @@
-import clip
-import open_clip
-import os
-from load_data import *
-import torch
-from load_data import *
-from torch.utils.data import Dataset, DataLoader, random_split
-import requests
-import torchvision.transforms as transforms
-from transformers import CLIPProcessor, CLIPTokenizer, CLIPTextModel, CLIPVisionModel
-from torch import nn
-import pandas as pd
-from nltk.corpus import wordnet as wn
-import nltk
-from sentence_transformers import SentenceTransformer, util
-import torch
-from math import log
-from torch import optim
 #fine tune CLIP model
-import os
-import torch
 from load_data import *
-from torch.utils.data import Dataset, DataLoader,random_split
-import requests
+from PIL import Image
+import argparse
+from PIL import ImageFile
 import torchvision.transforms as transforms
-from transformers import CLIPProcessor, CLIPModel, CLIPTokenizer, CLIPTextModel,CLIPVisionModel
 from torch import nn
-import pandas as pd
-from nltk.corpus import wordnet as wn
-import nltk
-from sentence_transformers import SentenceTransformer, util
-import torch as T
-from math import log
+from transformers import CLIPTextConfig,CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
+import torch
 from torch import optim
+
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
-#        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
-#        self.image_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+
     def forward(self, text, image,setting):
         setting_types = ["text","image"]
         if setting not in setting_types:
@@ -47,63 +23,197 @@ class clip_model(nn.Module):
         if setting == "text":
             text_outputs = self.text_encoder(text)
             return text_outputs
-#            text_emd1 = text_outputs.last_hidden_state
-#            text_emd2 = text_outputs.pooler_output
-#            return text_emd1,text_emd2
 
         elif setting == "image":
-            # encode image
             image_outputs = self.image_encoder(image)
             return image_outputs
 
-class ContrastiveLoss(nn.Module):
-    def __init__(self, m=2.0):
-        super(ContrastiveLoss, self).__init__()
-        self.m = m  # margin or radius
+def train_one_epoch(model,device,dataloader,optimizer):
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
+    loss = 0
+#    criterion = ContrastiveLoss()
+    # Train CLIP model for one epoch
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+        text_emds = list()
+        tokens = list()
+        for i, j in zip(contexts, augmentations):
+            context_augmented = i + " " + j
+            # Tokenize the input text
+            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
+            tokens.append(input_ids)
 
-    def forward(self, y1, y2, d=0):
-        # d = 0 means y1 and y2 are supposed to be same
-        # d = 1 means y1 and y2 are supposed to be different
+        for t in tokens:
+            t = t.to(device)
+            outputs = model(t,None,setting = "text")
+            text_emds.append(outputs.text_embeds)
 
-        euc_dist = nn.functional.pairwise_distance(y1, y2)
+        image_emds = list()
+        paths = [i.split("#")[0] for i in image_paths]
+        #these are positive images
+        images = open_images(paths)
+        for k in images:
+            input_image = k['pixel_values']
+            input_image = input_image.to(device)
+            outputs = model(None, input_image, setting="image")
+            image_emds.append(outputs.image_embeds)
 
-        if d == 0:
-            return torch.mean(torch.pow(euc_dist, 2))  # distance squared
-        else:  # d == 1
-            delta = self.m - euc_dist  # sort of reverse distance
-            delta = torch.clamp(delta, min=0.0, max=None)
-            return torch.mean(torch.pow(delta, 2))  # mean over all rows
+        image_emds = torch.stack((image_emds)).squeeze(dim=1)
+        text_emds = torch.stack((text_emds)).squeeze(dim=1)
+        image_emds = image_emds.to(device)
+        text_emds = text_emds.to(device)
 
-def main():
-  print("\nBegin contrastive loss demo \n")
+        loss_per_batch = pretraining_loss(image_emds,text_emds)
+        loss+=float(loss_per_batch)
+        model.zero_grad()
 
-  loss_func = ContrastiveLoss()
-  device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        # Backpropagate the loss and update the model weights
+        loss_per_batch.backward()
+        optimizer.step()
 
-  y1 = T.tensor([[1.0, 2.0, 3.0],
-                 [3.0, 4.0, 5.0]], dtype=T.float32).to(device)
+    return loss
 
-  y2 = T.tensor([[1.0, 2.0, 3.0],
-                 [3.0, 4.0, 5.0]], dtype=T.float32).to(device)
 
-  y3 = T.tensor([[10.0, 20.0, 30.0],
-                 [30.0, 40.0, 50.0]], dtype=T.float32).to(device)
+def evaluate(model,device, dataloader):
+    #now use normalized dot product instead of cosine similarity
+    #cosine similarity instead of L2 distance
+    model.eval()
+    correct = 0
+    total = 0
+    mrr = 0
+    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+        #generate embeddings for context + augmentation
+        text_emds = list()
+        tokens = list()
+        for i, j in zip(contexts, augmentations):
+            context_augmented = i + " " + j
+            # Tokenize the input text
+            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
+            tokens.append(input_ids)
 
-  loss = loss_func(y1, y2, 0)
-  print(loss)  # 0.0 -- small; y1 y2 should be equal
+        paths = [i.split("#") for i in image_paths]
+        for t,ps in zip(tokens,paths):
+            t = t.to(device)
+            t_emds = model(t, None, setting="text").text_embeds
+            images = open_images(ps)
+            i_emds = list()
+            for k in images:
+                input_image = k['pixel_values'].to(device)
+                i_emds.append(model(None, input_image, setting="image").image_embeds)
 
-  loss = loss_func(y1, y2, 1)
-  print(loss)  # 4.0 -- large; y1 y2 should be different
+            i_emds = torch.stack(i_emds).squeeze().to(device)
+            #change here. Use dot product instead of cosine similarity
+#            cos = nn.CosineSimilarity(dim=1)
+#            similarities = cos(t_emds, i_emds)
+            t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
+            i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
+            similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
+            similarities = similarities.cpu()
+            similarities = similarities.detach().numpy()
+            total+=1
 
-  loss = loss_func(y1, y3, 0)
-  print(loss)  # 2591.99 -- large; y1 y3 should be equal
+            rank = int(np.argsort(np.argsort(similarities))[0][0])
+#            rank = int(np.argsort(np.argsort(similarities))[0])
+#            if int(np.argmin(similarities,axis=0))==0:
+            if int(rank) == 9:
+                correct+=1
+            mrr+=1/(10-rank)
+    hit_rate = correct/total
+    mrr = mrr/total
 
-  loss = loss_func(y1, y3, 1)
-  print(loss)  # 0.0 -- small; y1 y2 should be different
+    return hit_rate,mrr
 
-  loss.backward()
+def open_images(image_paths):
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
+    transform = transforms.Compose(
+        [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+         ])
+    images = list()
+    for path in image_paths:
+        image = Image.open(path)
+        if image.mode != "RGB":
+            image = image.convert('RGB')
+        image = transform(image)
+        image = processor(images=image, return_tensors="pt")
+        images.append(image)
 
-  print("\nEnd demo ")
+    return images
+
+#change this into 1 positive vs 9 negative
+def pretraining_loss(image_embeddings, text_embeddings):
+    # Calculate the dot product between every image and every text embedding in the batch
+    dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
+                                              text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
+
+    # Calculate the loss for each image in the batch
+    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
+
+    # Calculate the loss for each text in the batch
+    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=0))
+
+    return torch.mean(image_losses) + torch.mean(text_losses)
+
+
+def train_model(model,device,epoch,path_train,path_out):
+    #train CLIP model for several epoches
+    model.train()
+    # Create the dataset
+    with open(path_train, 'rb') as pickle_file:
+        train_dataloader = pickle.load(pickle_file)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+    for i in range(epoch):
+        print("--------------Training Epoch {}---------------".format(i))
+        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
+        print("--------------Loss per instance{}---------------".format(avg_loss))
+        filepath = path_out+"/inferencemodel"+str(i)
+        torch.save(model.state_dict(), filepath)
+        print("--------------Model saved at {}---------------".format(filepath))
+
+        state = {'epoch': epoch,
+            'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict()}
+        filepath = path_out + "/trainingmodel" + str(i)
+        torch.save(state, filepath)
+        print("--------------Model saved at {}---------------".format(filepath))
+
 
 if __name__ == "__main__":
-  main()
+    parser = argparse.ArgumentParser(description='Build dataloader')
+    parser.add_argument('--epoch',help = "epoch")
+    parser.add_argument('--train',help = 'path to train dataloader')
+    parser.add_argument('--dev', help='path to dev dataloader')
+    parser.add_argument('--test', help='path to test dataloader')
+    parser.add_argument('--device',help="cuda to be used")
+    parser.add_argument('--output',help = "path to save the model")
+    parser.add_argument('--mode',help='train to train the model, test to evaluate the model')
+    args = parser.parse_args()
+
+    device_str = "cuda:" + str(args.device)
+    device = torch.device(device_str)
+
+    model = clip_model()
+    model = model.to(device)
+
+    if args.mode == 'train':
+        train_model(model, device=device, epoch=5, path_train=args.train, path_out=args.output)
+    elif args.mode == 'test':
+
+        with open(args.dev, 'rb') as pickle_file:
+            dev_dataloader = pickle.load(pickle_file)
+
+        print("--------------Evaluation On Dev Using Original Model---------------")
+        hit_rate,mrr = evaluate(model, device, dev_dataloader)
+        print("--------------Accuracy {}---------------".format(hit_rate))
+        print("--------------MRR {}---------------".format(mrr))
+
+        for i in range(int(args.epoch)):
+            filepath = args.output + "/inferencemodel" + str(i)
+            model.load_state_dict(torch.load(filepath))
+            print("--------------Evaluation On Dev---------------")
+            hit_rate,mrr = evaluate(model,device, dev_dataloader)
+            print("--------------Accuracy {}---------------".format(hit_rate))
+            print("--------------MRR {}---------------".format(mrr))
+    else:
+        print("Wrong mode")
