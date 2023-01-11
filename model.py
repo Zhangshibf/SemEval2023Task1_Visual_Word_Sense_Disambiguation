@@ -40,9 +40,9 @@ def train_one_epoch(model,device,dataloader,optimizer):
         for i, j,k in zip(contexts, augmentations,image_paths):
             context_augmented = i + " " + j
             texts.append(context_augmented)
-
+        print(texts)
         tokens= torch.tensor([tokenizer.encode(texts,max_length=77,truncation=True,padding=True)])
-
+        tokens = tokens.to(device)
         paths = k.split("#")
         img = open_images(paths)
         for k in range(len(img)):
