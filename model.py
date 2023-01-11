@@ -108,6 +108,7 @@ def evaluate(model,device, dataloader):
     #now use normalized dot product instead of cosine similarity
     #cosine similarity instead of L2 distance
     model.eval()
+    mrr_total = 0
     correct_total = 0
     instance_total = 0
     b = 0
@@ -198,7 +199,7 @@ def train_model(model,device,epoch,path_train,path_out):
         print("--------------Training Epoch {}---------------".format(i))
         avg_accuracy,avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
-        print("--------------Accuracy{}---------------".format(accuracy))
+        print("--------------Accuracy{}---------------".format(avg_accuracy))
         filepath = path_out+"/inferencemodel"+str(i)
         torch.save(model.state_dict(), filepath)
         print("--------------Model saved at {}---------------".format(filepath))
