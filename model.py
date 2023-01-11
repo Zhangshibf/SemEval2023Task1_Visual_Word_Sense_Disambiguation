@@ -82,11 +82,10 @@ def calculate_correct(prediction,labels):
     for i in range(int(num)):
         scores = list()
         for j in range(i,i+10):
-            print(pre[j])
             scores.append(pre[j][0])
-            if np.argmax(np.array(scores))==0:
-                correct+=1
-                print(scores)
+        if np.argmax(np.array(scores))==0:
+            correct+=1
+            print(scores)
     print(correct)
 
     return correct
