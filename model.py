@@ -62,11 +62,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
         images = torch.stack(images).squeeze().to(device)
         labels = torch.stack(labels).squeeze().to(device)
-        print(tokens.size())
-        print(images.size())
-        print(labels.size())
         prediction = model(tokens,images)
-        print(prediction.size())
         correct_per_batch = calculate_correct(prediction,labels)
         correct_total+=correct_per_batch
         loss_per_batch = torch.nn.functional.binary_cross_entropy(prediction.float(),labels.float())
