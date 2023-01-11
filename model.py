@@ -28,8 +28,9 @@ class clip_model(nn.Module):
         return prediction
 
 def train_one_epoch(model,device,dataloader,optimizer):
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
-    loss = 0
+    loss_total = 0
+    correct_total = 0
+    instance_total =0
     # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         #this is one batch
@@ -53,11 +54,10 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
             context_augmented = i + " " + j
             texts.append(context_augmented)
-
+        instance_total+=len(texts)
         texts = [[i]*10 for i in texts]
         texts = [item for sublist in texts for item in sublist]
         tokens= clip.tokenize(texts).to(device)
-        print(tokens)
         tokens = tokens.to(device)
 
         images = torch.stack(images).squeeze().to(device)
@@ -66,59 +66,91 @@ def train_one_epoch(model,device,dataloader,optimizer):
         print(images.size())
         print(labels.size())
         prediction = model(tokens,images)
+        correct_per_batch = calculate_correct(prediction,labels)
+        correct_total+=correct_per_batch
         loss_per_batch = torch.nn.functional.binary_cross_entropy(prediction,labels)
-        loss+=float(loss_per_batch)
+        loss_total+=float(loss_per_batch)
 
         model.zero_grad()
         loss_per_batch.backward()
         optimizer.step()
 
-    return loss
+    return correct_total/instance_total,loss_per_batch/instance_total
+
+def calculate_correct(prediction,labels):
+    correct = 0
+    pre = torch.argmax(prediction, dim=1).squeeze().tolist()
+    gold = torch.argmax(labels, dim=1).squeeze().tolist()
+    for a,b in zip(pre,gold):
+        if a==b:
+            correct+=1
+
+    return correct
+
+def calculate_mrr(prediction,labels):
+    prediction = prediction.tolist()
+    labels = labels.tolist()
+    mrr = 0
+    #1 text, 10 images
+    #prediction[:10],prediction[10:20],...
+    num = len(prediction)/10
+    for i in range(num):
+        pred_per_insteance = prediction[int(i*10),int((i+1)*10)]
+        label_per_insteance = labels[int(i*10),int((i+1)*10)]
+        positive = np.array([i[0] for i in pred_per_insteance])
+        rank = int(np.argsort(np.argsort(positive))[0][0])
+        mrr+=1/(10-rank)
+
+    return mrr
 
 
 def evaluate(model,device, dataloader):
     #now use normalized dot product instead of cosine similarity
     #cosine similarity instead of L2 distance
     model.eval()
-    correct = 0
-    total = 0
-    mrr = 0
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        #generate embeddings for context + augmentation
-        text_emds = list()
-        tokens = list()
-        for i, j in zip(contexts, augmentations):
+    correct_total = 0
+    instance_total = 0
+    b = 0
+    # Train CLIP model for one epoch
+    for keywords, contexts, augmentations, image_names, image_paths in dataloader:
+        instance_total+=len(keywords)
+        # this is one batch
+        texts = list()
+        images = list()
+        labels = list()
+        p_label = torch.tensor([1, 0])
+        n_label = torch.tensor([0, 1])
+        for i, j, k in zip(contexts, augmentations, image_paths):
+            paths = k.split("#")
+            img = open_images(paths)
+            for k in range(len(img)):
+                input_image = img[k]['pixel_values']
+                input_image = input_image
+                images.append(input_image)
+                if k == 0:
+                    labels.append(p_label)
+                else:
+                    labels.append(n_label)
+
             context_augmented = i + " " + j
-            # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
-            tokens.append(input_ids)
+            texts.append(context_augmented)
+        instance_total += len(texts)
+        texts = [[i] * 10 for i in texts]
+        texts = [item for sublist in texts for item in sublist]
+        tokens = clip.tokenize(texts).to(device)
+        tokens = tokens.to(device)
 
-        paths = [i.split("#") for i in image_paths]
-        for t,ps in zip(tokens,paths):
-            t = t.to(device)
-            t_emds = model(t, None, setting="text").text_embeds
-            images = open_images(ps)
-            i_emds = list()
-            for k in images:
-                input_image = k['pixel_values'].to(device)
-                i_emds.append(model(None, input_image, setting="image").image_embeds)
+        images = torch.stack(images).squeeze().to(device)
+        labels = torch.stack(labels).squeeze().to(device)
+        prediction = model(tokens, images)
+        correct_per_batch = calculate_correct(prediction, labels)
+        mrr_per_batch = calculate_mrr(prediction,labels)
 
-            i_emds = torch.stack(i_emds).squeeze().to(device)
+        correct_total += correct_per_batch
+        mrr_total += mrr_per_batch
 
-            t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
-            i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
-            similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
-            similarities = similarities.cpu()
-            similarities = similarities.detach().numpy()
-            total+=1
-
-            rank = int(np.argsort(np.argsort(similarities))[0][0])
-            if int(rank) == 9:
-                correct+=1
-            mrr+=1/(10-rank)
-    hit_rate = correct/total
-    mrr = mrr/total
+    hit_rate = correct_total/instance_total
+    mrr = mrr_total/instance_total
 
     return hit_rate,mrr
 
@@ -164,8 +196,9 @@ def train_model(model,device,epoch,path_train,path_out):
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
+        avg_accuracy,avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
         print("--------------Loss per instance{}---------------".format(avg_loss))
+        print("--------------Accuracy{}---------------".format(accuracy))
         filepath = path_out+"/inferencemodel"+str(i)
         torch.save(model.state_dict(), filepath)
         print("--------------Model saved at {}---------------".format(filepath))
