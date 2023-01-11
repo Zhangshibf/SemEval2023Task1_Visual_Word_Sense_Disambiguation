@@ -68,7 +68,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         prediction = model(tokens,images)
         correct_per_batch = calculate_correct(prediction,labels)
         correct_total+=correct_per_batch
-        loss_per_batch = torch.nn.functional.binary_cross_entropy(prediction,labels)
+        loss_per_batch = torch.nn.functional.binary_cross_entropy(prediction.long(),labels.long())
         loss_total+=float(loss_per_batch)
 
         model.zero_grad()
@@ -171,21 +171,6 @@ def open_images(image_paths):
         images.append(image)
 
     return images
-
-#change this into 1 positive vs 9 negative
-def pretraining_loss(image_embeddings, text_embeddings):
-    # Calculate the dot product between every image and every text embedding in the batch
-    dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
-                                              text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
-
-    # Calculate the loss for each image in the batch
-    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
-
-    # Calculate the loss for each text in the batch
-    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=0))
-
-    return torch.mean(image_losses) + torch.mean(text_losses)
-
 
 def train_model(model,device,epoch,path_train,path_out):
     #train CLIP model for several epoches
