@@ -78,8 +78,9 @@ def calculate_correct(prediction,labels):
     correct = 0
     pre = torch.argmax(prediction, dim=1).squeeze().tolist()
     num = len(pre)/10
+    print(num)
     #ten images, the first one is the correct one.
-    for i in range(num):
+    for i in range(int(num)):
         scores = list()
         for j in range(i,i+10):
             scores.append(pre[j][0])
