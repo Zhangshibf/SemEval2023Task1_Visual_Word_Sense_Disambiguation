@@ -53,7 +53,6 @@ def train_one_epoch(model,device,dataloader,optimizer):
                 labels.append(p_label)
             else:
                 labels.append(n_label)
-        tokens = torch.stack(tokens).squeeze().to(device)
         images = torch.stack(images).squeeze().to(device)
         labels = torch.stack(labels).squeeze().to(device)
         print(tokens.size())
