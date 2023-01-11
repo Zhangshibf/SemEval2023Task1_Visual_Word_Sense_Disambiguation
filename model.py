@@ -15,7 +15,7 @@ class clip_model(nn.Module):
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.linear = nn.Linear(1024,2)
-        self.softmax = nn.softmax()
+        self.softmax = nn.Softmax(dim = 1)
 
     def forward(self, text, image):
         text_outputs = self.text_encoder(text).text_embeds
