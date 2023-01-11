@@ -76,7 +76,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 def calculate_correct(prediction,labels):
     correct = 0
-    pre = torch.argmax(prediction, dim=1).squeeze().tolist()
+    pre = prediction.squeeze().tolist()
     num = len(pre)/10
     #ten images, the first one is the correct one.
     for i in range(int(num)):
