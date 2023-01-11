@@ -14,7 +14,7 @@ class clip_model(nn.Module):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
-        self.linear = nn.functional.linear(1024,2)
+        self.linear = nn.Linear(1024,2)
         self.softmax = nn.softmax()
 
     def forward(self, text, image):
