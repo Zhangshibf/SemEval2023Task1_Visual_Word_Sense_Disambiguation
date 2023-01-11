@@ -53,7 +53,7 @@ images = open_images(paths)
 image_emds = list()
 for k in images:
     input_image = k['pixel_values']
-    input_image = input_image.to(device)
+    input_image = input_image
     outputs = model(None, input_image, setting="image")
     image_emds.append(outputs.image_embeds)
 
