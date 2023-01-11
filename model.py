@@ -57,7 +57,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         instance_total+=len(texts)
         texts = [[i]*10 for i in texts]
         texts = [item for sublist in texts for item in sublist]
-        tokens= clip.tokenize(texts).to(device)
+        tokens= clip.tokenize(texts,truncate = True).to(device)
         tokens = tokens.to(device)
 
         images = torch.stack(images).squeeze().to(device)
@@ -135,7 +135,7 @@ def evaluate(model,device, dataloader):
         instance_total += len(texts)
         texts = [[i] * 10 for i in texts]
         texts = [item for sublist in texts for item in sublist]
-        tokens = clip.tokenize(texts).to(device)
+        tokens = clip.tokenize(texts,truncate = True).to(device)
         tokens = tokens.to(device)
 
         images = torch.stack(images).squeeze().to(device)
