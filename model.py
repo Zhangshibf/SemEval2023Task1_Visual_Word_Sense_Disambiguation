@@ -35,7 +35,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         images = list()
         labels = list()
         p_label = torch.tensor([1,0])
-        n_label = torch.tensor[(0,1)]
+        n_label = torch.tensor([0,1])
         for i, j,k in zip(contexts, augmentations,image_paths):
             context_augmented = i + " " + j
             # Tokenize the input text
