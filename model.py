@@ -8,6 +8,7 @@ from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 from torch import optim
+import clip
 
 class clip_model(nn.Module):
     def __init__(self):
@@ -52,8 +53,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
             context_augmented = i + " " + j
             texts.append(context_augmented)
-        print(texts)
-        tokens= torch.tensor([tokenizer.encode(texts,max_length=77,truncation=True,padding=True)])
+        tokens= clip.tokenize(texts).to(device)
         print(tokens)
         tokens = tokens.to(device)
 
