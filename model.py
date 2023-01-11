@@ -15,15 +15,17 @@ class clip_model(nn.Module):
         super(clip_model, self).__init__()
         self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
         self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
-        self.linear = nn.Linear(1024,2)
+        self.linear1 = nn.Linear(1024,300)
+        self.linear2 = nn.Linear(300,2)
         self.softmax = nn.Softmax(dim = 1)
 
     def forward(self, text, image):
         text_outputs = self.text_encoder(text).text_embeds
         image_outputs = self.image_encoder(image).image_embeds
         concat = torch.cat((text_outputs,image_outputs), 1)
-        out = self.linear(concat)
-        prediction = self.softmax(out)
+        out1 = self.linear1(concat)
+        out2 = self.linear2(out1)
+        prediction = self.softmax(out2)
 
         return prediction
 
@@ -85,7 +87,6 @@ def calculate_correct(prediction,labels):
             scores.append(pre[j][0])
         if np.argmax(np.array(scores))==0:
             correct+=1
-            print(scores)
     print(correct)
 
     return correct
