@@ -34,7 +34,7 @@ model = clip_model()
 params = model.state_dict()
 active_param = ['linear1.weight', 'linear1.bias', 'linear2.weight', 'linear2.bias']
 #freeze all params that are not 'linear1.weight', 'linear1.bias', 'linear2.weight', 'linear2.bias'
-for i,j in params.items:
+for i,j in params.items():
     if i not in active_param:
         j.requires_grad = False
 
