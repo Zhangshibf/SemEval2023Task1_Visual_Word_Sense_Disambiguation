@@ -67,9 +67,8 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
         loss_per_batch = pretraining_loss(image_emds,text_emds)
         loss+=float(loss_per_batch)
-        model.zero_grad()
 
-        # Backpropagate the loss and update the model weights
+        model.zero_grad()
         loss_per_batch.backward()
         optimizer.step()
 
@@ -77,16 +76,13 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
 
 def evaluate(model,device, dataloader):
-    #now use normalized dot product instead of cosine similarity
-    #cosine similarity instead of L2 distance
+    #use normalized dot product
     model.eval()
     correct = 0
     total = 0
     mrr = 0
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        #generate embeddings for context + augmentation
-        text_emds = list()
         tokens = list()
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
@@ -158,7 +154,8 @@ def train_model(model,device,epoch,path_train,path_out):
     # Create the dataset
     with open(path_train, 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
+#    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
