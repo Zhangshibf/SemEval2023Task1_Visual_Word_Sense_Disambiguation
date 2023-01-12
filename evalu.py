@@ -20,12 +20,12 @@ class clip_model(nn.Module):
 
     def forward(self, text, image,setting):
         if setting == "text":
-            text_outputs = self.text_encoder(text)
-#            text_emds = self.linear1(text_outputs.text_embeds)
+            text_outputs = self.text_encoder(text).text_embeds
+#            text_emds = self.linear1(text_outputs)
             return text_outputs
 
         elif setting == "image":
-            image_outputs = self.image_encoder(image)
+            image_outputs = self.image_encoder(image).image_embeds
 #            image_emds = self.linear2(image_outputs.image_embeds)
             return image_outputs
 
