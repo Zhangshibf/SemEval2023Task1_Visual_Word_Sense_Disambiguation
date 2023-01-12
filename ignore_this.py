@@ -43,3 +43,6 @@ params = model.state_dict()
 
 model.text_encoder.requires_grad_(False)
 model.image_encoder.requires_grad_(False)
+optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+for i in model.parameters():
+    print(i)
