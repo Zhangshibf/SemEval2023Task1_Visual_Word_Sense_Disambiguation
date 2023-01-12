@@ -119,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
 
-    device = 'gpu:0'
+    device = 'cuda:0'
     # Create the dataset
     dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
     # Split the dataloader into train, dev, and test sets
