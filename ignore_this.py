@@ -33,3 +33,6 @@ class clip_model(nn.Module):
 model = clip_model()
 for param in model.parameters():
     print(param.size())
+
+params = model.state_dict()
+print(params.keys())
