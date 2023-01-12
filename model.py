@@ -213,6 +213,8 @@ if __name__ == "__main__":
     device = torch.device(device_str)
 
     model = clip_model()
+    model.text_encoder.requires_grad_(False)
+    model.image_encoder.requires_grad_(False)
     model = model.to(device)
 
     if args.mode == 'train':
