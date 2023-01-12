@@ -182,10 +182,10 @@ if __name__ == "__main__":
     model.image_encoder.requires_grad_(False)
     model = model.to(device)
 
-    with open("/home/CE/zhangshi/dataloader_8/test.pk", 'rb') as pickle_file:
+    with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
         dev_dataloader = pickle.load(pickle_file)
 
-    filepath = "/home/CE/zhangshi/SemEval23/inference/inferencemodel1"
+    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
 #    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
