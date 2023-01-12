@@ -21,12 +21,12 @@ class clip_model(nn.Module):
     def forward(self, text, image,setting):
         if setting == "text":
             text_outputs = self.text_encoder(text)
-            text_emds = self.linear1(text_outputs)
+            text_emds = self.linear1(text_outputs.text_embeds)
             return text_emds
 
         elif setting == "image":
             image_outputs = self.image_encoder(image)
-            image_emds = self.linear2(image_outputs)
+            image_emds = self.linear2(image_outputs.image_embeds)
             return image_emds
 
         return prediction
@@ -48,7 +48,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
         for t in tokens:
             t = t.to(device)
             outputs = model(t,None,setting = "text")
-            text_emds.append(outputs.text_embeds)
+            text_emds.append(outputs)
 
         image_emds = list()
         paths = [i.split("#")[0] for i in image_paths]
@@ -58,7 +58,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
             input_image = k['pixel_values']
             input_image = input_image.to(device)
             outputs = model(None, input_image, setting="image")
-            image_emds.append(outputs.image_embeds)
+            image_emds.append(outputs)
 
         image_emds = torch.stack((image_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
@@ -97,12 +97,12 @@ def evaluate(model,device, dataloader):
         paths = [i.split("#") for i in image_paths]
         for t,ps in zip(tokens,paths):
             t = t.to(device)
-            t_emds = model(t, None, setting="text").text_embeds
+            t_emds = model(t, None, setting="text")
             images = open_images(ps)
             i_emds = list()
             for k in images:
                 input_image = k['pixel_values'].to(device)
-                i_emds.append(model(None, input_image, setting="image").image_embeds)
+                i_emds.append(model(None, input_image, setting="image"))
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
