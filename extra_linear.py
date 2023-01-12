@@ -196,7 +196,7 @@ if __name__ == "__main__":
     model = model.to(device)
 
     if args.mode == 'train':
-        train_model(model, device=device, epoch=5, path_train=args.train, path_out=args.output)
+        train_model(model, device=device, epoch=args.epoch, path_train=args.train, path_out=args.output)
     elif args.mode == 'test':
 
         with open(args.dev, 'rb') as pickle_file:
