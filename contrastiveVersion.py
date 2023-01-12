@@ -163,8 +163,8 @@ def train_model(model,device,epoch,path_train,path_out):
     # Create the dataset
     with open(path_train, 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    optimizer = optim.Adam(model.parameters(), lr=5e-5,betas=(0.9,0.98),eps=1e-6,weight_decay=0.2)
-
+    optimizer = optim.Adam(model.parameters(), lr=5e-7,betas=(0.9,0.98),eps=1e-6,weight_decay=0.2)
+#loss became nan after only one epoch. I changed the lr from 5e-5 to 5e-7
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
