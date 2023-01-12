@@ -110,6 +110,9 @@ def evaluate(model,device, dataloader):
             rank = int(np.argsort(np.argsort(similarities))[0][0])
             if int(rank) == 9:
                 correct+=1
+                print("c")
+            else:
+                print("no")
             mrr+=1/(10-rank)
     hit_rate = correct/total
     mrr = mrr/total
