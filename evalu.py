@@ -21,15 +21,13 @@ class clip_model(nn.Module):
     def forward(self, text, image,setting):
         if setting == "text":
             text_outputs = self.text_encoder(text)
-            text_emds = self.linear1(text_outputs.text_embeds)
-            return text_emds
+#            text_emds = self.linear1(text_outputs.text_embeds)
+            return text_outputs
 
         elif setting == "image":
             image_outputs = self.image_encoder(image)
-            image_emds = self.linear2(image_outputs.image_embeds)
-            return image_emds
-
-        return prediction
+#            image_emds = self.linear2(image_outputs.image_embeds)
+            return image_outputs
 
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
@@ -188,7 +186,7 @@ if __name__ == "__main__":
         dev_dataloader = pickle.load(pickle_file)
 
     filepath = "/home/CE/zhangshi/SemEval23/inference/inferencemodel1"
-    model.load_state_dict(torch.load(filepath))
+#    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
     print("--------------Accuracy {}---------------".format(hit_rate))
