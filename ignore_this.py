@@ -32,4 +32,4 @@ class clip_model(nn.Module):
 
 model = clip_model()
 for param in model.parameters():
-    print(param)
+    print(param.size())
