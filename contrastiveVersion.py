@@ -5,7 +5,7 @@ import argparse
 from PIL import ImageFile
 import torchvision.transforms as transforms
 from torch import nn
-from transformers import CLIPTextConfig,CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
+from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 from torch import optim
 
@@ -27,6 +27,8 @@ class clip_model(nn.Module):
         elif setting == "image":
             image_outputs = self.image_encoder(image)
             return image_outputs
+
+
 
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
@@ -161,7 +163,7 @@ def train_model(model,device,epoch,path_train,path_out):
     # Create the dataset
     with open(path_train, 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=5e-5,betas=(0.9,0.98),eps=1e-6,weight_decay=0.2)
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
