@@ -32,11 +32,14 @@ class clip_model(nn.Module):
 
 model = clip_model()
 params = model.state_dict()
-active_param = ['linear1.weight', 'linear1.bias', 'linear2.weight', 'linear2.bias']
+#active_param = ['linear1.weight', 'linear1.bias', 'linear2.weight', 'linear2.bias']
 #freeze all params that are not 'linear1.weight', 'linear1.bias', 'linear2.weight', 'linear2.bias'
-for i,j in params.items():
-    if i not in active_param:
-        j.requires_grad = False
+#for i,j in params.items():
+#    if i not in active_param:
+#        j.requires_grad = False
 
-for i in model.parameters():
-    print(i)
+#for i in model.parameters():
+#    print(i)
+
+model.text_encoder.requires_grad_(False)
+model.image_encoder.requires_grad_(False)
