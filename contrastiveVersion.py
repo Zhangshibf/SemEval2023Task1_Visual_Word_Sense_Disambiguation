@@ -145,10 +145,10 @@ def pretraining_loss(image_embeddings, text_embeddings):
                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
 
     # Calculate the loss for each image in the batch
-    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=1))+epsilon)
+    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=1) + epsilon))
 
     # Calculate the loss for each text in the batch
-    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=0))+epsilon)
+    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=0) + epsilon))
 
     return torch.mean(image_losses) + torch.mean(text_losses)
 
