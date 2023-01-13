@@ -198,7 +198,7 @@ if __name__ == "__main__":
     model = model.to(device)
 
     if args.mode == 'train':
-        opt = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
+        opt = optim.Adam(model.parameters(), lr=5e-6, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
         train_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt)
 
     elif args.mode == 'test':
