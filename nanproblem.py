@@ -148,13 +148,14 @@ def pretraining_loss(image_embeddings, text_embeddings):
     # Calculate the loss for each text in the batch
     text_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=0)))
 
-    if torch.isnan(image_losses) or torch.isnan(text_losses):
+    loss = torch.mean(image_losses) + torch.mean(text_losses)
+    if torch.isnan(loss):
         print(image_embeddings)
         print(text_embeddings)
         print(dot_products)
         print(image_losses)
         print(text_losses)
-    return torch.mean(image_losses) + torch.mean(text_losses)
+    return loss
 
 
 def train_model(model,device,epoch,path_train,path_out,optimizer):
