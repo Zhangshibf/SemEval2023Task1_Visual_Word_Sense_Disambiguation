@@ -104,9 +104,6 @@ def evaluate(model,device, dataloader):
                 i_emds.append(model(None, input_image, setting="image").image_embeds)
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
-            #change here. Use dot product instead of cosine similarity
-#            cos = nn.CosineSimilarity(dim=1)
-#            similarities = cos(t_emds, i_emds)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
             i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
@@ -115,8 +112,6 @@ def evaluate(model,device, dataloader):
             total+=1
 
             rank = int(np.argsort(np.argsort(similarities))[0][0])
-#            rank = int(np.argsort(np.argsort(similarities))[0])
-#            if int(np.argmin(similarities,axis=0))==0:
             if int(rank) == 9:
                 correct+=1
             mrr+=1/(10-rank)
@@ -144,27 +139,26 @@ def open_images(image_paths):
 
 #change this into 1 positive vs 9 negative
 def pretraining_loss(image_embeddings, text_embeddings):
+    epsilon = 1e-8
     # Calculate the dot product between every image and every text embedding in the batch
     dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
 
     # Calculate the loss for each image in the batch
-    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
+    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=1))+epsilon)
 
     # Calculate the loss for each text in the batch
-    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=0))
+    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=0))+epsilon)
 
     return torch.mean(image_losses) + torch.mean(text_losses)
 
 
-def train_model(model,device,epoch,path_train,path_out):
-    #train CLIP model for several epoches
+def train_model(model,device,epoch,path_train,path_out,optimizer):
     model.train()
-    # Create the dataset
     with open(path_train, 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
-    optimizer = optim.Adam(model.parameters(), lr=5e-7,betas=(0.9,0.98),eps=1e-6,weight_decay=0.2)
-#loss became nan after only one epoch. I changed the lr from 5e-5 to 5e-7
+    optimizer = optimizer
+
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
@@ -199,7 +193,9 @@ if __name__ == "__main__":
     model = model.to(device)
 
     if args.mode == 'train':
-        train_model(model, device=device, epoch=5, path_train=args.train, path_out=args.output)
+        opt = optim.Adam(model.parameters(), lr=1e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
+        train_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt)
+
     elif args.mode == 'test':
 
         with open(args.dev, 'rb') as pickle_file:
