@@ -134,43 +134,6 @@ def open_images(image_paths):
 
     return images
 
-#change this into 1 positive vs 9 negative
-def pretraining_loss(image_embeddings, text_embeddings):
-    # Calculate the dot product between every image and every text embedding in the batch
-    dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
-                                              text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
-
-    # Calculate the loss for each image in the batch
-    image_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=1))
-
-    # Calculate the loss for each text in the batch
-    text_losses = -torch.log(torch.exp(dot_products.diagonal()) / torch.sum(torch.exp(dot_products), dim=0))
-
-    return torch.mean(image_losses) + torch.mean(text_losses)
-
-
-def train_model(model,device,epoch,path_train,path_out):
-    #train CLIP model for several epoches
-    model.train()
-    # Create the dataset
-    with open(path_train, 'rb') as pickle_file:
-        train_dataloader = pickle.load(pickle_file)
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
-    for i in range(epoch):
-        print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
-        print("--------------Loss per instance{}---------------".format(avg_loss))
-        filepath = path_out+"/inferencemodel"+str(i)
-        torch.save(model.state_dict(), filepath)
-        print("--------------Model saved at {}---------------".format(filepath))
-
-        state = {'epoch': epoch,
-            'state_dict': model.state_dict(),
-            'optimizer': optimizer.state_dict()}
-        filepath = path_out + "/trainingmodel" + str(i)
-        torch.save(state, filepath)
-        print("--------------Model saved at {}---------------".format(filepath))
 
 
 if __name__ == "__main__":
@@ -186,7 +149,8 @@ if __name__ == "__main__":
         dev_dataloader = pickle.load(pickle_file)
 
 #    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
-    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
+#    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
+    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel3"
 #    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
