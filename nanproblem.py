@@ -150,14 +150,28 @@ def pretraining_loss(image_embeddings, text_embeddings):
     text_losses = -torch.log(torch.exp(dot_products.diagonal()) / (torch.sum(torch.exp(dot_products), dim=0)))
 
     loss = torch.mean(image_losses) + torch.mean(text_losses)
-    if torch.isnan(loss):
-        print(image_embeddings)
-        print(text_embeddings)
-        print(dot_products)
-        print(image_losses)
-        print(text_losses)
     return loss
 
+import torch
+
+def contrastive_loss(image_embeddings, text_embeddings):
+    # Normalize embeddings
+    text_embeddings = text_embeddings / torch.norm(text_embeddings, dim=1, keepdim=True)
+    image_embeddings = image_embeddings / torch.norm(image_embeddings, dim=1, keepdim=True)
+
+    # Positive image embedding
+    pos_image_embedding = image_embeddings[0]
+    # Negative image embeddings
+    neg_image_embeddings = image_embeddings[1:]
+    # Dot product between text embedding and positive image embedding
+    pos_dot = torch.sum(text_embeddings * pos_image_embedding, dim=1)
+    # Dot product between text embedding and negative image embeddings
+    neg_dots = torch.sum(text_embeddings.unsqueeze(1) * neg_image_embeddings, dim=2)
+    # Maximum negative dot product
+    max_neg_dot, _ = torch.max(neg_dots, dim=1)
+    # Loss
+    loss = torch.mean(torch.clamp(1 - pos_dot + max_neg_dot, min=0))
+    return loss
 
 def train_model(model,device,epoch,path_train,path_out,optimizer):
     model.train()
