@@ -70,6 +70,7 @@ def train_one_epoch(model,device,dataloader,optimizer):
 
         # Backpropagate the loss and update the model weights
         loss_per_batch.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(),0.01)
         optimizer.step()
 
     return loss
