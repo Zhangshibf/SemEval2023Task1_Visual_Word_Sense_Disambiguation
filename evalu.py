@@ -185,7 +185,8 @@ if __name__ == "__main__":
     with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
         dev_dataloader = pickle.load(pickle_file)
 
-    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
+#    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
+    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
 #    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
