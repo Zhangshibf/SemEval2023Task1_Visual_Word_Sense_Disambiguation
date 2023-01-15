@@ -61,7 +61,7 @@ def custom_collate(batch, processor):
 
 
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, train_df, tokenizer, feature_extractor, data_type,device, text_augmentation=False):
+    def __init__(self, data_dir, train_df, data_type,device, text_augmentation=False):
         self.device = device
         self.augmentation = text_augmentation
 
@@ -81,8 +81,6 @@ class ImageTextDataset(Dataset):
         elif data_type == "train" or "valid":
             # this is for the original train set of the task
             # reshape all images to size [1440,1810]
-            self.tokenizer = tokenizer
-            self.feature_extractor=feature_extractor
             self.transforms = transforms.Compose([transforms.Resize([512,512]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
             self.all_image_names = list(train_df['images'])
             self.keywords = list(train_df['word'])
@@ -128,34 +126,10 @@ class ImageTextDataset(Dataset):
     def __getitem__(self, idx):
         # Load the image and text
 
-        #the positive image
-        """        ImageFile.LOAD_TRUNCATED_IMAGES = True
-        p_image = Image.open(self.image_path[idx])
-        image_name = self.image_name[idx]
-        if p_image.mode != "RGB":
-            p_image = p_image.convert('RGB')
-        positive_image = self.transform(p_image)"""
-
-        #negative images
-        # negative_images = list()
-        # negative_image_paths = self.negative_path[idx]
-        # negative_image_names = self.negative_image_names[idx]
-
-        """        
-        for path in negative_image_paths:
-            n_image = Image.open(path)
-            if n_image.mode != "RGB":
-                n_image = n_image.convert('RGB')
-            n_image = self.transform(n_image)
-            negative_images.append(n_image)"""
-
         context = self.context[idx]
         # print(context)
         keyword = self.keywords[idx]
         #loading images
-        # print(self.all_image_names[idx])
-        # pixel_masks, pixel_values, labels = [], [], []
-        # for i, image_list in enumerate(self.all_image_names[idx]):
         label = []
         images = self.all_image_names[idx]
         # print(type(images))
