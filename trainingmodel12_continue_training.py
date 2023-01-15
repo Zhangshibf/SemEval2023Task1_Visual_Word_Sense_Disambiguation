@@ -215,6 +215,7 @@ if __name__ == "__main__":
     model.load_state_dict(state['state_dict'])
     opt.load_state_dict(state['optimizer'])
     model = model.to(device)
+    opt = opt.to(device)
 
     if args.mode == 'train':
         train_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt)
