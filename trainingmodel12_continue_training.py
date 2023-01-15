@@ -212,7 +212,7 @@ if __name__ == "__main__":
     model = clip_model()
     opt = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
     state = torch.load("/home/CE/zhangshi/SemEval23/clipgradient//trainingmodel12")
-    model.load_state_dict(state['state_dict']).to(device)
+    model.load_state_dict(state['state_dict'])
     opt.load_state_dict(state['optimizer'])
     model = model.to(device)
 
