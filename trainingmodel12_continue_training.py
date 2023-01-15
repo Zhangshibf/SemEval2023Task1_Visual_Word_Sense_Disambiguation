@@ -210,11 +210,14 @@ if __name__ == "__main__":
     device = torch.device(device_str)
 
     model = clip_model()
+    model = model.to(device)
+
     opt = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
     state = torch.load("/home/CE/zhangshi/SemEval23/clipgradient//trainingmodel12", map_location = device)
     model.load_state_dict(state['state_dict'])
     opt.load_state_dict(state['optimizer'])
-    model = model.to(device)
 
+
+    del state
     if args.mode == 'train':
         train_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt)
