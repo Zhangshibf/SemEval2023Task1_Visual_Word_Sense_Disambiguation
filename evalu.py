@@ -150,7 +150,8 @@ if __name__ == "__main__":
 
 #    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
-    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel3"
+#    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel3"
+    filepath = "/home/CE/zhangshi/SemEval23/clipgradient/inferencemodel12"
 #    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
