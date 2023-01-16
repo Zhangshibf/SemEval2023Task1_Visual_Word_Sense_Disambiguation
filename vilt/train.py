@@ -128,4 +128,4 @@ if __name__ == "__main__":
         print(min_loss, total_loss)
         min_loss = total_loss
         print(f"Saving Model After Epoch {i+1}")
-        model.save_pretrained(f"resources/{percentage}/{epochs}/{lr}/")
+        model.save_pretrained(f"resources/{config["data_size"]}/{epochs}/{lr}/")
