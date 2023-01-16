@@ -20,7 +20,7 @@ python test.py
 ```
 
 # References
-
+```bibtex
 @misc{https://doi.org/10.48550/arxiv.2102.03334,
   doi = {10.48550/ARXIV.2102.03334},
   
@@ -38,4 +38,5 @@ python test.py
   
   copyright = {arXiv.org perpetual, non-exclusive license}
 }
+```
 
