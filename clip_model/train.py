@@ -8,7 +8,7 @@ from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 from torch import optim
-def train_one_epoch(model,device,dataloader,optimizer,loss):
+def train_one_epoch(model,device,dataloader,optimizer,loss_mode):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
@@ -21,7 +21,7 @@ def train_one_epoch(model,device,dataloader,optimizer,loss):
             outputs = model(input_ids, None, setting="text")
             text_emds.append(outputs.text_embeds)
 
-        if loss == "pretraining":
+        if loss_mode == "pretraining":
             image_emds = list()
             paths = [i.split("#")[0] for i in image_paths]
             #these are positive images
@@ -37,7 +37,7 @@ def train_one_epoch(model,device,dataloader,optimizer,loss):
             image_emds = image_emds.to(device)
             text_emds = text_emds.to(device)
             loss_per_batch = pretraining_loss(image_emds,text_emds)
-        elif loss == "contrastive":
+        elif loss_mode == "contrastive":
             image_emds = list()
             paths = [i.split("#") for i in image_paths]
             # each text corresponds to ten images. One image is positive sample and the rest nine are negative samples.
