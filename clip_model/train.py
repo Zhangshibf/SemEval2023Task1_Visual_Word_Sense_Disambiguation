@@ -97,6 +97,8 @@ def pretraining_loss(image_embeddings, text_embeddings):
 
 def contrastive_loss(text_embeddings, image_embeddings, margin=1.0):
     B, E = text_embeddings.size()
+    print(text_embeddings.size())
+    print(image_embeddings.size())
     text_embeddings = text_embeddings.view(B, 1, E)
     image_embeddings = image_embeddings.view(B, 10, E)
     positive_embeddings = image_embeddings[:, 0, :]
