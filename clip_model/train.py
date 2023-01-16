@@ -95,7 +95,28 @@ def pretraining_loss(image_embeddings, text_embeddings):
     loss = torch.mean(image_losses) + torch.mean(text_losses)
     return loss
 
+def contrastive_loss(text_embeddings, image_embeddings, margin=1.0):
+    B, E = text_embeddings.size()
+    text_embeddings = text_embeddings.view(B, 1, E)
+    image_embeddings = image_embeddings.view(B, 10, E)
+    positive_embeddings = image_embeddings[:, 0, :]
+    negative_embeddings = image_embeddings[:, 1:, :]
 
+    text_embeddings = text_embeddings / torch.norm(text_embeddings, dim=-1, keepdim=True)
+    positive_embeddings = positive_embeddings / torch.norm(positive_embeddings, dim=-1, keepdim=True)
+    negative_embeddings = negative_embeddings / torch.norm(negative_embeddings, dim=-1, keepdim=True)
+
+    positive_similarity = torch.sum(text_embeddings * positive_embeddings, dim=-1)
+    negative_similarity = torch.sum(text_embeddings * negative_embeddings, dim=-1)
+
+    positive_loss = torch.clamp(margin - positive_similarity, min=0.0)
+    negative_loss = torch.clamp(negative_similarity - margin, min=0.0)
+
+    contrastive_loss = torch.mean(positive_loss + torch.sum(negative_loss, dim=-1))
+    return contrastive_loss
+
+
+"""
 def contrastive_loss(image_embeddings, text_embeddings):
     #(10*B,E),(B,E)
     # Normalize embeddings
@@ -117,7 +138,7 @@ def contrastive_loss(image_embeddings, text_embeddings):
         # Loss
         loss = torch.mean(torch.clamp(1 - pos_dot + max_neg_dot, min=0))
     return loss
-
+"""
 def train_and_save_model(model,device,epoch,path_train,path_out,optimizer,loss):
     model.train()
     with open(path_train, 'rb') as pickle_file:
