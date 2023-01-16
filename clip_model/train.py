@@ -8,6 +8,8 @@ from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 from torch import optim
+import PIL.Image
+PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
 def train_one_epoch(model,device,dataloader,optimizer,loss_mode):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
@@ -115,30 +117,6 @@ def contrastive_loss(image_embeddings, text_embeddings, margin=1.0):
     contrastive_loss = torch.mean(positive_loss + torch.sum(negative_loss, dim=-1))
     return contrastive_loss
 
-
-"""
-def contrastive_loss(image_embeddings, text_embeddings):
-    #(10*B,E),(B,E)
-    # Normalize embeddings
-    text_embeddings = text_embeddings / torch.norm(text_embeddings, dim=1, keepdim=True)
-    image_embeddings = image_embeddings / torch.norm(image_embeddings, dim=1, keepdim=True)
-    instance_num = len(text_embeddings)
-
-    for i in instance_num:
-        # Positive image embedding
-        pos_image_embedding = image_embeddings[(i*10):((i+1)*10)]
-        # Negative image embeddings
-        neg_image_embeddings = image_embeddings[1:]
-        # Dot product between text embedding and positive image embedding
-        pos_dot = torch.sum(text_embeddings * pos_image_embedding, dim=1)
-        # Dot product between text embedding and negative image embeddings
-        neg_dots = torch.sum(text_embeddings.unsqueeze(1) * neg_image_embeddings, dim=2)
-        # Maximum negative dot product
-        max_neg_dot, _ = torch.max(neg_dots, dim=1)
-        # Loss
-        loss = torch.mean(torch.clamp(1 - pos_dot + max_neg_dot, min=0))
-    return loss
-"""
 def train_and_save_model(model,device,epoch,path_train,path_out,optimizer,loss):
     model.train()
     with open(path_train, 'rb') as pickle_file:
