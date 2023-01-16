@@ -1,5 +1,5 @@
 # Vision Language Transformer (ViLT)
-The ViLT model was proposedby Wonjae Kim, Bokyung Son, Ildoo Kim in ViLT: Vision-and-Language Transformer Without Convolution or Region Supervision. We fine-tune this pretrained model by using VWSD dataset from SemEval2023 Task 1. 
+The ViLT model was proposed by [Wonjae Kim, Bokyung Son, Ildoo Kim in ViLT: Vision-and-Language Transformer Without Convolution or Region Supervision](https://arxiv.org/abs/2102.03334). We fine-tune this pretrained model by using dataset from SemEval2023 Task-1 Visual-WSD. 
 
 ## Installation
 ```
