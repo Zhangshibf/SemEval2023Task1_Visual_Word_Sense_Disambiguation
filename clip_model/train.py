@@ -1,4 +1,4 @@
-from clip_model.model import clip_model
+from model import clip_model
 from load_data import *
 from PIL import Image
 import argparse
