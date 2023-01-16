@@ -1,0 +1,12 @@
+datasets==2.8.0
+nltk==3.7
+numpy==1.21.6
+Pillow==7.1.2
+pandas
+scikit-learn==1.0.2
+sentence_transformers
+transformers
+torch @ https://download.pytorch.org/whl/cu116/torch-1.13.0%2Bcu116-cp38-cp38-linux_x86_64.whl
+tqdm==4.64.1
+sentence_transformers
+
