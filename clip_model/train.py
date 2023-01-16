@@ -8,45 +8,55 @@ from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 from torch import optim
-def train_one_epoch(model,device,dataloader,optimizer):
+def train_one_epoch(model,device,dataloader,optimizer,loss):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
-#    criterion = ContrastiveLoss()
-    # Train CLIP model for one epoch
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         text_emds = list()
-        tokens = list()
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
             # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
-            tokens.append(input_ids)
-
-        for t in tokens:
-            t = t.to(device)
-            outputs = model(t,None,setting = "text")
+            input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
+            input_ids = input_ids.to(device)
+            outputs = model(input_ids, None, setting="text")
             text_emds.append(outputs.text_embeds)
 
-        image_emds = list()
-        paths = [i.split("#")[0] for i in image_paths]
-        #these are positive images
-        images = open_images(paths)
-        for k in images:
-            input_image = k['pixel_values']
-            input_image = input_image.to(device)
-            outputs = model(None, input_image, setting="image")
-            image_emds.append(outputs.image_embeds)
+        if loss == "pretraining":
+            image_emds = list()
+            paths = [i.split("#")[0] for i in image_paths]
+            #these are positive images
+            images = open_images(paths)
+            for k in images:
+                input_image = k['pixel_values']
+                input_image = input_image.to(device)
+                outputs = model(None, input_image, setting="image")
+                image_emds.append(outputs.image_embeds)
 
-        image_emds = torch.stack((image_emds)).squeeze(dim=1)
-        text_emds = torch.stack((text_emds)).squeeze(dim=1)
-        image_emds = image_emds.to(device)
-        text_emds = text_emds.to(device)
+            image_emds = torch.stack((image_emds)).squeeze(dim=1)
+            text_emds = torch.stack((text_emds)).squeeze(dim=1)
+            image_emds = image_emds.to(device)
+            text_emds = text_emds.to(device)
+            loss_per_batch = pretraining_loss(image_emds,text_emds)
+        elif loss == "contrastive":
+            image_emds = list()
+            paths = [i.split("#") for i in image_paths]
+            # each text corresponds to ten images. One image is positive sample and the rest nine are negative samples.
+            paths = [item for sublist in paths for item in sublist]
+            images = open_images(paths)
+            for k in images:
+                input_image = k['pixel_values']
+                input_image = input_image.to(device)
+                outputs = model(None, input_image, setting="image")
+                image_emds.append(outputs.image_embeds)
 
-        loss_per_batch = pretraining_loss(image_emds,text_emds)
+            image_emds = torch.stack((image_emds)).squeeze(dim=1)
+            text_emds = torch.stack((text_emds)).squeeze(dim=1)
+            image_emds = image_emds.to(device)
+            text_emds = text_emds.to(device)
+            loss_per_batch = contrastive_loss(image_emds, text_emds)
+
         loss+=float(loss_per_batch)
         model.zero_grad()
-
-        # Backpropagate the loss and update the model weights
         loss_per_batch.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(),0.01)
         optimizer.step()
@@ -87,25 +97,28 @@ def pretraining_loss(image_embeddings, text_embeddings):
 
 
 def contrastive_loss(image_embeddings, text_embeddings):
+    #(10*B,E),(B,E)
     # Normalize embeddings
     text_embeddings = text_embeddings / torch.norm(text_embeddings, dim=1, keepdim=True)
     image_embeddings = image_embeddings / torch.norm(image_embeddings, dim=1, keepdim=True)
+    instance_num = len(text_embeddings)
 
-    # Positive image embedding
-    pos_image_embedding = image_embeddings[0]
-    # Negative image embeddings
-    neg_image_embeddings = image_embeddings[1:]
-    # Dot product between text embedding and positive image embedding
-    pos_dot = torch.sum(text_embeddings * pos_image_embedding, dim=1)
-    # Dot product between text embedding and negative image embeddings
-    neg_dots = torch.sum(text_embeddings.unsqueeze(1) * neg_image_embeddings, dim=2)
-    # Maximum negative dot product
-    max_neg_dot, _ = torch.max(neg_dots, dim=1)
-    # Loss
-    loss = torch.mean(torch.clamp(1 - pos_dot + max_neg_dot, min=0))
+    for i in instance_num:
+        # Positive image embedding
+        pos_image_embedding = image_embeddings[(i*10):((i+1)*10)]
+        # Negative image embeddings
+        neg_image_embeddings = image_embeddings[1:]
+        # Dot product between text embedding and positive image embedding
+        pos_dot = torch.sum(text_embeddings * pos_image_embedding, dim=1)
+        # Dot product between text embedding and negative image embeddings
+        neg_dots = torch.sum(text_embeddings.unsqueeze(1) * neg_image_embeddings, dim=2)
+        # Maximum negative dot product
+        max_neg_dot, _ = torch.max(neg_dots, dim=1)
+        # Loss
+        loss = torch.mean(torch.clamp(1 - pos_dot + max_neg_dot, min=0))
     return loss
 
-def train_model(model,device,epoch,path_train,path_out,optimizer):
+def train_and_save_model(model,device,epoch,path_train,path_out,optimizer,loss):
     model.train()
     with open(path_train, 'rb') as pickle_file:
         train_dataloader = pickle.load(pickle_file)
@@ -113,7 +126,7 @@ def train_model(model,device,epoch,path_train,path_out,optimizer):
 
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
-        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer)
+        avg_loss = train_one_epoch(model, device,train_dataloader, optimizer,loss)
         print("--------------Loss per instance{}---------------".format(avg_loss))
         filepath = path_out+"/inferencemodel"+str(i)
         torch.save(model.state_dict(), filepath)
@@ -135,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('--test', help='path to test dataloader')
     parser.add_argument('--device',help="cuda to be used")
     parser.add_argument('--output',help = "path to save the model")
-    parser.add_argument('--mode',help='train to train the model, test to evaluate the model')
+    parser.add_argument('--loss',help='there are two types of loss. pretraining or contrastive')
     args = parser.parse_args()
 
     device_str = "cuda:" + str(args.device)
@@ -144,7 +157,6 @@ if __name__ == "__main__":
     model = clip_model()
     model = model.to(device)
 
-    if args.mode == 'train':
-        opt = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
-        train_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt)
+    opt = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
+    train_and_save_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt,loss = args.loss)
 
