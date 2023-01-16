@@ -1,6 +1,6 @@
-## Vision Language Transformer (ViLT)
+# Vision Language Transformer (ViLT)
 
-# Installation
+## Installation
 ```
 pip install -r requirements.txt
 ```
