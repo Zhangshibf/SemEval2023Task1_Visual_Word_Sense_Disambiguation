@@ -1,11 +1,11 @@
 ## Vision Language Transformer (ViLT)
 
-#Installation
+# Installation
 ```
 pip install -r requirements.txt
 ```
 
-#Usage
+# 
 If you want to use default configuration use **config.json** file. Otherwise, you can create your own file
 
 ## Train Model
