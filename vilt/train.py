@@ -25,6 +25,8 @@ if __name__ == "__main__":
     # Loading Configuration File (dictionary)
     config = json.load(open(args.config))
     print("Configuration", config)
+    train_batch_size = config["train_batch_size"]
+    val_batch_size = config["val_batch_size"]
     data_dir = config["data_dir"]
     percentage = config["data_size"]/100
     lr = config["lr"]
@@ -68,8 +70,8 @@ if __name__ == "__main__":
     train_ds = ImageTextDataset(os.path.join(data_dir, "train_images_v1"), train, data_type="train",device = device, text_augmentation=True)
     valid_ds = ImageTextDataset(os.path.join(data_dir, "train_images_v1"), valid, data_type="valid",device = device, text_augmentation=True)
     # Create the dataloader
-    train_dataloader = DataLoader(train_ds, shuffle=True, batch_size=2, collate_fn=lambda batch: custom_collate(batch, processor))
-    valid_dataloader = DataLoader(valid_ds, shuffle=True, batch_size=2, collate_fn=lambda batch: custom_collate(batch, processor))
+    train_dataloader = DataLoader(train_ds, shuffle=True, batch_size=train_batch_size, collate_fn=lambda batch: custom_collate(batch, processor))
+    valid_dataloader = DataLoader(valid_ds, shuffle=True, batch_size=val_batch_size, collate_fn=lambda batch: custom_collate(batch, processor))
     
     print(f"Length of Train Dataloader {len(train_dataloader)}")
     print(f"Length of Valid Dataloader {len(valid_dataloader)}")
