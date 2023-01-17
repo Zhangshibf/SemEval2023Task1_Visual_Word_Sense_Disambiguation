@@ -133,7 +133,7 @@ class ImageTextDataset(Dataset):
         # print(context)
         keyword = self.keywords[idx]
         #loading images
-        if self.data_type=='train' or 'valid:
+        if self.data_type=='train' or self.data_type=='valid':
             label = []
             images = self.all_image_names[idx]
             # print(type(images))
