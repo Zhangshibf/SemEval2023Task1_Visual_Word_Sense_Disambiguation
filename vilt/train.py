@@ -100,7 +100,9 @@ if __name__ == "__main__":
       
       for batch in train_dataloader:
         batch.to(device)
-        
+        print(batch['input_ids'].size())
+        print(batch['pixel_values'].size())
+        print(batch['labels'].size())
         outputs = model(input_ids=batch['input_ids'], pixel_values=batch['pixel_values'], labels=batch['labels'])
         
         loss = outputs.loss
