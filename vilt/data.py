@@ -61,7 +61,7 @@ def custom_collate(batch, processor):
 
 
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, train_df, data_type, device, text_augmentation=False):
+    def __init__(self, data_dir, train_df, data_type, device, text_augmentation=True):
         self.device = device
         self.data_type = data_type
         self.augmentation = text_augmentation
@@ -69,9 +69,6 @@ class ImageTextDataset(Dataset):
         types = ["inaturalist", "train", "valid"]
         if self.data_type not in types:
             raise ValueError("Invalid data type. Expected one of: %s" % data_type)
-
-        if self.augmentation:
-            raise ValueError("Invalid augmentation type. Expected one of: %s" % self.augmentation)
 
         self.data_dir = data_dir
         
