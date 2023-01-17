@@ -1,0 +1,19 @@
+name: vilt_env
+channels:
+    - defaults
+dependencies:
+    - pip==21.1.2
+    - python==3.7.6
+    - pip:
+        - transformers == 4.21.1
+        - torch == 1.7.1
+        - torchvision
+        - clip
+        - matplotlib
+        - pandas
+        - scikit-learn
+        - spacy
+        - Pillow
+        - numpy
+        - sentence-transformers
+        - nltk
