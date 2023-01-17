@@ -137,7 +137,7 @@ def open_images(image_paths):
 
 
 if __name__ == "__main__":
-    device_str = "cuda:" + str(0)
+    device_str = "cuda:" + str(2)
     device = torch.device(device_str)
 
     model = clip_model()
