@@ -38,8 +38,8 @@ if __name__ == "__main__":
         'tokenizer': tokenizer,
         'feature_extractor': feature_extractor
     }
-    data_df = pd.read_csv(os.path.join(data_dir, "trial.data.txt"), sep='\t', header=None, names=['word', 'description', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9'])
-    label_df = pd.read_csv(os.path.join(data_dir, "trial.gold.txt"), sep='\t', header=None, names=['gold_image'])
+    data_df = pd.read_csv(os.path.join(data_dir, "train.data.txt"), sep='\t', header=None, names=['word', 'description', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9'])
+    label_df = pd.read_csv(os.path.join(data_dir, "train.gold.txt"), sep='\t', header=None, names=['gold_image'])
     
     data_df['images'] = data_df.iloc[:,2:].values.tolist()
     data_df = data_df.drop(columns= ['image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9'])
@@ -65,8 +65,8 @@ if __name__ == "__main__":
     print(model.config)
 
     # Create the dataset
-    train_ds = ImageTextDataset(os.path.join(data_dir, "trial_images_v1"), train, data_type="train",device = device, text_augmentation=True)
-    valid_ds = ImageTextDataset(os.path.join(data_dir, "trial_images_v1"), valid, data_type="valid",device = device, text_augmentation=True)
+    train_ds = ImageTextDataset(os.path.join(data_dir, "train_images_v1"), train, data_type="train",device = device, text_augmentation=True)
+    valid_ds = ImageTextDataset(os.path.join(data_dir, "train_images_v1"), valid, data_type="valid",device = device, text_augmentation=True)
     # Create the dataloader
     train_dataloader = DataLoader(train_ds, shuffle=True, batch_size=2, collate_fn=lambda batch: custom_collate(batch, processor))
     valid_dataloader = DataLoader(valid_ds, shuffle=True, batch_size=2, collate_fn=lambda batch: custom_collate(batch, processor))
