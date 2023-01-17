@@ -51,7 +51,7 @@ def custom_collate(batch, processor):
     pixel_masks.append(pixel_mask)
     pixel_values.append(pixel_value)
 
-  encoding = tokenizer(context, return_tensors="pt", padding=True ,truncation=True)
+  encoding = tokenizer(context, return_tensors="pt", padding=True ,truncation=True,  max_length=40)
   encoding['pixel_values'] = torch.stack(pixel_values)
   encoding['pixel_mask'] = torch.stack(pixel_masks)
   encoding['labels'] = torch.as_tensor(labels)
