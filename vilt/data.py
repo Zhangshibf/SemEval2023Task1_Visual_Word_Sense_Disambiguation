@@ -61,24 +61,24 @@ def custom_collate(batch, processor):
 
 
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, train_df, data_type,device, text_augmentation=False):
+    def __init__(self, data_dir, train_df, data_type, device, text_augmentation=False):
         self.device = device
+        self.data_type = data_type
         self.augmentation = text_augmentation
 
         types = ["inaturalist", "train", "valid"]
-        if data_type not in types:
+        if self.data_type not in types:
             raise ValueError("Invalid data type. Expected one of: %s" % data_type)
 
-        augmentation_types = [True,False]
-        if text_augmentation not in augmentation_types:
-            raise ValueError("Invalid augmentation type. Expected one of: %s" % augmentation_types)
+        if self.augmentation:
+            raise ValueError("Invalid augmentation type. Expected one of: %s" % self.augmentation)
 
         self.data_dir = data_dir
         
         if data_type == "inaturalist":
             # I will write this part later
             pass
-        elif data_type == "train" or "valid":
+        elif self.data_type == "train" or "valid":
             # this is for the original train set of the task
             # reshape all images to size [1440,1810]
             self.transforms = transforms.Compose([transforms.Resize([512,512]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -86,6 +86,12 @@ class ImageTextDataset(Dataset):
             self.keywords = list(train_df['word'])
             self.context = list(train_df['description'])
             self.gold_images = list(train_df['gold_image'])
+        
+        else:
+            self.transforms = transforms.Compose([transforms.ToTensor()])
+            self.all_image_names = list(train_df['images'])
+            self.keywords = list(train_df['word'])
+            self.context = list(train_df['description'])
 
         #text augmentation
         #an augmented text is composed of lemmas + definition from wordnet
@@ -130,28 +136,43 @@ class ImageTextDataset(Dataset):
         # print(context)
         keyword = self.keywords[idx]
         #loading images
-        label = []
-        images = self.all_image_names[idx]
-        # print(type(images))
-        image = []
-        for i, im in enumerate(images):
-          path = os.path.join(self.data_dir, im)
-          img = Image.open(path)
-          
-          if img.mode != "RGB":
-              img = img.convert('RGB')
-          img = self.transforms(img)
-          image.append(img)
-          label.append(1.0) if im == self.gold_images[idx] else label.append(0.0)
+        if self.data_type=='train':
+            label = []
+            images = self.all_image_names[idx]
+            # print(type(images))
+            image = []
+            for i, im in enumerate(images):
+                path = os.path.join(self.data_dir, im)
+                img = Image.open(path)
+                
+                if img.mode != "RGB":
+                    img = img.convert('RGB')
+                img = self.transforms(img)
+                image.append(img)
+                label.append(1.0) if im == self.gold_images[idx] else label.append(0.0)
+
+            sample = {'context':context, 'images': image, 'label': label}
+        
+        if self.data_type == 'test':
+            for i, im in enumerate(images):
+                path = os.path.join(self.data_dir, im)
+                img = Image.open(path)
+                
+                if img.mode != "RGB":
+                    img = img.convert('RGB')
+                img = self.transforms(img)
+                image.append(img)
+            
+            sample = {'context':context, 'images': image}
 
         # print(encoding['pixel_values'])
         # print(type(label))
-        sample = {'context':context, 'images': image, 'label': label}
+        
 
 
         if self.augmentation:
             aug = self.augmentation[idx]
-            sample = {'context':aug, 'images': image, 'label': label}
+            sample['context'] = aug
             return sample
             #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
         else:

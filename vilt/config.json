@@ -1,4 +1,4 @@
-{
+{   "model": "dandelin/vilt-b32-finetuned-coco",
     "lr": 5e-5,
     "epochs": 5,
     "data_size": 50,

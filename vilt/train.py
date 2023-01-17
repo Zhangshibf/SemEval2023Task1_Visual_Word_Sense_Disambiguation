@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from transformers import BertTokenizerFast
-from transformers import ViltFeatureExtractor, ViltConfig, ViltForImagesAndTextClassification
+from transformers import ViltFeatureExtractor, ViltConfig
 from transformers import AdamW,get_scheduler
 from tqdm.auto import tqdm
 from model import CustomModel
