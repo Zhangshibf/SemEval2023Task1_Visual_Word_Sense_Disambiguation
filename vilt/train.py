@@ -38,8 +38,8 @@ if __name__ == "__main__":
         'tokenizer': tokenizer,
         'feature_extractor': feature_extractor
     }
-    data_df = pd.read_csv(os.path.join(data_dir, "train.data.txt"), sep='\t', header=None, names=['word', 'description', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9'])
-    label_df = pd.read_csv(os.path.join(data_dir, "train.gold.txt"), sep='\t', header=None, names=['gold_image'])
+    data_df = pd.read_csv(os.path.join(data_dir, "train.data.v1.txt"), sep='\t', header=None, names=['word', 'description', 'image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9'])
+    label_df = pd.read_csv(os.path.join(data_dir, "train.gold.v1.txt"), sep='\t', header=None, names=['gold_image'])
     
     data_df['images'] = data_df.iloc[:,2:].values.tolist()
     data_df = data_df.drop(columns= ['image_0', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9'])
