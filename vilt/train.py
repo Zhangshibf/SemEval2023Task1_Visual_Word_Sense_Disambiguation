@@ -65,8 +65,8 @@ if __name__ == "__main__":
     print(model.config)
 
     # Create the dataset
-    train_ds = ImageTextDataset(os.path.join(data_dir, "trial_images_v1"), train, data_type="train",device = device, text_augmentation=False)
-    valid_ds = ImageTextDataset(os.path.join(data_dir, "trial_images_v1"), valid, data_type="valid",device = device, text_augmentation=False)
+    train_ds = ImageTextDataset(os.path.join(data_dir, "trial_images_v1"), train, data_type="train",device = device, text_augmentation=True)
+    valid_ds = ImageTextDataset(os.path.join(data_dir, "trial_images_v1"), valid, data_type="valid",device = device, text_augmentation=True)
     # Create the dataloader
     train_dataloader = DataLoader(train_ds, shuffle=True, batch_size=2, collate_fn=lambda batch: custom_collate(batch, processor))
     valid_dataloader = DataLoader(valid_ds, shuffle=True, batch_size=2, collate_fn=lambda batch: custom_collate(batch, processor))
