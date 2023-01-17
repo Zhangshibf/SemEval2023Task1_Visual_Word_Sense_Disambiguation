@@ -2,7 +2,7 @@
     "lr": 5e-5,
     "train_batch_size": 6,
     "val_batch_size": 8,
-    "epochs": 5,
-    "data_size": 2,
+    "epochs": 20,
+    "data_size": 100,
     "data_dir": "/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1"
 }
