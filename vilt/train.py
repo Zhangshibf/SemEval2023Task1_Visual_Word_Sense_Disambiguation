@@ -55,9 +55,9 @@ if __name__ == "__main__":
     train, _ = train_test_split(df, test_size=0.20, random_state= 42)
     test, valid = train_test_split(_, test_size=0.50, random_state= 42)
     print(f"Train Set {len(train)}, Validation Set {len(valid)}, Test Set {len(test)}\n")
-    print(f"Keyword: '{train['word'][0]}'\n")
-    print(f"Description: '{train['description'][0]}'\n")
-    print(f"List of 10 Images: {train['images'][0]}\n")
+    print(f"Keyword: '{list(train['word'])[0]}'\n")
+    print(f"Description: '{list(train['description'])[0]}'\n")
+    print(f"List of 10 Images: {list(train['images'])[0]}\n")
     
     #loding model
     print("===================Loading Model=======================")
