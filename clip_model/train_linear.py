@@ -11,7 +11,7 @@ from torch import optim
 import PIL.Image
 PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
 
-def train_one_epoch(model,nn,device,dataloader,optimizer,loss_mode):
+def train_one_epoch(model,nn,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
