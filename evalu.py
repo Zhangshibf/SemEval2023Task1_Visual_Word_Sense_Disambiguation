@@ -9,7 +9,7 @@ from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokeni
 import torch
 from torch import optim
 import clip
-
+"""
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
@@ -28,7 +28,26 @@ class clip_model(nn.Module):
             image_outputs = self.image_encoder(image).image_embeds
 #            image_emds = self.linear2(image_outputs.image_embeds)
             return image_outputs
+"""
+class clip_model(nn.Module):
+    def __init__(self):
+        super(clip_model, self).__init__()
+        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
+        self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
 
+    def forward(self, text, image,setting):
+        setting_types = ["text","image"]
+        if setting not in setting_types:
+            raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
+
+        if setting == "text":
+            text_outputs = self.text_encoder(text)
+            return text_outputs
+
+        elif setting == "image":
+            image_outputs = self.image_encoder(image)
+            return image_outputs
+        
 def train_one_epoch(model,device,dataloader,optimizer):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
@@ -141,8 +160,6 @@ if __name__ == "__main__":
     device = torch.device(device_str)
 
     model = clip_model()
-    model.text_encoder.requires_grad_(False)
-    model.image_encoder.requires_grad_(False)
     model = model.to(device)
 
     with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
@@ -152,8 +169,9 @@ if __name__ == "__main__":
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel3"
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient/inferencemodel12"
-    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel0"
-#    model.load_state_dict(torch.load(filepath))
+#    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel0"
+    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel1"
+    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
     print("--------------Accuracy {}---------------".format(hit_rate))
