@@ -50,7 +50,7 @@ def train_one_epoch(model,nn,device,dataloader,optimizer):
         image_emds = image_emds[perm]
         text_emds = text_emds[perm]
         labels=labels[perm]
-        cosine_loss = CosineEmbeddingLoss()
+        cosine_loss = torch.nn.CosineEmbeddingLoss()
         loss_per_batch = cosine_loss(image_emds,text_emds,labels)
 
         loss+=float(loss_per_batch)
