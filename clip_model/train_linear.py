@@ -42,7 +42,7 @@ def train_one_epoch(model,nn,device,dataloader,optimizer):
         text_emds = torch.stack((text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds), dim=1).reshape(text_emds.size()[0]*10,text_emds.size()[1])
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
-        labels = torch.tensor([1,-1,-1,-1,-1,-1,-1,-1,-1,-1], dtype=torch.float32).repeat(image_emds.size()[0])
+        labels = torch.tensor([1,-1,-1,-1,-1,-1,-1,-1,-1,-1], dtype=torch.float32).repeat(image_emds.size()[0]).to(device)
 
         perm = torch.randperm(image_emds.size()[0])
         image_emds = image_emds[perm]
