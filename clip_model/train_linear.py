@@ -40,8 +40,6 @@ def train_one_epoch(model,nn,device,dataloader,optimizer):
         image_emds = torch.stack((image_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds), dim=1).reshape(text_emds.size()[0]*10,text_emds.size()[1])
-        print(text_emds[:9])
-        print(text_emds.size())
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
         labels = torch.tensor([1,-1,-1,-1,-1,-1,-1,-1,-1,-1], dtype=torch.float32).repeat(image_emds.size()[0])
