@@ -19,3 +19,22 @@ class clip_model(nn.Module):
         elif setting == "image":
             image_outputs = self.image_encoder(image)
             return image_outputs
+
+class simple_nn(nn.Module):
+    def __init__(self):
+        super(simple_nn, self).__init__()
+        self.text_layer = nn.Linear(512,300)
+        self.image_layer = nn.Linear(512,300)
+
+    def forward(self, text, image,setting):
+        setting_types = ["text","image"]
+        if setting not in setting_types:
+            raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
+
+        if setting == "text":
+            text_outputs = self.text_layer(text)
+            return text_outputs
+
+        elif setting == "image":
+            image_outputs = self.image_layer(image)
+            return image_outputs
