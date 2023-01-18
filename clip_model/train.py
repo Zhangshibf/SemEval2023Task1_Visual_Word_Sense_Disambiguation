@@ -10,6 +10,7 @@ import torch
 from torch import optim
 import PIL.Image
 PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
+
 def train_one_epoch(model,device,dataloader,optimizer,loss_mode):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     loss = 0
@@ -60,7 +61,7 @@ def train_one_epoch(model,device,dataloader,optimizer,loss_mode):
         loss+=float(loss_per_batch)
         model.zero_grad()
         loss_per_batch.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(),0.01)
+#        torch.nn.utils.clip_grad_norm_(model.parameters(),0.01)
         optimizer.step()
 
     return loss
@@ -158,6 +159,6 @@ if __name__ == "__main__":
     state = torch.load("/home/CE/zhangshi/SemEval23/clipgradient//trainingmodel0", map_location = device)
     model.load_state_dict(state['state_dict'])
 
-    opt = optim.Adam(model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
+    opt = optim.Adam(model.parameters(), lr=5e-7, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
     train_and_save_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt,loss = args.loss)
 
