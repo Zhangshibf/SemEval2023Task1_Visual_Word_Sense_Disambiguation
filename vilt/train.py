@@ -32,7 +32,7 @@ if __name__ == "__main__":
     lr = config["lr"]
     epochs = config["epochs"]
 
-    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     checkpoint = "dandelin/vilt-b32-mlm"
     tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
     feature_extractor = ViltFeatureExtractor.from_pretrained(checkpoint)
