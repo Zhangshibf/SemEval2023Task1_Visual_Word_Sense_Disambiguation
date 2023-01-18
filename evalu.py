@@ -110,12 +110,12 @@ def evaluate(model,device, dataloader):
         paths = [i.split("#") for i in image_paths]
         for t,ps in zip(tokens,paths):
             t = t.to(device)
-            t_emds = model(t, None, setting="text")
+            t_emds = model(t, None, setting="text").text_embeds
             images = open_images(ps)
             i_emds = list()
             for k in images:
                 input_image = k['pixel_values'].to(device)
-                i_emds.append(model(None, input_image, setting="image"))
+                i_emds.append(model(None, input_image, setting="image").image_embeds)
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
