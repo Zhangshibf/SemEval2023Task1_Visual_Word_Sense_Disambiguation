@@ -166,12 +166,12 @@ if __name__ == "__main__":
         dev_dataloader = pickle.load(pickle_file)
 
 #    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
-    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
+#    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel3"
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient/inferencemodel12"
 #    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel0"
 #    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel1"
-    model.load_state_dict(torch.load(filepath))
+#    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
     print("--------------Accuracy {}---------------".format(hit_rate))
