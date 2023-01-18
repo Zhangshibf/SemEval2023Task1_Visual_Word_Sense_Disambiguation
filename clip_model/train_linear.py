@@ -50,7 +50,6 @@ def train_one_epoch(model,nn,device,dataloader,optimizer):
         labels=labels[perm]
         cosine_loss = torch.nn.CosineEmbeddingLoss()
         loss_per_batch = cosine_loss(image_emds,text_emds,labels)
-
         loss+=float(loss_per_batch)
         model.zero_grad()
         loss_per_batch.backward()
@@ -86,7 +85,7 @@ def train_and_save_model(model,nn,device,epoch,path_train,path_out,optimizer):
     for i in range(epoch):
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model,nn, device,train_dataloader, optimizer)
-        print("--------------Loss per instance{}---------------".format(avg_loss))
+        print("--------------Loss per epoch{}---------------".format(avg_loss))
         filepath = path_out+"/inferencemodel"+str(i)
         torch.save(nn.state_dict(), filepath)
         print("--------------Model saved at {}---------------".format(filepath))
