@@ -100,4 +100,3 @@ if __name__ == "__main__":
     hit_rate,mrr = evaluate(encoders,nn, device=device,dataloader=dev_dataloader)
     print("--------------Accuracy {}---------------".format(hit_rate))
     print("--------------MRR {}---------------".format(mrr))
-
