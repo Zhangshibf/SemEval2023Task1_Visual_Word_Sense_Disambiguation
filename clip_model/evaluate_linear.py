@@ -86,7 +86,7 @@ if __name__ == "__main__":
     encoders = clip_model()
     encoders = encoders.to(device)
     nn = simple_nn()
-    nn.load_state_dict(torch.load(args.path，map_location=device))
+    nn.load_state_dict(torch.load(args.path,map_location=device))
 #    nn = nn.to(device)
 
     with open(args.path, 'rb') as pickle_file:
