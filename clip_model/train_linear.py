@@ -89,6 +89,8 @@ def train_and_save_model(model,nn,device,epoch,path_train,path_out,optimizer):
     optimizer = optimizer
 
     for i in range(epoch):
+        i+=1
+        #this is beccause we already trained on epoch
         print("--------------Training Epoch {}---------------".format(i))
         avg_loss = train_one_epoch(model,nn, device,train_dataloader, optimizer)
         print("--------------Loss per epoch{}---------------".format(avg_loss))
@@ -124,7 +126,12 @@ if __name__ == "__main__":
     encoders = encoders.to(device)
     nn = simple_nn()
     nn = nn.to(device)
-
     opt = optim.Adam(nn.parameters(), lr=0.0001, weight_decay=0.2)
+
+    saved_path = "/home/CE/zhangshi/SemEval23/clip_model/linear_models/trainingmodel0"
+    state = torch.load(saved_path, map_location = device)
+    nn.load_state_dict(state['state_dict'])
+    opt.load_state_dict(state['optimizer'])
+
     train_and_save_model(encoders,nn, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt)
 
