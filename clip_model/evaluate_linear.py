@@ -26,14 +26,14 @@ def evaluate(model,nn, device, dataloader):
         paths = [i.split("#") for i in image_paths]
         for t,ps in zip(tokens,paths):
             t = t.to(device)
-            t_emds = model(t, None, setting="text").text_embeds
+            t_emds = model(t, None, setting="text").text_embeds.to(device)
             t_emds = nn(t_emds, image=None, setting="text")
 
             images = open_images(ps)
             i_emds = list()
             for k in images:
                 input_image = k['pixel_values'].to(device)
-                i_emd = model(None, input_image, setting="image").image_embeds
+                i_emd = model(None, input_image, setting="image").image_embeds.to(device)
                 i_emd = nn(None,i_emd,setting ="image")
                 i_emds.append(i_emd)
             i_emds = torch.stack(i_emds).squeeze().to(device)
