@@ -164,6 +164,7 @@ if __name__ == "__main__":
 
     with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
         dev_dataloader = pickle.load(pickle_file)
+        pickle_file.close()
 
 #    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
 #    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"

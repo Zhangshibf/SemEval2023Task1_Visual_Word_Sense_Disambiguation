@@ -90,8 +90,9 @@ if __name__ == "__main__":
     nn.load_state_dict(torch.load(args.path,map_location=device))
 #    nn = nn.to(device)
     dataset_path = args.path
-    with open(dataset_path, 'rb') as pickle_file:
-        dataloader = pickle.load(pickle_file)
+    with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
+        dev_dataloader = pickle.load(pickle_file)
+        pickle_file.close()
 
-    evaluate(encoders,nn, device=device,dataloader=dataloader)
+    evaluate(encoders,nn, device=device,dataloader=dev_dataloader)
 

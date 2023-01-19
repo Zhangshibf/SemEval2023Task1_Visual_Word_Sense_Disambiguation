@@ -137,7 +137,6 @@ def open_images(image_paths):
 
     return images
 
-#change this into 1 positive vs 9 negative
 def pretraining_loss(image_embeddings, text_embeddings):
     epsilon = 1e-8
     # Calculate the dot product between every image and every text embedding in the batch
