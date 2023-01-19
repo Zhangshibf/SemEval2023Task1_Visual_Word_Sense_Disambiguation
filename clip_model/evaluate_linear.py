@@ -97,7 +97,7 @@ if __name__ == "__main__":
         dev_dataloader = pickle.load(pickle_file)
         pickle_file.close()
 
-     hit_rate,mrr = evaluate(encoders,nn, device=device,dataloader=dev_dataloader)
-     print("--------------Accuracy {}---------------".format(hit_rate))
-     print("--------------MRR {}---------------".format(mrr))
+    hit_rate,mrr = evaluate(encoders,nn, device=device,dataloader=dev_dataloader)
+    print("--------------Accuracy {}---------------".format(hit_rate))
+    print("--------------MRR {}---------------".format(mrr))
 
