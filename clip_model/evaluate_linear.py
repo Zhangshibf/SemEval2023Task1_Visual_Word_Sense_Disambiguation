@@ -26,7 +26,8 @@ def evaluate(model,nn, device, dataloader):
         paths = [i.split("#") for i in image_paths]
         for t,ps in zip(tokens,paths):
             t = t.to(device)
-            t_emds = model(t, None, setting="text").text_embeds.to(device)
+            t_emds = model(t, None, setting="text").text_embeds
+            t_emds = t_emds.to(device)
             t_emds = nn(t_emds, image=None, setting="text")
 
             images = open_images(ps)
@@ -88,7 +89,7 @@ if __name__ == "__main__":
     encoders = encoders.to(device)
     nn = simple_nn()
     nn.load_state_dict(torch.load(args.path,map_location=device))
-#    nn = nn.to(device)
+    nn = nn.to(device)
     dataset_path = args.path
     with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
         dev_dataloader = pickle.load(pickle_file)
