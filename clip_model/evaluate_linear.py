@@ -89,8 +89,8 @@ if __name__ == "__main__":
     nn = simple_nn()
     nn.load_state_dict(torch.load(args.path,map_location=device))
 #    nn = nn.to(device)
-
-    with open(args.path, 'rb') as pickle_file:
+    dataset_path = args.path
+    with open(dataset_path, 'rb') as pickle_file:
         dataloader = pickle.load(pickle_file)
 
     evaluate(encoders,nn, device=device,dataloader=dataloader)

@@ -26,6 +26,9 @@ def train_one_epoch(model,device,dataloader,optimizer,loss_mode):
 
         if loss_mode == "pretraining":
             image_emds = list()
+            #8 text embeddings
+            #80 images
+            #paths is a list of 8 positive images
             paths = [i.split("#")[0] for i in image_paths]
             #these are positive images
             images = open_images(paths)
@@ -37,6 +40,7 @@ def train_one_epoch(model,device,dataloader,optimizer,loss_mode):
 
             image_emds = torch.stack((image_emds)).squeeze(dim=1)
             text_emds = torch.stack((text_emds)).squeeze(dim=1)
+            #size = (B,E)
             image_emds = image_emds.to(device)
             text_emds = text_emds.to(device)
             loss_per_batch = pretraining_loss(image_emds,text_emds)
@@ -85,6 +89,7 @@ def open_images(image_paths):
     return images
 
 def pretraining_loss(image_embeddings, text_embeddings):
+    #(B,E)
     # Calculate the dot product between every image and every text embedding in the batch
     dot_products = torch.einsum('ab,cd->ac', [image_embeddings.div(image_embeddings.norm(dim=1, keepdim=True)),
                                               text_embeddings.div(text_embeddings.norm(dim=1, keepdim=True))])
@@ -156,8 +161,8 @@ if __name__ == "__main__":
 
     model = clip_model()
     model = model.to(device)
-    state = torch.load("/home/CE/zhangshi/SemEval23/clipgradient//trainingmodel0", map_location = device)
-    model.load_state_dict(state['state_dict'])
+#    state = torch.load("/home/CE/zhangshi/SemEval23/clipgradient//trainingmodel0", map_location = device)
+#    model.load_state_dict(state['state_dict'])
 
     opt = optim.Adam(model.parameters(), lr=5e-7, betas=(0.9, 0.98), eps=1e-6, weight_decay=0.2)
     train_and_save_model(model, device=device, epoch=int(args.epoch), path_train=args.train, path_out=args.output,optimizer=opt,loss = args.loss)

@@ -39,15 +39,21 @@ def train_one_epoch(model,nn,device,dataloader,optimizer):
 
         image_emds = torch.stack((image_emds)).squeeze(dim=1)
         text_emds = torch.stack((text_emds)).squeeze(dim=1)
+        # text_emds (B,E)
+        # image_emds (10*B,E)
         text_emds = torch.stack((text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds,text_emds), dim=1).reshape(text_emds.size()[0]*10,text_emds.size()[1])
         image_emds = image_emds.to(device)
         text_emds = text_emds.to(device)
+        # text_emds (10*B,E)
+        # image_emds (10*B,E)
         labels = torch.tensor([1,-1,-1,-1,-1,-1,-1,-1,-1,-1], dtype=torch.float32).repeat(image_emds.size()[0]).to(device)
 
+        #shuffle
         perm = torch.randperm(image_emds.size()[0])
         image_emds = image_emds[perm]
         text_emds = text_emds[perm]
         labels=labels[perm]
+
         cosine_loss = torch.nn.CosineEmbeddingLoss()
         loss_per_batch = cosine_loss(image_emds,text_emds,labels)
         loss+=float(loss_per_batch)
