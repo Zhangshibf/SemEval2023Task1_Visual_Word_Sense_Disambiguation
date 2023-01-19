@@ -1,13 +1,10 @@
-from load_data import *
 from train_linear import *
 from PIL import Image
 import argparse
 from PIL import ImageFile
 import torchvision.transforms as transforms
-from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
-from torch import optim
 import PIL.Image
 PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
 def evaluate(model,nn, device, dataloader):
