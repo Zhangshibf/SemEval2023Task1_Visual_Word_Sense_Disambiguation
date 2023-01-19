@@ -1,3 +1,5 @@
+import numpy as np
+
 from train_linear import *
 from load_data import *
 from PIL import Image
@@ -44,8 +46,11 @@ def evaluate(model,nn, device, dataloader):
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total+=1
-            rank = int(np.argsort(np.argsort(similarities))[0][0])
             print(similarities)
+            print(np.argsort(similarities))
+            print(np.argsort(np.argsort(similarities)))
+            print(np.argsort(np.argsort(similarities))[0])
+            rank = int(np.argsort(np.argsort(similarities))[0])
             if int(rank) == 9:
                 correct+=1
                 print("c")
