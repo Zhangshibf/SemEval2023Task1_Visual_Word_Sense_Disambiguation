@@ -46,12 +46,9 @@ def evaluate(model,nn, device, dataloader):
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total+=1
-            print(similarities)
-            print(np.argsort(similarities))
-            print(np.argsort(np.argsort(similarities)))
-            print(np.argsort(np.argsort(similarities))[0])
             rank = int(np.argsort(np.argsort(similarities))[0])
-            if int(rank) == 9:
+            print(rank)
+            if rank == 9:
                 correct+=1
                 print("c")
             else:
