@@ -1,4 +1,5 @@
 from train_linear import *
+from load_data import *
 from PIL import Image
 import argparse
 from PIL import ImageFile
