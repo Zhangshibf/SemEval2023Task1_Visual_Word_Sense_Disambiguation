@@ -1,4 +1,4 @@
-from train_linear import *
+from clip_model.train_linear import *
 from PIL import Image
 import argparse
 from PIL import ImageFile
