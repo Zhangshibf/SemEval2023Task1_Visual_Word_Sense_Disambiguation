@@ -40,7 +40,7 @@ def evaluate(model,device, dataloader):
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-            context_augmented = k+" "+c+" "+a
+            context_augmented = "This is a photo of"+k+". "+c+": "+a
 #            context_augmented = "This is a photo of " + i
 #            context_augmented = i + " " + j
             # Tokenize the input text
