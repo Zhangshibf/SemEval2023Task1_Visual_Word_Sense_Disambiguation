@@ -39,9 +39,8 @@ def evaluate(model,device, dataloader):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         tokens = list()
-        for i, j in zip(contexts,keywords):
-#        for i, j in zip(contexts, augmentations):
-            context_augmented = "a photo of" + i
+        for k,c,a in zip(keywords,contexts, augmentations):
+            context_augmented = k+" "+c+" "+a
 #            context_augmented = "This is a photo of " + i
 #            context_augmented = i + " " + j
             # Tokenize the input text
