@@ -28,49 +28,6 @@ class clip_model(nn.Module):
         elif setting == "image":
             image_outputs = self.image_encoder(image)
             return image_outputs
-        
-def train_one_epoch(model,device,dataloader,optimizer):
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
-    loss = 0
-#    criterion = ContrastiveLoss()
-    # Train CLIP model for one epoch
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-        text_emds = list()
-        tokens = list()
-        for i, j in zip(contexts, augmentations):
-            context_augmented = i + " " + j
-            # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
-            tokens.append(input_ids)
-
-        for t in tokens:
-            t = t.to(device)
-            outputs = model(t,None,setting = "text")
-            text_emds.append(outputs)
-
-        image_emds = list()
-        paths = [i.split("#")[0] for i in image_paths]
-        #these are positive images
-        images = open_images(paths)
-        for k in images:
-            input_image = k['pixel_values']
-            input_image = input_image.to(device)
-            outputs = model(None, input_image, setting="image")
-            image_emds.append(outputs)
-
-        image_emds = torch.stack((image_emds)).squeeze(dim=1)
-        text_emds = torch.stack((text_emds)).squeeze(dim=1)
-        image_emds = image_emds.to(device)
-        text_emds = text_emds.to(device)
-
-        loss_per_batch = pretraining_loss(image_emds,text_emds)
-        loss+=float(loss_per_batch)
-
-        model.zero_grad()
-        loss_per_batch.backward()
-        optimizer.step()
-
-    return loss
 
 
 def evaluate(model,device, dataloader):
@@ -82,9 +39,10 @@ def evaluate(model,device, dataloader):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         tokens = list()
+        for i, j in zip(contexts,keywords):
 #        for i, j in zip(contexts, augmentations):
-        for i in contexts:
-            context_augmented = "This is a photo of " + i
+            context_augmented = j + " " + i
+#            context_augmented = "This is a photo of " + i
 #            context_augmented = i + " " + j
             # Tokenize the input text
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
