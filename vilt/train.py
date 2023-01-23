@@ -94,12 +94,11 @@ if __name__ == "__main__":
 
     print(num_training_steps)
     min_loss = np.inf
-    model.train()
+    
     for i in range(epochs):
-      
       total_loss = 0
       print(f"Epoch {i+1}")
-      
+      model.train()
       for batch in train_dataloader:
         batch.to(device)
 

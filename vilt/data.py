@@ -63,36 +63,36 @@ def custom_collate(batch, processor):
 class ImageTextDataset(Dataset):
     def __init__(self, data_dir, train_df, data_type, device, text_augmentation=True):
         self.device = device
+        self.data_dir = data_dir
         self.data_type = data_type
-        self.augmentation = text_augmentation
+        self.text_augmentation = text_augmentation
+        # reshape all images to size [512,512]
+        self.transforms = transforms.Compose([transforms.Resize([512,512]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+           
 
         types = ["inaturalist", "train", "valid"]
         if self.data_type not in types:
             raise ValueError("Invalid data type. Expected one of: %s" % data_type)
 
-        self.data_dir = data_dir
         
         if data_type == "inaturalist":
             # I will write this part later
             pass
-        elif self.data_type == "train" or "valid":
+        elif self.data_type == "train" or self.data_type == "valid":
             # this is for the original train set of the task
-            # reshape all images to size [1440,1810]
-            self.transforms = transforms.Compose([transforms.Resize([512,512]),transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
             self.all_image_names = list(train_df['images'])
             self.keywords = list(train_df['word'])
             self.context = list(train_df['description'])
             self.gold_images = list(train_df['gold_image'])
         
         else:
-            self.transforms = transforms.Compose([transforms.ToTensor()])
             self.all_image_names = list(train_df['images'])
             self.keywords = list(train_df['word'])
             self.context = list(train_df['description'])
 
         #text augmentation
         #an augmented text is composed of lemmas + definition from wordnet
-        if text_augmentation:
+        if self.text_augmentation:
             nltk.download('omw-1.4')
             nltk.download('wordnet')
             self.augmentation = list()
@@ -134,40 +134,41 @@ class ImageTextDataset(Dataset):
         keyword = self.keywords[idx]
         #loading images
         if self.data_type=='train' or self.data_type=='valid':
-            label = []
-            images = self.all_image_names[idx]
-            # print(type(images))
-            image = []
-            for i, im in enumerate(images):
-                path = os.path.join(self.data_dir, im)
-                img = Image.open(path)
-                
-                if img.mode != "RGB":
-                    img = img.convert('RGB')
-                img = self.transforms(img)
-                image.append(img)
-                label.append(1.0) if im == self.gold_images[idx] else label.append(0.0)
+          label = []
+          images = self.all_image_names[idx]
+          # print(type(images))
+          image = []
+          for i, im in enumerate(images):
+            path = os.path.join(self.data_dir, im)
+            img = Image.open(path)
 
-            sample = {'context':context, 'images': image, 'label': label}
+            if img.mode != "RGB":
+                img = img.convert('RGB')
+            img = self.transforms(img)
+            image.append(img)
+            label.append(1.0) if im == self.gold_images[idx] else label.append(0.0)
+
+          sample = {'context':context, 'images': image, 'label': label}
         
         if self.data_type == 'test':
-            for i, im in enumerate(images):
-                path = os.path.join(self.data_dir, im)
-                img = Image.open(path)
-                
-                if img.mode != "RGB":
-                    img = img.convert('RGB')
-                img = self.transforms(img)
-                image.append(img)
+          image = []
+          for i, im in enumerate(images):
+              path = os.path.join(self.data_dir, im)
+              img = Image.open(path)
+
+              if img.mode != "RGB":
+                  img = img.convert('RGB')
+              img = self.transforms(img)
+              image.append(img)
             
-            sample = {'context':context, 'images': image}
+           sample = {'context':context, 'images': image}
 
         # print(encoding['pixel_values'])
         # print(type(label))
         
 
 
-        if self.augmentation:
+        if self.text_augmentation:
             aug = self.augmentation[idx]
             sample['context'] = aug
             return sample
