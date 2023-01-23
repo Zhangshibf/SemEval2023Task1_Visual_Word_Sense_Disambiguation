@@ -9,26 +9,7 @@ from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokeni
 import torch
 from torch import optim
 import clip
-"""
-class clip_model(nn.Module):
-    def __init__(self):
-        super(clip_model, self).__init__()
-        self.text_encoder = CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
-        self.image_encoder = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
-        self.linear1 = nn.Linear(512,300)
-        self.linear2 = nn.Linear(512,300)
 
-    def forward(self, text, image,setting):
-        if setting == "text":
-            text_outputs = self.text_encoder(text).text_embeds
-#            text_emds = self.linear1(text_outputs)
-            return text_outputs
-
-        elif setting == "image":
-            image_outputs = self.image_encoder(image).image_embeds
-#            image_emds = self.linear2(image_outputs.image_embeds)
-            return image_outputs
-"""
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
@@ -101,8 +82,10 @@ def evaluate(model,device, dataloader):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         tokens = list()
-        for i, j in zip(contexts, augmentations):
-            context_augmented = i + " " + j
+#        for i, j in zip(contexts, augmentations):
+        for i in contexts:
+            context_augmented = "This is a photo of " + i
+#            context_augmented = i + " " + j
             # Tokenize the input text
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
