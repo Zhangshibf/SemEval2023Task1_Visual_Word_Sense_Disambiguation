@@ -29,7 +29,7 @@ class clip_model(nn.Module):
             image_outputs = self.image_encoder(image)
             return image_outputs
 
-
+#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
 def evaluate(model,device, dataloader):
     #use normalized dot product
     model.eval()
@@ -41,7 +41,7 @@ def evaluate(model,device, dataloader):
         tokens = list()
         for i, j in zip(contexts,keywords):
 #        for i, j in zip(contexts, augmentations):
-            context_augmented = j + " " + i
+            context_augmented = "a photo of" + i
 #            context_augmented = "This is a photo of " + i
 #            context_augmented = i + " " + j
             # Tokenize the input text
