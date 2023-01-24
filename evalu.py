@@ -84,6 +84,15 @@ def evaluate(model,device, dataloader):
     hit_rate = correct/total
     mrr = mrr/total
 
+    f = open("/home/CE/zhangshi/SemEval23/record.txt", "a")
+    without = str(('#'.join(without_augmentation))+"/n")
+    e = str(('#'.join(error))+"/n")
+    a = str(('#'.join(all))+"/n")
+    f.write(without)
+    f.write(e)
+    f.write(a)
+    f.close()
+
     return hit_rate,mrr
 
 def open_images(image_paths):
@@ -120,3 +129,4 @@ if __name__ == "__main__":
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
     print("--------------Accuracy {}---------------".format(hit_rate))
     print("--------------MRR {}---------------".format(mrr))
+
