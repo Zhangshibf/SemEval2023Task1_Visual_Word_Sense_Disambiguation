@@ -69,22 +69,17 @@ def evaluate(model,device, dataloader):
                 i_emds.append(model(None, input_image, setting="image"))
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
-            print(t_emds.size())
-            print(i_emds.size())
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
             i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
-            print(t_emds.size())
-            print(i_emds.size())
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             total+=1
             rank = int(np.argsort(np.argsort(similarities))[0][0])
+            print(rank)
             if int(rank) == 9:
                 correct+=1
-                print("c")
             else:
-                print("no")
                 error.append(keyword)
                 error.append(context)
             mrr+=1/(10-rank)
