@@ -56,7 +56,7 @@ def evaluate(model,device, dataloader):
             tokens.append(input_ids)
 
         paths = [i.split("#") for i in image_paths]
-        for t,ps in zip(tokens,paths):
+        for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
             t_emds = model(t, None, setting="text").text_embeds
             images = open_images(ps)
@@ -78,8 +78,8 @@ def evaluate(model,device, dataloader):
                 print("c")
             else:
                 print("no")
-                error.append(k)
-                error.append(c)
+                error.append(keyword)
+                error.append(context)
             mrr+=1/(10-rank)
     hit_rate = correct/total
     mrr = mrr/total
