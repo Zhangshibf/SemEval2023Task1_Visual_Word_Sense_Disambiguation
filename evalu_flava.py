@@ -29,7 +29,7 @@ class clip_model(nn.Module):
 
         elif setting == "image":
             inputs = self.feature_extractor(image, return_tensors="pt")
-            outputs = self.image_encoder(**inputs)
+            outputs = self.image_encoder(inputs)
             image_outputs = outputs.last_hidden_state
             return image_outputs
 
@@ -63,12 +63,12 @@ def evaluate(model,device, dataloader):
         paths = [i.split("#") for i in image_paths]
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
-            t_emds = model(t, None, setting="text").text_embeds
+            t_emds = model(t, None, setting="text")
             images = open_images(ps)
             i_emds = list()
             for k in images:
                 input_image = k['pixel_values'].to(device)
-                i_emds.append(model(None, input_image, setting="image").image_embeds)
+                i_emds.append(model(None, input_image, setting="image"))
 
             i_emds = torch.stack(i_emds).squeeze().to(device)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
@@ -89,7 +89,7 @@ def evaluate(model,device, dataloader):
     hit_rate = correct/total
     mrr = mrr/total
 
-    f = open("/home/CE/zhangshi/SemEval23/record.txt", "a")
+    f = open("/home/CE/zhangshi/SemEval23/record_flava.txt", "a")
     without = str(('#'.join(without_augmentation))+"/n")
     e = str(('#'.join(error))+"/n")
     a = str(('#'.join(all))+"/n")
