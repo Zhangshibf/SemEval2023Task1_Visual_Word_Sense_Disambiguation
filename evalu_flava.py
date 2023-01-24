@@ -13,7 +13,7 @@ from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokeni
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
-        self.feature_extractor = FlavaFeatureExtractor.from_pretrained("facebook/flava-full")
+
         self.text_encoder =FlavaTextModel.from_pretrained("facebook/flava-full")
         self.image_encoder = FlavaImageModel.from_pretrained("facebook/flava-full")
 
@@ -28,8 +28,7 @@ class clip_model(nn.Module):
             return text_outputs
 
         elif setting == "image":
-            inputs = self.feature_extractor(image, return_tensors="pt")
-            outputs = self.image_encoder(inputs)
+            outputs = self.image_encoder(image)
             image_outputs = outputs.last_hidden_state
             return image_outputs
 
@@ -101,7 +100,7 @@ def evaluate(model,device, dataloader):
     return hit_rate,mrr
 
 def open_images(image_paths):
-    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    processor = FlavaFeatureExtractor.from_pretrained("facebook/flava-full")
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     transform = transforms.Compose(
         [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -109,8 +108,7 @@ def open_images(image_paths):
     images = list()
     for path in image_paths:
         image = Image.open(path)
-        if image.mode != "RGB":
-            image = image.convert('RGB')
+        image = image.convert('RGB')
         image = transform(image)
         image = processor(images=image, return_tensors="pt")
         images.append(image)
