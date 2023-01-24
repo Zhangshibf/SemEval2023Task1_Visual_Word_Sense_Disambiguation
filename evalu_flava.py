@@ -4,13 +4,11 @@ from PIL import Image
 import argparse
 from transformers import FlavaFeatureExtractor, FlavaImageModel
 import torch
-from datasets import load_dataset
 from PIL import ImageFile
 import torchvision.transforms as transforms
 from torch import nn
 from transformers import BertTokenizer, FlavaTextModel
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
-import clip
 
 class clip_model(nn.Module):
     def __init__(self):
