@@ -23,7 +23,7 @@ class clip_model(nn.Module):
             raise ValueError("Invalid data type. Expected one of: %s" % setting_types)
 
         if setting == "text":
-            outputs = self.text_encoder(**text)
+            outputs = self.text_encoder(text)
             text_outputs = outputs.last_hidden_state
             return text_outputs
 
