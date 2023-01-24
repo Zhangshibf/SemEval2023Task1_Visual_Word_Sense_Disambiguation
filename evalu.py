@@ -36,14 +36,22 @@ def evaluate(model,device, dataloader):
     correct = 0
     total = 0
     mrr = 0
+    without_augmentation = list()
+    error = list()
+    all = list()
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-            context_augmented = "This is a photo of"+k+". "+c+": "+a
-#            context_augmented = "This is a photo of " + i
-#            context_augmented = i + " " + j
-            # Tokenize the input text
+            all.append(k)
+            all.append(c)
+            if c == a:
+                without_augmentation.append(k)
+                without_augmentation.append(c)
+                context_augmented = "This is a photo of"+k+". "+c
+            else:
+                context_augmented = "This is a photo of" + k + ". " + c + ": " + a
+
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
 
@@ -70,6 +78,8 @@ def evaluate(model,device, dataloader):
                 print("c")
             else:
                 print("no")
+                error.append(k)
+                error.append(c)
             mrr+=1/(10-rank)
     hit_rate = correct/total
     mrr = mrr/total
@@ -106,13 +116,6 @@ if __name__ == "__main__":
         dev_dataloader = pickle.load(pickle_file)
         pickle_file.close()
 
-#    filepath = "/home/CE/zhangshi/SemEval23/contrastive/inferencemodel3"
-#    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel1"
-#    filepath = "/home/CE/zhangshi/SemEval23/clipgradient//inferencemodel3"
-#    filepath = "/home/CE/zhangshi/SemEval23/clipgradient/inferencemodel12"
-#    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel0"
-#    filepath = "/home/CE/zhangshi/SemEval23/clip_model/new_loss/inferencemodel1"
-#    model.load_state_dict(torch.load(filepath))
     print("--------------Evaluation---------------")
     hit_rate,mrr = evaluate(model,device, dev_dataloader)
     print("--------------Accuracy {}---------------".format(hit_rate))
