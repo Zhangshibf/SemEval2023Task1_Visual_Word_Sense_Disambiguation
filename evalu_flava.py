@@ -13,7 +13,6 @@ from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokeni
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
-
         self.text_encoder =FlavaTextModel.from_pretrained("facebook/flava-full")
         self.image_encoder = FlavaImageModel.from_pretrained("facebook/flava-full")
 
@@ -24,12 +23,12 @@ class clip_model(nn.Module):
 
         if setting == "text":
             outputs = self.text_encoder(text)
-            text_outputs = outputs.last_hidden_state
+            text_outputs = outputs.pooler_output
             return text_outputs
 
         elif setting == "image":
             outputs = self.image_encoder(image)
-            image_outputs = outputs.last_hidden_state
+            image_outputs = outputs.pooler_output
             return image_outputs
 
 #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
