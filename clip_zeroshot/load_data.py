@@ -51,32 +51,42 @@ class ImageTextDataset(Dataset):
             self.augmentation = list()
             sent_encoder = SentenceTransformer('sentence-transformers/all-mpnet-base-v2').to(self.device)
             for keyword,phrase in zip(self.keywords,self.context):
-
-                #retrieve all possible augmented texts
-                synsets = wn.synsets(keyword)
-                augmented_texts = list()
-                if len(synsets)!=0:
-                    for synset in synsets:
-                        augmented_text = ''
-                        for lemma in synset.lemmas():
-                            augmented_text += str(lemma.name()).replace('_', ' ') + ', '
-                        augmented_text += synset.definition()
-                        augmented_texts.append(augmented_text)
-
-                if len(augmented_texts)>1:
-                    #check which of the augmented texts is more similar to the short phrase
-                    context_emb = sent_encoder.encode(phrase)
-                    aug_emb = sent_encoder.encode(augmented_texts)
-                    scores = util.dot_score(context_emb, aug_emb)[0].tolist()
-                    idx = np.argmax(scores)
-                    self.augmentation.append(augmented_texts[idx])
-                elif len(augmented_texts) == 1:
-                    self.augmentation.append(augmented_texts[0])
-                elif len(augmented_texts) == 0:
-                    #when the keyword is not found in the wordnet, use wikipedia for augmentation
+                #'genus','family','tree','herb','shrub'
+                c_word = phrase.split(" ")
+                c_word.remove(keyword)
+                c_word = c_word[0]
+                if c_word in ['genus','family','tree','herb','shrub']:
                     wiki_wiki = wikipediaapi.Wikipedia('en')
                     page_py = wiki_wiki.page(keyword.lower())
                     self.augmentation.append(page_py.summary)
+                    print(page_py.summary)
+
+                else:
+                    #retrieve all possible augmented texts
+                    synsets = wn.synsets(keyword)
+                    augmented_texts = list()
+                    if len(synsets)!=0:
+                        for synset in synsets:
+                            augmented_text = ''
+                            for lemma in synset.lemmas():
+                                augmented_text += str(lemma.name()).replace('_', ' ') + ', '
+                            augmented_text += synset.definition()
+                            augmented_texts.append(augmented_text)
+
+                    if len(augmented_texts)>1:
+                        #check which of the augmented texts is more similar to the short phrase
+                        context_emb = sent_encoder.encode(phrase)
+                        aug_emb = sent_encoder.encode(augmented_texts)
+                        scores = util.dot_score(context_emb, aug_emb)[0].tolist()
+                        idx = np.argmax(scores)
+                        self.augmentation.append(augmented_texts[idx])
+                    elif len(augmented_texts) == 1:
+                        self.augmentation.append(augmented_texts[0])
+                    elif len(augmented_texts) == 0:
+                        #when the keyword is not found in the wordnet, use wikipedia for augmentation
+                        wiki_wiki = wikipediaapi.Wikipedia('en')
+                        page_py = wiki_wiki.page(keyword.lower())
+                        self.augmentation.append(page_py.summary)
 
     def __len__(self):
         return len(self.context)
