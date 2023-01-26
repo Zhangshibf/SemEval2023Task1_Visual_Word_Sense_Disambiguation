@@ -10,6 +10,8 @@ import torch
 from torch import optim
 import clip
 
+
+PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
 class clip_model(nn.Module):
     def __init__(self):
         super(clip_model, self).__init__()
