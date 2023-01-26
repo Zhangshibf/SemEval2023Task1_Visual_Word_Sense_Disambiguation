@@ -121,7 +121,7 @@ if __name__ == "__main__":
     model = clip_model()
     model = model.to(device)
 
-    with open("/home/CE/zhangshi/dataloader_8/dev.pk", 'rb') as pickle_file:
+    with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/wordnet_wiki_dataset/dev.pk", 'rb') as pickle_file:
         dev_dataloader = pickle.load(pickle_file)
         pickle_file.close()
 
