@@ -9,6 +9,7 @@ from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokeni
 import torch
 from torch import optim
 import clip
+import PIL
 
 
 PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
