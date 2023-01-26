@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     device = 'cuda:2'
     # Create the dataset
-    dataset = ImageTextDataset(args.train, data_type="train",device = device, text_augmentation=True)
+    dataset = ImageTextDataset(args.train, device = device, text_augmentation=True)
     # Split the dataloader into train, dev, and test sets
     train_size = int(0.8 * len(dataset))
     dev_size = int(0.1 * len(dataset))
