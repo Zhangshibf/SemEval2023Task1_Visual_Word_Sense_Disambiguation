@@ -59,7 +59,6 @@ class ImageTextDataset(Dataset):
                     wiki_wiki = wikipediaapi.Wikipedia('en')
                     page_py = wiki_wiki.page(keyword.lower())
                     self.augmentation.append(page_py.summary)
-                    print(page_py.summary)
 
                 else:
                     #retrieve all possible augmented texts
