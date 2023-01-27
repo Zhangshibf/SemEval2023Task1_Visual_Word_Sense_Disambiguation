@@ -15,7 +15,7 @@ class ImageTextDataset(Dataset):
         self.image_name = list()
 
         # this is for the original train set of the task
-        train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.txt", sep="\t", header=None)
+        train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.v1.1.txt", sep="\t", header=None)
         keywords = list(train_data[0])
         contexts = list(train_data[1])
         self.keywords = keywords
@@ -43,9 +43,7 @@ class ImageTextDataset(Dataset):
                 try:
                     c_word.remove(keyword)
                 except:
-                    print("---------------")
-                    print(phrase)
-                    print(keyword)
+                    c_word = ["never mind. There is something wrong with this entry"]
 
                 c_word = c_word[0]
                 if c_word in ['genus','family','tree','herb','shrub']:
@@ -57,34 +55,31 @@ class ImageTextDataset(Dataset):
                     #retrieve all possible augmented texts
                     try:
                         synsets = wn.synsets(keyword)
+                        augmented_texts = list()
+                        if len(synsets)!=0:
+                            for synset in synsets:
+                                augmented_text = ''
+                                for lemma in synset.lemmas():
+                                    augmented_text += str(lemma.name()).replace('_', ' ') + ', '
+                                augmented_text += synset.definition()
+                                augmented_texts.append(augmented_text)
+
+                        if len(augmented_texts)>1:
+                            #check which of the augmented texts is more similar to the short phrase
+                            context_emb = sent_encoder.encode(phrase)
+                            aug_emb = sent_encoder.encode(augmented_texts)
+                            scores = util.dot_score(context_emb, aug_emb)[0].tolist()
+                            idx = np.argmax(scores)
+                            self.augmentation.append(augmented_texts[idx])
+                        elif len(augmented_texts) == 1:
+                            self.augmentation.append(augmented_texts[0])
+                        elif len(augmented_texts) == 0:
+                            #when the keyword is not found in the wordnet, use wikipedia for augmentation
+                            wiki_wiki = wikipediaapi.Wikipedia('en')
+                            page_py = wiki_wiki.page(keyword.lower())
+                            self.augmentation.append(page_py.summary)
                     except:
-                        print("!!!!!")
-                        print(phrase)
-                        print(keyword)
-                    augmented_texts = list()
-                    if len(synsets)!=0:
-                        for synset in synsets:
-                            augmented_text = ''
-                            for lemma in synset.lemmas():
-                                augmented_text += str(lemma.name()).replace('_', ' ') + ', '
-                            augmented_text += synset.definition()
-                            augmented_texts.append(augmented_text)
-
-                    if len(augmented_texts)>1:
-                        #check which of the augmented texts is more similar to the short phrase
-                        context_emb = sent_encoder.encode(phrase)
-                        aug_emb = sent_encoder.encode(augmented_texts)
-                        scores = util.dot_score(context_emb, aug_emb)[0].tolist()
-                        idx = np.argmax(scores)
-                        self.augmentation.append(augmented_texts[idx])
-                    elif len(augmented_texts) == 1:
-                        self.augmentation.append(augmented_texts[0])
-                    elif len(augmented_texts) == 0:
-                        #when the keyword is not found in the wordnet, use wikipedia for augmentation
-                        wiki_wiki = wikipediaapi.Wikipedia('en')
-                        page_py = wiki_wiki.page(keyword.lower())
-                        self.augmentation.append(page_py.summary)
-
+                        self.augmentation.append(" ")
     def __len__(self):
         return len(self.context)
 
