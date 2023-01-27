@@ -52,7 +52,7 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
                 input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
                 #input_ids =  clip.tokenize(context_augmented,context_length=77)
                 input_ids = input_ids.to(device)
-                outputs = model.encode_text(input_ids)
+                outputs = model(input_ids = input_ids)
                 text_emds.append(outputs)
 
             image_emds = list()
@@ -63,7 +63,7 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
             for k in images:
                 input_image = k['pixel_values']
                 input_image = input_image.to(device)
-                outputs = model.encode_image(input_image)
+                outputs = model(pixel_values = input_image)
                 image_emds.append(outputs)
 
             image_emds = torch.stack((image_emds)).squeeze(dim=1)
