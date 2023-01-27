@@ -48,6 +48,7 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
                 input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
                 zeros = torch.zeros(1, 77 - input_ids.shape[1])
                 input_ids = torch.cat((input_ids, zeros), 1)
+                input_ids = input_ids.long()
                 # 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
                 #input_ids = clip.tokenize(context_augmented,context_length=77)
                 input_ids = input_ids.to(device)
