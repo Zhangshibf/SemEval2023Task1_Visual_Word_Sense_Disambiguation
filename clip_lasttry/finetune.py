@@ -86,6 +86,7 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
             lr_scheduler.step()
             optimizer.zero_grad()
             progress_bar_train.update(1)
+            print(loss)
 
 
 #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
