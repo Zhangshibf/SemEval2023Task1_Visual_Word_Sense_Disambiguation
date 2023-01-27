@@ -31,7 +31,7 @@ class ImageTextDataset(Dataset):
                 temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
             self.image_path.append(temporary)
             print(self.image_path)
-
+            break
 
         #text augmentation
         #an augmented text is composed of lemmas + definition from wordnet
