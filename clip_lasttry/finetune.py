@@ -80,6 +80,8 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
                 int(image_emds.size()[0]/10)).to(device)
 
             similarity = (image_features @ text_features.unsqueeze(2)).squeeze() * model.logit_scale.exp()
+            print(type(similarity))
+            print(type(labels))
             loss = loss_fct(similarity, torch.as_tensor(labels))
             loss.backward()
             optimizer.step()
