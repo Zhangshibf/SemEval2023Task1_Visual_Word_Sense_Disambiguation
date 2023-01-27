@@ -33,9 +33,7 @@ class clip_model(nn.Module):
 def evaluate(model,device, dataloader,prediction_path):
     #use normalized dot product
     model.eval()
-    correct = 0
-    total = 0
-    mrr = 0
+
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         image_names = [i.split("#") for i in image_names]
@@ -66,14 +64,6 @@ def evaluate(model,device, dataloader,prediction_path):
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
             # 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
-            total+=1
-            rank = int(np.argsort(np.argsort(similarities))[0][0])
-            if int(rank) == 9:
-                correct+=1
-                print("c")
-            else:
-                print("no")
-            mrr+=1/(10-rank)
 
             #write output
             indices = np.argsort(similarities)[::-1]
@@ -84,11 +74,6 @@ def evaluate(model,device, dataloader,prediction_path):
             with open(prediction_path,"a") as file:
                 file.write(string)
                 file.close()
-
-    hit_rate = correct/total
-    mrr = mrr/total
-
-    return hit_rate,mrr
 
 def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -112,6 +97,7 @@ def open_images(image_paths):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--dataset', help="dataset used to predict result")
+    #/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/dataset.pk
     parser.add_argument('--device', help="cuda number")
     parser.add_argument("--output",help = "path to save the prediction")
     args = parser.parse_args()
@@ -130,7 +116,7 @@ if __name__ == "__main__":
         pickle_file.close()
 
     print("--------------Evaluation---------------")
-    hit_rate,mrr = evaluate(model,device, dataloader,prediction_path)
+    evaluate(model,device, dataloader,prediction_path)
     print("--------------Accuracy {}---------------".format(hit_rate))
     print("--------------MRR {}---------------".format(mrr))
 

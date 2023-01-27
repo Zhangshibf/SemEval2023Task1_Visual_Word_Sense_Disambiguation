@@ -105,7 +105,6 @@ class ImageTextDataset(Dataset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
-#    parser.add_argument('--train', help="path to the train set")
     parser.add_argument("--cuda",help = "cuda number")
     parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
