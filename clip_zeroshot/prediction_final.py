@@ -112,7 +112,7 @@ if __name__ == "__main__":
     model = model.to(device)
     prediction_path = "blabla"
 
-    with open("home/CE/zhangshi/dataloader_submission_trial/dataset.pk", 'rb') as pickle_file:
+    with open("/home/CE/zhangshi/dataloader_submission_trial/dataset.pk", 'rb') as pickle_file:
         dataloader = pickle.load(pickle_file)
         pickle_file.close()
 
