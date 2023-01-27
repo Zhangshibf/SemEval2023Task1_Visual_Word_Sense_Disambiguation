@@ -68,13 +68,16 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
 
             image_emds = torch.stack((image_emds)).squeeze(dim=1)
             text_emds = torch.stack((text_emds)).squeeze(dim=1)
+            text_emds = torch.stack((text_emds, text_emds, text_emds, text_emds, text_emds, text_emds, text_emds,
+                                     text_emds, text_emds, text_emds), dim=1).reshape(text_emds.size()[0] * 10,
+                                                                                      text_emds.size()[1])
             image_features_ = image_emds.to(device)
             text_features_ = text_emds.to(device)
             image_features = image_features_ / image_features_.norm(dim=-1, keepdim=True)
             text_features = text_features_ / text_features_.norm(dim=-1, keepdim=True)
 
             labels = torch.tensor([1, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=torch.float32).repeat(
-                image_emds.size()[0]).to(device)
+                (image_emds.size()[0]/10)).to(device)
 
             similarity = (image_features @ text_features.unsqueeze(2)).squeeze() * model.logit_scale.exp()
             loss = loss_fct(similarity, torch.as_tensor(labels))
