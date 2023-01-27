@@ -83,7 +83,7 @@ def evaluate(model,device, dataloader,prediction_path):
             #write output
             indices = np.argsort(similarities)[::-1]
             sorted = np.take(image_names, indices)
-            sorted = sorted[0].reverse
+            sorted = np.flip(sorted)
             print(sorted)
             string = sorted.join("\t")+"\n"
             print(string)
