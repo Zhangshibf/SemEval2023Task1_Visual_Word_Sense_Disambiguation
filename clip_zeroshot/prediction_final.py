@@ -39,7 +39,6 @@ def evaluate(model,device, dataloader,prediction_path):
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         image_names = [i.split("#") for i in image_names]
-        print(image_names)
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
             if c == a:
