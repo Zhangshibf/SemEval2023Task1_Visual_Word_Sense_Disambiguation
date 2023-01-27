@@ -40,45 +40,45 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
 
     for i in range(num_epochs):
         print(f"---------------epoch: {i + 1}---------------------")
-    for idx, (keywords, contexts, augmentations, image_names, image_paths) in enumerate(train_dataloader):
-        text_emds = list()
-        for i, j in zip(contexts, augmentations):
-            context_augmented = i + " " + j
-            # Tokenize the input text
-            input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
-            #input_ids =  clip.tokenize(context_augmented)
-            input_ids = input_ids.to(device)
-            outputs = model.encode_text(input_ids)
-            text_emds.append(outputs)
+        for idx, (keywords, contexts, augmentations, image_names, image_paths) in enumerate(train_dataloader):
+            text_emds = list()
+            for i, j in zip(contexts, augmentations):
+                context_augmented = i + " " + j
+                # Tokenize the input text
+                #input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
+                input_ids =  clip.tokenize(context_augmented,context_length=77)
+                input_ids = input_ids.to(device)
+                outputs = model.encode_text(input_ids)
+                text_emds.append(outputs)
 
-        image_emds = list()
-        paths = [i.split("#") for i in image_paths]
-        # each text corresponds to ten images. One image is positive sample and the rest nine are negative samples.
-        paths = [item for sublist in paths for item in sublist]
-        images = open_images(paths)
-        for k in images:
-            input_image = k['pixel_values']
-            input_image = input_image.to(device)
-            outputs = model.encode_image(input_image)
-            image_emds.append(outputs)
+            image_emds = list()
+            paths = [i.split("#") for i in image_paths]
+            # each text corresponds to ten images. One image is positive sample and the rest nine are negative samples.
+            paths = [item for sublist in paths for item in sublist]
+            images = open_images(paths)
+            for k in images:
+                input_image = k['pixel_values']
+                input_image = input_image.to(device)
+                outputs = model.encode_image(input_image)
+                image_emds.append(outputs)
 
-        image_emds = torch.stack((image_emds)).squeeze(dim=1)
-        text_emds = torch.stack((text_emds)).squeeze(dim=1)
-        image_features_ = image_emds.to(device)
-        text_features_ = text_emds.to(device)
-        image_features = image_features_ / image_features_.norm(dim=-1, keepdim=True)
-        text_features = text_features_ / text_features_.norm(dim=-1, keepdim=True)
+            image_emds = torch.stack((image_emds)).squeeze(dim=1)
+            text_emds = torch.stack((text_emds)).squeeze(dim=1)
+            image_features_ = image_emds.to(device)
+            text_features_ = text_emds.to(device)
+            image_features = image_features_ / image_features_.norm(dim=-1, keepdim=True)
+            text_features = text_features_ / text_features_.norm(dim=-1, keepdim=True)
 
-        labels = torch.tensor([1, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=torch.float32).repeat(
-            image_emds.size()[0]).to(device)
+            labels = torch.tensor([1, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=torch.float32).repeat(
+                image_emds.size()[0]).to(device)
 
-        similarity = (image_features @ text_features.unsqueeze(2)).squeeze() * model.logit_scale.exp()
-        loss = loss_fct(similarity, torch.as_tensor(labels))
-        loss.backward()
-        optimizer.step()
-        lr_scheduler.step()
-        optimizer.zero_grad()
-        progress_bar_train.update(1)
+            similarity = (image_features @ text_features.unsqueeze(2)).squeeze() * model.logit_scale.exp()
+            loss = loss_fct(similarity, torch.as_tensor(labels))
+            loss.backward()
+            optimizer.step()
+            lr_scheduler.step()
+            optimizer.zero_grad()
+            progress_bar_train.update(1)
 
 
 #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
