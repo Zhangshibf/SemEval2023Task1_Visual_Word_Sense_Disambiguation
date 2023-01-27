@@ -44,7 +44,7 @@ class ImageTextDataset(Dataset):
                     c_word.remove(keyword)
                 except:
                     print("---------------")
-                    print(c_word)
+                    print(phrase)
                     print(keyword)
 
                 c_word = c_word[0]
@@ -55,7 +55,12 @@ class ImageTextDataset(Dataset):
 
                 else:
                     #retrieve all possible augmented texts
-                    synsets = wn.synsets(keyword)
+                    try:
+                        synsets = wn.synsets(keyword)
+                    except:
+                        print("!!!!!")
+                        print(phrase)
+                        print(keyword)
                     augmented_texts = list()
                     if len(synsets)!=0:
                         for synset in synsets:
