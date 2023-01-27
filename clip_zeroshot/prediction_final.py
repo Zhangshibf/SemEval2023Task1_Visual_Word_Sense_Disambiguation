@@ -30,7 +30,7 @@ class clip_model(nn.Module):
             return image_outputs
 
 #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
-def evaluate(model,device, dataloader):
+def evaluate(model,device, dataloader,prediction_path):
     #use normalized dot product
     model.eval()
     correct = 0
@@ -38,6 +38,8 @@ def evaluate(model,device, dataloader):
     mrr = 0
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+        image_names = [i.split("#") for i in image_names]
+        print(image_names)
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
             if c == a:
@@ -49,6 +51,7 @@ def evaluate(model,device, dataloader):
             tokens.append(input_ids)
 
         paths = [i.split("#") for i in image_paths]
+        print(paths)
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
             t_emds = model(t, None, setting="text").text_embeds
@@ -64,6 +67,9 @@ def evaluate(model,device, dataloader):
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
+            print(similarities)
+            print(np.argsort(similarities))
+            print(np.argsort(np.argsort(similarities)))
             total+=1
             rank = int(np.argsort(np.argsort(similarities))[0][0])
             if int(rank) == 9:
@@ -104,13 +110,14 @@ if __name__ == "__main__":
 
     model = clip_model()
     model = model.to(device)
+    prediction_path = "blabla"
 
     with open("home/CE/zhangshi/dataloader_submission_trial/dataset.pk", 'rb') as pickle_file:
-        dev_dataloader = pickle.load(pickle_file)
+        dataloader = pickle.load(pickle_file)
         pickle_file.close()
 
     print("--------------Evaluation---------------")
-    hit_rate,mrr = evaluate(model,device, dev_dataloader)
+    hit_rate,mrr = evaluate(model,device, dataloader,prediction_path)
     print("--------------Accuracy {}---------------".format(hit_rate))
     print("--------------MRR {}---------------".format(mrr))
 
