@@ -80,12 +80,12 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
         progress_bar_train.update(1)
 
 
-
+#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
 def open_images(image_paths):
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     transform = transforms.Compose(
-        [transforms.Resize([1440, 1810]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        [transforms.Resize([770, 905]), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
          ])
     images = list()
     for path in image_paths:
