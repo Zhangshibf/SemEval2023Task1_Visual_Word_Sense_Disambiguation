@@ -45,8 +45,8 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
         for i, j in zip(contexts, augmentations):
             context_augmented = i + " " + j
             # Tokenize the input text
-            #input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
-            input_ids =  clip.tokenize(context_augmented)
+            input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
+            #input_ids =  clip.tokenize(context_augmented)
             input_ids = input_ids.to(device)
             outputs = model.encode_text(input_ids)
             text_emds.append(outputs)
