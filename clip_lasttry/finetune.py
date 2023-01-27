@@ -12,6 +12,7 @@ from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 import PIL.Image
+from transformers import AutoProcessor, CLIPModel
 
 
 def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs = 20):
@@ -19,9 +20,12 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
     PIL.Image.MAX_IMAGE_PIXELS = 93312000000000
 
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32", model_max_length=77)
+    model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+    processor = AutoProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
     loss_fct = nn.CrossEntropyLoss()
     torch.autograd.set_detect_anomaly(True)
-    model, preprocess = clip.load(model_name, device)
+#    model, preprocess = clip.load(model_name, device)
     model.to(device)
     optimizer = AdamW(model.parameters(), lr=lr)
 
@@ -45,8 +49,8 @@ def train(device,train_dataloader,model_name = 'ViT-B/32',lr = 2e-5,num_epochs =
             for i, j in zip(contexts, augmentations):
                 context_augmented = i + " " + j
                 # Tokenize the input text
-                #input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
-                input_ids =  clip.tokenize(context_augmented,context_length=77)
+                input_ids = torch.tensor([tokenizer.encode(context_augmented, max_length=77, truncation=True)])
+                #input_ids =  clip.tokenize(context_augmented,context_length=77)
                 input_ids = input_ids.to(device)
                 outputs = model.encode_text(input_ids)
                 text_emds.append(outputs)
