@@ -51,7 +51,6 @@ def evaluate(model,device, dataloader,prediction_path):
             tokens.append(input_ids)
 
         paths = [i.split("#") for i in image_paths]
-        print(paths)
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
             t_emds = model(t, None, setting="text").text_embeds
@@ -67,9 +66,6 @@ def evaluate(model,device, dataloader,prediction_path):
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
-            print(similarities)
-            print(np.argsort(similarities))
-            print(np.argsort(np.argsort(similarities)))
             # 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
             total+=1
             rank = int(np.argsort(np.argsort(similarities))[0][0])
@@ -84,9 +80,11 @@ def evaluate(model,device, dataloader,prediction_path):
             indices = np.argsort(similarities)[::-1]
             sorted = np.take(image_names, indices)
             sorted = np.flip(sorted)
-            print(sorted)
             string = "\t".join(sorted.tolist()[0])+"\n"
-            print(string)
+
+            with open(prediction_path,"a") as file:
+                file.write(string)
+                file.close()
 
     hit_rate = correct/total
     mrr = mrr/total
@@ -113,14 +111,22 @@ def open_images(image_paths):
 
 
 if __name__ == "__main__":
-    device_str = "cuda:" + str(2)
+    parser = argparse.ArgumentParser(description='Build dataloader')
+    parser.add_argument('--dataset', help="dataset used to predict result")
+    parser.add_argument('--device', help="cuda number")
+    parser.add_argument("--output",help = "path to save the prediction")
+    args = parser.parse_args()
+
+    device_str = "cuda:" + args.device
     device = torch.device(device_str)
 
     model = clip_model()
     model = model.to(device)
-    prediction_path = "blabla"
+    prediction_path = args.output
 
-    with open("/home/CE/zhangshi/dataloader_submission_trial/dataset.pk", 'rb') as pickle_file:
+    dataset_path = args.dataset
+    #batch size of the data has to be one!!!
+    with open(dataset_path, 'rb') as pickle_file:
         dataloader = pickle.load(pickle_file)
         pickle_file.close()
 
