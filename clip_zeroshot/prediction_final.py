@@ -85,7 +85,7 @@ def evaluate(model,device, dataloader,prediction_path):
             sorted = np.take(image_names, indices)
             sorted = np.flip(sorted)
             print(sorted)
-            string = "\t".join(sorted)+"\n"
+            string = "\t".join(sorted.tolist())+"\n"
             print(string)
 
     hit_rate = correct/total
