@@ -30,6 +30,7 @@ class ImageTextDataset(Dataset):
             for i in row:
                 temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
             self.image_path.append(temporary)
+            print(self.image_path)
 
 
         #text augmentation
@@ -42,7 +43,11 @@ class ImageTextDataset(Dataset):
             for keyword,phrase in zip(self.keywords,self.context):
                 #'genus','family','tree','herb','shrub'
                 c_word = phrase.split(" ")
-                c_word.remove(keyword)
+                try:
+                    c_word.remove(keyword)
+                except:
+                    print(c_word)
+                    print(keyword)
                 c_word = c_word[0]
                 if c_word in ['genus','family','tree','herb','shrub']:
                     wiki_wiki = wikipediaapi.Wikipedia('en')
