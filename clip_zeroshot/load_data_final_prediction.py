@@ -15,7 +15,6 @@ class ImageTextDataset(Dataset):
         self.image_name = list()
 
         # this is for the original train set of the task
-        all_image_names = list()
         train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.txt", sep="\t", header=None)
         keywords = list(train_data[0])
         contexts = list(train_data[1])
@@ -30,8 +29,6 @@ class ImageTextDataset(Dataset):
             for i in row:
                 temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
             self.image_path.append(temporary)
-            print(self.image_path)
-            break
 
         #text augmentation
         #an augmented text is composed of lemmas + definition from wordnet
@@ -46,8 +43,10 @@ class ImageTextDataset(Dataset):
                 try:
                     c_word.remove(keyword)
                 except:
+                    print("---------------")
                     print(c_word)
                     print(keyword)
+
                 c_word = c_word[0]
                 if c_word in ['genus','family','tree','herb','shrub']:
                     wiki_wiki = wikipediaapi.Wikipedia('en')
