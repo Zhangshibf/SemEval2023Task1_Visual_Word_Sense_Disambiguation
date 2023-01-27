@@ -102,10 +102,11 @@ class ImageTextDataset(Dataset):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
 #    parser.add_argument('--train', help="path to the train set")
+    parser.add_argument("--cuda",help = "cuda number")
     parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
-
-    device = 'cuda:2'
+    # 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
+    device = 'cuda:'+str(args.cuda)
     # Create the dataset
     dataset = ImageTextDataset(device = device, text_augmentation=True)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
