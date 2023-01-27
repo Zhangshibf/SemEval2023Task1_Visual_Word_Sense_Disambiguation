@@ -39,10 +39,15 @@ def evaluate(model,device, dataloader,prediction_path):
         image_names = [i.split("#") for i in image_names]
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-            if c == a:
-                context_augmented = "This is a photo of"+k+". "+c
-            else:
-                context_augmented = "This is a photo of" + k + ". " + c + ": " + a
+            try:
+                if c == a:
+                    context_augmented = "This is a photo of"+k+". "+c
+                else:
+                    context_augmented = "This is a photo of" + k + ". " + c + ": " + a
+            except:
+                print(k)
+                print(c)
+                print(a)
 
             input_ids = torch.tensor([tokenizer.encode(context_augmented,max_length=77,truncation=True)])
             tokens.append(input_ids)
