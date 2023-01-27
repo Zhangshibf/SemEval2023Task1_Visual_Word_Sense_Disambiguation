@@ -9,39 +9,28 @@ from sentence_transformers import SentenceTransformer, util
 import numpy as np
 import wikipediaapi
 class ImageTextDataset(Dataset):
-    def __init__(self, data_dir, device,text_augmentation=True):
+    def __init__(self, device,text_augmentation=True):
         self.device = device
-
-        self.data_dir = data_dir
         self.image_path = list()
         self.image_name = list()
 
         # this is for the original train set of the task
         all_image_names = list()
-        train_data = pd.read_csv(os.path.join(data_dir, "trial.data.v1.txt"), sep="\t", header=None)
-        label_data = pd.read_csv(os.path.join(data_dir, "trial.gold.v1.txt"), sep="\t", header=None)
+        train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.txt", sep="\t", header=None)
         keywords = list(train_data[0])
         contexts = list(train_data[1])
-
-        for i in range(len(train_data)):
-            all_image_names.append(list(train_data.loc[i, 2:]))
-
         self.keywords = keywords
         self.context = contexts
-        image_filenames = list(label_data[0])
-        self.negative_image_names = list()
-        for a, b in zip(all_image_names,image_filenames):
-            a.remove(b)
-            self.negative_image_names.append(a)
-            self.image_name.append(b)
-            self.image_path.append(os.path.join(data_dir, "trial_images_v1", b))
 
-        self.negative_path = list()
-        for negs in self.negative_image_names:
+        for i in range(len(train_data)):
+            self.image_name.append(list(train_data.loc[i, 2:]))
+
+        for row in self.image_name:
             temporary = list()
-            for filename in negs:
-                temporary.append(os.path.join(data_dir, "trial_images_v1", filename))
-            self.negative_path.append(temporary)
+            for i in row:
+                temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
+            self.image_path.append(temporary)
+
 
         #text augmentation
         #an augmented text is composed of lemmas + definition from wordnet
@@ -95,20 +84,16 @@ class ImageTextDataset(Dataset):
 
         #negative images
         negative_images = list()
-        negative_image_paths = self.negative_path[idx]
-        negative_image_names = self.negative_image_names[idx]
-        negative_image_paths = "#".join(negative_image_paths)
-        negative_image_names = "#".join(negative_image_names)
+        image_paths = self.image_path[idx]
+        image_names = self.image_name[idx]
+        paths = "#".join(image_paths)
+        names = "#".join(image_names)
 
         context = self.context[idx]
         keyword = self.keywords[idx]
 
         positive_path = self.image_path[idx]
         positive_name = self.image_name[idx]
-
-        names = positive_name + "#" + negative_image_names
-        paths = positive_path + "#" + negative_image_paths
-
         if self.augmentation:
             aug = self.augmentation[idx]
 
@@ -116,13 +101,13 @@ class ImageTextDataset(Dataset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
-    parser.add_argument('--train', help="path to the train set")
+#    parser.add_argument('--train', help="path to the train set")
     parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
 
     device = 'cuda:2'
     # Create the dataset
-    dataset = ImageTextDataset(args.train, device = device, text_augmentation=True)
+    dataset = ImageTextDataset(device = device, text_augmentation=True)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     path = args.output+"/dataset.pk"
