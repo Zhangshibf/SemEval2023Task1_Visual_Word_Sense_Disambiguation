@@ -29,7 +29,7 @@ class clip_model(nn.Module):
             image_outputs = self.image_encoder(image)
             return image_outputs
 
-#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
+
 def evaluate(model,device, dataloader,prediction_path):
     #use normalized dot product
     model.eval()
@@ -70,6 +70,7 @@ def evaluate(model,device, dataloader,prediction_path):
             print(similarities)
             print(np.argsort(similarities))
             print(np.argsort(np.argsort(similarities)))
+            # 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
             total+=1
             rank = int(np.argsort(np.argsort(similarities))[0][0])
             if int(rank) == 9:
@@ -77,9 +78,13 @@ def evaluate(model,device, dataloader,prediction_path):
                 print("c")
             else:
                 print("no")
-                error.append(keyword)
-                error.append(context)
             mrr+=1/(10-rank)
+
+            #write output
+            indices = np.argsort(similarities)[::-1]
+            sorted = np.take(image_names, indices)
+            print(sorted)
+
     hit_rate = correct/total
     mrr = mrr/total
 
