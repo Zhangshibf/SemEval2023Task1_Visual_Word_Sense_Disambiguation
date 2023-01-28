@@ -15,10 +15,8 @@ with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/dataset.
     pickle_file.close()
 
 for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-    print(keywords)
-    print(keywords[0])
     with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/test_aug.txt","a") as f:
-        f.write(str(keywords+"/n"))
-        f.write(str(contexts+"/n"))
-        f.write(str(augmentations + "/n"))
+        f.write(str(keywords[0]+"/n"))
+        f.write(str(contexts[0]+"/n"))
+        f.write(str(augmentations[0] + "/n"))
         f.close()
