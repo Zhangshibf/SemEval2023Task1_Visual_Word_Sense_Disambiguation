@@ -10,12 +10,12 @@ import torch
 from torch import optim
 import clip
 
-with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/dataset.pk", 'rb') as pickle_file:
+with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/tobedeleted/dataset.pk", 'rb') as pickle_file:
     dataloader = pickle.load(pickle_file)
     pickle_file.close()
 
 for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-    with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/test_aug.txt","a") as f:
+    with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/tial_aug.txt","a") as f:
         try:
             f.write(str(keywords[0]+"/n"))
             f.write(str(contexts[0]+"/n"))
