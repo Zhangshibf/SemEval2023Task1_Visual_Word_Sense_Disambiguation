@@ -66,8 +66,10 @@ class ImageTextDataset(Dataset):
                             for synset in synsets:
                                 augmented_text = ''
                                 for lemma in synset.lemmas():
-                                    augmented_text += str(lemma.name()).replace('_', ' ') + ', '
+                                    augmented_text += str(lemma.name()).replace('_', ' ') + ' '
                                 augmented_text += synset.definition()
+                                for ex in synset.examples():
+                                    augmented_text += ' ' + ex
                                 augmented_texts.append(augmented_text)
 
                         if len(augmented_texts)>1:
