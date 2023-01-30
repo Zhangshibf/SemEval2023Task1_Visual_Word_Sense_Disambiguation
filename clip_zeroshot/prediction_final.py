@@ -41,7 +41,8 @@ def evaluate(model,device, dataloader,prediction_path):
         for k,c,a in zip(keywords,contexts, augmentations):
 
             try:
-                context_augmented = "This is a photo of" + k + ". " + c + ": " + a
+                context_augmented = c + " " + a
+                #context_augmented = "This is a photo of" + k + ". " + c + ": " + a
             except:
                 if c == "nan bread":
                     context_augmented = "Naan bread is a type of bread made with flour. It is a flatbread that is baked in a tandoor. Naan bread often looks like a tear drop. It is often covered in herbs and spices such as garlic to change the taste.Naan bread is made from basic bread ingredients like wheat flour, a leavening agent, salt, and butter or ghee."
