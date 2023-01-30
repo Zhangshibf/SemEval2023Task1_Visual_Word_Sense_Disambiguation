@@ -5,4 +5,4 @@ with open("/home/CE/zhangshi/dataloader_submission_trial/dataset.pk", 'rb') as p
     pickle_file.close()
 
 for i in dataloader:
-    print(i)
+    print(i[2])
