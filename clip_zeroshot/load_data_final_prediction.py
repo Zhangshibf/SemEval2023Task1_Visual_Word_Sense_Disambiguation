@@ -54,8 +54,6 @@ class ImageTextDataset(Dataset):
                     wiki_wiki = wikipediaapi.Wikipedia('en')
                     page_py = wiki_wiki.page(keyword.lower())
                     self.augmentation.append(page_py.summary)
-                    print(phrase)
-                    print("wikipedia augmentation")
 
                 else:
                     #retrieve all possible augmented texts
@@ -79,11 +77,6 @@ class ImageTextDataset(Dataset):
                             scores = util.dot_score(context_emb, aug_emb)[0].tolist()
                             idx = np.argmax(scores)
                             self.augmentation.append(augmented_texts[idx])
-                            print(phrase)
-                            print(augmented_texts)
-                            print(scores)
-                            print(idx)
-                            print(augmented_texts[idx])
                         elif len(augmented_texts) == 1:
                             self.augmentation.append(augmented_texts[0])
                         elif len(augmented_texts) == 0:
