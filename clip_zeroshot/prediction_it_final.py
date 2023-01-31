@@ -13,8 +13,9 @@ from torch import optim
 #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
 class clip_model(nn.Module):
 
-    def __init__(self):
+    def __init__(self,device):
         super(clip_model, self).__init__()
+        self.device = device
         self.model = VisionTextDualEncoderModel.from_pretrained("clip-italian/clip-italian")
         self.processor = AutoProcessor.from_pretrained("clip-italian/clip-italian")
 
@@ -108,7 +109,7 @@ if __name__ == "__main__":
     device_str = "cuda:" + args.device
     device = torch.device(device_str)
 
-    model = clip_model()
+    model = clip_model(device = device)
     model = model.to(device)
     prediction_path = args.output
 
