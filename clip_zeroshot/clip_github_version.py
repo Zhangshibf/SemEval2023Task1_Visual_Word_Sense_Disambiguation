@@ -12,8 +12,6 @@ import clip
 def evaluate(model,preprocess,device, dataloader,prediction_path):
     #use normalized dot product
     model.eval()
-
-    tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32",model_max_length=77)
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         image_names = [i.split("#") for i in image_names]
         tokens = list()
@@ -100,5 +98,5 @@ if __name__ == "__main__":
         pickle_file.close()
 
     print("--------------Evaluation---------------")
-    evaluate(model,preprocess, dataloader,prediction_path)
+    evaluate(model,preprocess, device,dataloader,prediction_path)
     print("--------------Evaluation Finished---------------")
