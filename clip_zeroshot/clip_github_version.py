@@ -37,6 +37,7 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
             i_emds = list()
             for k in images:
                 input_image = k.to(device)
+                print(input_image.size())
                 #input_image = k['pixel_values'].to(device)
                 i_emds.append(model.encode_image(input_image))
 
@@ -69,7 +70,6 @@ def open_images(preprocess,image_paths):
         if image.mode != "RGB":
             image = image.convert('RGB')
         image = preprocess(image)
-        print(image.size())
         images.append(image)
 
     return images
