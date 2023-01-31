@@ -33,15 +33,15 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
             t_emds = model.encode_text(t)
-            images = open_images(preprocess,ps)
-            i_emds = list()
-            for k in images:
-                input_image = k.to(device)
-                print(input_image.size())
-                #input_image = k['pixel_values'].to(device)
-                i_emds.append(model.encode_image(input_image))
+            image_inputs = torch.cat([preprocess(Image.open(img)).unsqueeze(0) for img in image_paths]).to(device)
+            image_features = model.encode_image(image_inputs)
+#            i_emds = list()
+#            for k in images:
+#                input_image = k.to(device)
+#                print(input_image.size())
+#                i_emds.append(model.encode_image(input_image))
 
-            i_emds = torch.stack(i_emds).squeeze().to(device)
+#            i_emds = torch.stack(i_emds).squeeze().to(device)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
             i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
