@@ -56,15 +56,16 @@ def evaluate(model,device, dataloader,prediction_path):
         image_names = [i.split("#") for i in image_names]
         texts = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-            context_augmented = c + " " + a
-            texts.append(context_augmented)
+            text = "Questa è una foto di " +k +" "+c
+            texts.append(text)
+            #context_augmented = c + " " + a
+            #texts.append(context_augmented)
 
         paths = [i.split("#") for i in image_paths]
         for keyword,context,t,ps in zip(keywords,contexts,texts,paths):
             t_emds = model(t, None, setting="text")
             images = open_images(ps)
             i_emds = model(None, images, setting="image")
-#            i_emds = torch.stack(i_emds).squeeze().to(device)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
             i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
