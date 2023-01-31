@@ -33,7 +33,7 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
             t_emds = model.encode_text(t)
-            image_inputs = torch.cat([preprocess(Image.open(ps)).unsqueeze(0) for img in image_paths]).to(device)
+            image_inputs = torch.cat([preprocess(Image.open(img)).unsqueeze(0) for img in ps]).to(device)
             image_features = model.encode_image(image_inputs)
 #            i_emds = list()
 #            for k in images:
