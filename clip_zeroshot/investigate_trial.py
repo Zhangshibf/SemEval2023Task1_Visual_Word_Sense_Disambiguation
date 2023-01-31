@@ -1,4 +1,4 @@
-from load_data import *
+from load_data_prediction_it import *
 
 with open("/home/CE/zhangshi/SemEval23/clip_zeroshot/it_prediction/dataset.pk", 'rb') as pickle_file:
     dataloader = pickle.load(pickle_file)
