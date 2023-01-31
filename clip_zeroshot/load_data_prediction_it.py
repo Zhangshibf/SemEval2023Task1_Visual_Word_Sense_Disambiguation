@@ -3,12 +3,9 @@ import pickle
 from torch.utils.data import Dataset, DataLoader,random_split
 import pandas as pd
 import argparse
-from nltk.corpus import wordnet as wn
-import nltk
 import italian_dictionary as dictionary
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
-import wikipediaapi
 
 #this file is for italian
 class ImageTextDataset(Dataset):
