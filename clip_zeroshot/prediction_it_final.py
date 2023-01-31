@@ -59,7 +59,6 @@ def evaluate(model,device, dataloader,prediction_path):
 
         paths = [i.split("#") for i in image_paths]
         for keyword,context,t,ps in zip(keywords,contexts,texts,paths):
-            t = t.to(device)
             t_emds = model(t, None, setting="text")
             images = open_images(ps)
             i_emds = model(None, images, setting="image")
