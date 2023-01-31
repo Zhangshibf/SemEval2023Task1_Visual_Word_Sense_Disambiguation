@@ -6,6 +6,7 @@ import argparse
 import italian_dictionary as dictionary
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
+from nltk.corpus import wordnet as wn
 #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
 #this file is for italian
 class ImageTextDataset(Dataset):
@@ -49,7 +50,32 @@ class ImageTextDataset(Dataset):
                     elif len(definition)==1:
                         self.augmentation.append(definitions[0])
                 except:
-                    self.augmentation.append(" ")
+                    # if no definition is found in Italian dictionary, try wordnet
+                    try:
+                        synsets = wn.synsets(keyword)
+                        augmented_texts = list()
+                        if len(synsets) != 0:
+                            for synset in synsets:
+                                augmented_text = ''
+                                for lemma in synset.lemmas():
+                                    augmented_text += str(lemma.name()).replace('_', ' ') + ' '
+                                augmented_text += synset.definition()
+                                for ex in synset.examples():
+                                    augmented_text += ' ' + ex
+                                augmented_texts.append(augmented_text)
+
+                        if len(augmented_texts) > 1:
+                            # check which of the augmented texts is more similar to the short phrase
+                            context_emb = sent_encoder.encode(phrase)
+                            aug_emb = sent_encoder.encode(augmented_texts)
+                            scores = util.dot_score(context_emb, aug_emb)[0].tolist()
+                            idx = np.argmax(scores)
+                            self.augmentation.append(augmented_texts[idx])
+                        elif len(augmented_texts) == 1:
+                            self.augmentation.append(augmented_texts[0])
+                        elif len(augmented_texts) == 0:
+                            self.augmentation.append(" ")
+
 
 
     def __len__(self):
