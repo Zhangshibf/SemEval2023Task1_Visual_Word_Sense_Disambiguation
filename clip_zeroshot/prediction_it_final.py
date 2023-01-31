@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 from torch import nn
 from transformers import CLIPProcessor, CLIPVisionModelWithProjection,CLIPTokenizer, CLIPTextModelWithProjection
 import torch
+import PIL
 from transformers import VisionTextDualEncoderModel
 from transformers import AutoProcessor
 from torch import optim
@@ -112,6 +113,7 @@ if __name__ == "__main__":
     model = clip_model(device = device)
     model = model.to(device)
     prediction_path = args.output
+    PIL.Image.MAX_IMAGE_PIXELS = 933120000000000000000000000000000000000
 
     dataset_path = args.dataset
     #batch size of the data has to be one!!!
