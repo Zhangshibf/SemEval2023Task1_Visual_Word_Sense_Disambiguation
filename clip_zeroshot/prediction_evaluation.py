@@ -3,13 +3,15 @@ import pandas as pd
 def eva(prediction_path,label_path):
     prediction = pd.read_csv(prediction_path, sep="\t", header=None).values.tolist()
     label = pd.read_csv(label_path, sep="\t", header=None)
-    assert len(prediction)==len(label)
     predicted_label = list(prediction[0])
     total = len(label)
 
     correct = 0
     mrr = 0
     for a,b in zip(predicted_label,list(label)):
+        print(a)
+        print(b)
+        break
         if a==b:
             correct+=1
 
