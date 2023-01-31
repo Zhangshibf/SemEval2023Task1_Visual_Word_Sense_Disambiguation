@@ -12,9 +12,9 @@ def eva(prediction_path,label_path):
             correct+=1
             mrr+=1
         else:
-            print(a)
+            print(a[2])
             print(b)
-
+            print(a[2]==b)
             idx = int(a.index(str(b))) +1
             mrr+=1/idx
 
