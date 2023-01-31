@@ -8,14 +8,12 @@ def eva(prediction_path,label_path):
     correct = 0
     mrr = 0
     for a,b in zip(prediction,label):
-        if a[0]==b:
+        l = b[0]
+        if a[0]==l:
             correct+=1
             mrr+=1
         else:
-            print(a[2])
-            print(b)
-            print(a[2]==b[0])
-            idx = int(a.index(b)) +1
+            idx = int(a.index(l)) +1
             mrr+=1/idx
 
 
