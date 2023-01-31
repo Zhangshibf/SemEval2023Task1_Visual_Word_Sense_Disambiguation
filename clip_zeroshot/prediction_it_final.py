@@ -10,7 +10,7 @@ import torch
 from transformers import VisionTextDualEncoderModel
 from transformers import AutoProcessor
 from torch import optim
-
+#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
 class clip_model(nn.Module):
 
     def __init__(self):
@@ -29,7 +29,8 @@ class clip_model(nn.Module):
 
     def embed_texts(self,texts):
         inputs = self.processor(text=texts, padding="longest")
-        input_ids = torch.tensor(inputs["input_ids"])
+        input_ids = torch.tensor(inputs["input_ids"]).unsqueeze()
+        print(input_ids.shape())
         attention_mask = torch.tensor(inputs["attention_mask"])
 
         with torch.no_grad():
