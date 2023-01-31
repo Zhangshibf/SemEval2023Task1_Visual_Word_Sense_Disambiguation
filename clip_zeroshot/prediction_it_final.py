@@ -30,8 +30,7 @@ class clip_model(nn.Module):
     def embed_texts(self,texts):
         inputs = self.processor(text=texts, padding="longest")
         input_ids = torch.tensor(inputs["input_ids"]).unsqueeze(dim = 0)
-        print(input_ids.size())
-        attention_mask = torch.tensor(inputs["attention_mask"])
+        attention_mask = torch.tensor(inputs["attention_mask"]).unsqueeze(dim = 0)
 
         with torch.no_grad():
             embeddings = self.model.get_text_features(
