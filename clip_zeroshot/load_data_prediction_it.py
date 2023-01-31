@@ -75,7 +75,8 @@ class ImageTextDataset(Dataset):
                             self.augmentation.append(augmented_texts[0])
                         elif len(augmented_texts) == 0:
                             self.augmentation.append(" ")
-
+                    except:
+                        self.augmentation.append(" ")
 
 
     def __len__(self):
