@@ -29,10 +29,8 @@ class clip_model(nn.Module):
 
     def embed_texts(self,texts):
         inputs = self.processor(text=texts, padding="longest")
-        input_ids = torch.tensor(inputs["input_ids"]).unsqueeze(dim=0)
-        attention_mask = torch.tensor(inputs["attention_mask"]).unsqueeze(dim=0)
-        print(input_ids.size())
-        print(attention_mask.size())
+        input_ids = torch.tensor(inputs["input_ids"]).unsqueeze(dim=0).to(self.device)
+        attention_mask = torch.tensor(inputs["attention_mask"]).unsqueeze(dim=0).to(self.device)
 
         with torch.no_grad():
             embeddings = self.model.get_text_features(
@@ -42,7 +40,7 @@ class clip_model(nn.Module):
 
     def embed_images(self,images):
         inputs = self.processor(images=images)
-        pixel_values = torch.tensor(np.array(inputs["pixel_values"]))
+        pixel_values = torch.tensor(np.array(inputs["pixel_values"])).to(self.device)
 
         with torch.no_grad():
             embeddings = self.model.get_image_features(pixel_values=pixel_values)
