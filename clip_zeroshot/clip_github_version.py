@@ -69,6 +69,7 @@ def open_images(preprocess,image_paths):
         if image.mode != "RGB":
             image = image.convert('RGB')
         image = preprocess(image)
+        print(image.size())
         images.append(image)
 
     return images
