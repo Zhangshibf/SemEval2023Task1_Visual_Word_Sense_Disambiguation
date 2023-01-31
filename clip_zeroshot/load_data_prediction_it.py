@@ -6,7 +6,7 @@ import argparse
 import italian_dictionary as dictionary
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
-
+#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
 #this file is for italian
 class ImageTextDataset(Dataset):
     def __init__(self, device,text_augmentation=True):
@@ -15,9 +15,7 @@ class ImageTextDataset(Dataset):
         self.image_name = list()
 
         # this is for the original train set of the task
-        train_data = pd.read_csv("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1/mytestfile.txt", sep="\t", header=None)
-#        train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.v1.1.txt", sep="\t", header=None)
-#        train_data = pd.read_csv("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial.data.v1.txt", sep="\t", header=None)
+        train_data = pd.read_csv("/home/CE/zhangshi/it.test.data.txt", sep="\t", header=None)
 
         keywords = list(train_data[0])
         contexts = list(train_data[1])
@@ -30,14 +28,11 @@ class ImageTextDataset(Dataset):
         for row in self.image_name:
             temporary = list()
             for i in row:
-                temporary.append(os.path.join("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1/train_images_v1", i))
-                #temporary.append(os.path.join("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1", i))
-                #temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
+                temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
 
             self.image_path.append(temporary)
 
         #text augmentation
-        #an augmented text is composed of lemmas + definition from wordnet
         if text_augmentation:
             self.augmentation = list()
             sent_encoder = SentenceTransformer('distiluse-base-multilingual-cased-v1').to(self.device)
