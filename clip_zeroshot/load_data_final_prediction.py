@@ -15,7 +15,8 @@ class ImageTextDataset(Dataset):
         self.image_name = list()
 
         # this is for the original train set of the task
-        train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.v1.1.txt", sep="\t", header=None)
+        train_data = pd.read_csv("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1/mytestfile.txt", sep="\t", header=None)
+#        train_data = pd.read_csv("/home/CE/zhangshi/semeval_testset/en.test.data.v1.1.txt", sep="\t", header=None)
 #        train_data = pd.read_csv("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial.data.v1.txt", sep="\t", header=None)
 
         keywords = list(train_data[0])
@@ -29,8 +30,9 @@ class ImageTextDataset(Dataset):
         for row in self.image_name:
             temporary = list()
             for i in row:
+                temporary.append(os.path.join("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1/train_images_v1", i))
                 #temporary.append(os.path.join("/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/trial_v1/trial_images_v1", i))
-                temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
+                #temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
 
             self.image_path.append(temporary)
 
