@@ -1,9 +1,8 @@
 import pandas as pd
-
 def eva(prediction_path,label_path):
     prediction = pd.read_csv(prediction_path, sep="\t", header=None).values.tolist()
-    print(prediction)
     label = pd.read_csv(label_path, sep="\t", header=None)
+    print(label)
     predicted_label = list(prediction[0])
     total = len(label)
 
