@@ -7,16 +7,14 @@ import italian_dictionary as dictionary
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 from nltk.corpus import wordnet as wn
-#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
-#this file is for italian
 class ImageTextDataset(Dataset):
-    def __init__(self, device,text_augmentation=True):
+    def __init__(self,test_path,image_folder_path, device,text_augmentation=True):
         self.device = device
         self.image_path = list()
         self.image_name = list()
 
         # this is for the original train set of the task
-        train_data = pd.read_csv("/home/CE/zhangshi/it.test.data.txt", sep="\t", header=None)
+        train_data = pd.read_csv(test_path, sep="\t", header=None)
 
         keywords = list(train_data[0])
         contexts = list(train_data[1])
@@ -29,7 +27,7 @@ class ImageTextDataset(Dataset):
         for row in self.image_name:
             temporary = list()
             for i in row:
-                temporary.append(os.path.join("/home/CE/zhangshi/semeval_testset/test_images", i))
+                temporary.append(os.path.join(image_folder_path, i))
 
             self.image_path.append(temporary)
 
@@ -84,9 +82,6 @@ class ImageTextDataset(Dataset):
 
     def __getitem__(self, idx):
         # Load the image and text
-
-        #negative images
-        negative_images = list()
         image_paths = self.image_path[idx]
         image_names = self.image_name[idx]
         paths = "#".join(image_paths)
@@ -95,8 +90,6 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        positive_path = self.image_path[idx]
-        positive_name = self.image_name[idx]
         if self.augmentation:
             aug = self.augmentation[idx]
 
@@ -104,13 +97,14 @@ class ImageTextDataset(Dataset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
+    parser.add_argument("--test_path",help = "the path to test data")
+    parser.add_argument("--image_folder_path",help = "path to the folder that contains all images")
     parser.add_argument("--cuda",help = "cuda number")
     parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
-    # 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
     device = 'cuda:'+str(args.cuda)
     # Create the dataset
-    dataset = ImageTextDataset(device = device, text_augmentation=True)
+    dataset = ImageTextDataset(test_path = args.test_path,image_folder_path = args.image_folder_path,device = device, text_augmentation=True)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     path = args.output+"/dataset.pk"
