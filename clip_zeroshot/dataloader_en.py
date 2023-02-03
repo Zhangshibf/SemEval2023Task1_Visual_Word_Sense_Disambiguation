@@ -14,7 +14,6 @@ class ImageTextDataset(Dataset):
         self.image_path = list()
         self.image_name = list()
 
-        # this is for the original train set of the task
         train_data = pd.read_csv(test_path, sep="\t", header=None)
 
         keywords = list(train_data[0])
@@ -32,14 +31,13 @@ class ImageTextDataset(Dataset):
             self.image_path.append(temporary)
 
         #text augmentation
-        #an augmented text is composed of lemmas + definition from wordnet
+        #an augmented text is composed of lemmas + definition from wordnet/information from wikipedia
         if text_augmentation:
             nltk.download('omw-1.4')
             nltk.download('wordnet')
             self.augmentation = list()
             sent_encoder = SentenceTransformer('sentence-transformers/all-mpnet-base-v2').to(self.device)
             for keyword,phrase in zip(self.keywords,self.context):
-                #'genus','family','tree','herb','shrub'
                 c_word = phrase.split(" ")
                 try:
                     c_word.remove(keyword)
@@ -88,9 +86,6 @@ class ImageTextDataset(Dataset):
 
     def __getitem__(self, idx):
         # Load the image and text
-
-        #negative images
-        negative_images = list()
         image_paths = self.image_path[idx]
         image_names = self.image_name[idx]
         paths = "#".join(image_paths)
@@ -99,8 +94,6 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        positive_path = self.image_path[idx]
-        positive_name = self.image_name[idx]
         if self.augmentation:
             aug = self.augmentation[idx]
 
@@ -113,7 +106,6 @@ if __name__ == "__main__":
     parser.add_argument("--cuda",help = "cuda number")
     parser.add_argument("--output",help = "path to save the dataloader")
     args = parser.parse_args()
-    # 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
     device = 'cuda:'+str(args.cuda)
     # Create the dataset
     dataset = ImageTextDataset(test_path = args.test_path,image_folder_path = args.image_folder_path,device = device, text_augmentation=True)
