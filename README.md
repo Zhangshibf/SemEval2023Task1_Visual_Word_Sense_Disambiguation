@@ -12,3 +12,7 @@ conda activate glp
 
 pip install git+https://github.com/openai/CLIP.git
 ```
+
+## Generate Zero-shot prediction on the English test set
+
+## Generate Zero-shot prediction on the Italian test set
