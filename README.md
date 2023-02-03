@@ -2,10 +2,13 @@
 
 ## Set up environment
 
-. .bashrc
 
 ```
+. .bashrc
+
 conda env create -f env_sem.yml
 
 conda activate glp
+
+pip install git+https://github.com/openai/CLIP.git
 ```
