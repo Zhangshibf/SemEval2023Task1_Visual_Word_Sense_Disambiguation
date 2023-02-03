@@ -10,7 +10,6 @@ import torch
 from torch import optim
 import clip
 def evaluate(model,preprocess,device, dataloader,prediction_path):
-    #use normalized dot product
     model.eval()
     for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         image_names = [i.split("#") for i in image_names]
@@ -19,7 +18,6 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
 
             try:
                 context_augmented = c + " " + a
-                #context_augmented = "This is a photo of" + k + ". " + c + ": " + a
             except:
                 if c == "nan bread":
                     context_augmented = "Naan bread is a type of bread made with flour. It is a flatbread that is baked in a tandoor. Naan bread often looks like a tear drop. It is often covered in herbs and spices such as garlic to change the taste.Naan bread is made from basic bread ingredients like wheat flour, a leavening agent, salt, and butter or ghee."
@@ -40,7 +38,6 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
-            # 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
 
             #write output
             indices = np.argsort(similarities)[::-1]
@@ -72,7 +69,6 @@ def open_images(preprocess,image_paths):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--dataset', help="dataset used to predict result")
-    #/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/dataset.pk
     parser.add_argument('--device', help="cuda number")
     parser.add_argument("--output",help = "path to save the prediction")
     args = parser.parse_args()
@@ -85,7 +81,6 @@ if __name__ == "__main__":
     prediction_path = args.output
 
     dataset_path = args.dataset
-    #batch size of the data has to be one!!!
     with open(dataset_path, 'rb') as pickle_file:
         dataloader = pickle.load(pickle_file)
         pickle_file.close()

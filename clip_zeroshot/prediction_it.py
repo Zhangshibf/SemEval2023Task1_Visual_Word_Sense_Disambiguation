@@ -11,7 +11,7 @@ import PIL
 from transformers import VisionTextDualEncoderModel
 from transformers import AutoProcessor
 from torch import optim
-#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
+
 class clip_model(nn.Module):
 
     def __init__(self,device):
@@ -56,10 +56,8 @@ def evaluate(model,device, dataloader,prediction_path):
         image_names = [i.split("#") for i in image_names]
         texts = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-            text = "Questa è una foto di " +k +" "+c
-            texts.append(text)
-            #context_augmented = c + " " + a
-            #texts.append(context_augmented)
+            #text = "Questa è una foto di " +k +" "+c
+            texts.append(c)
 
         paths = [i.split("#") for i in image_paths]
         for keyword,context,t,ps in zip(keywords,contexts,texts,paths):
@@ -71,7 +69,6 @@ def evaluate(model,device, dataloader,prediction_path):
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
             similarities = similarities.cpu()
             similarities = similarities.detach().numpy()
-            # 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
 
             #write output
             indices = np.argsort(similarities)[::-1]
@@ -103,7 +100,6 @@ def open_images(image_paths):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--dataset', help="dataset used to predict result")
-    #/home/CE/zhangshi/SemEval23/clip_zeroshot/testset_dataloader/dataset.pk
     parser.add_argument('--device', help="cuda number")
     parser.add_argument("--output",help = "path to save the prediction")
     args = parser.parse_args()
@@ -117,7 +113,6 @@ if __name__ == "__main__":
     PIL.Image.MAX_IMAGE_PIXELS = 933120000000000000000000000000000000000
 
     dataset_path = args.dataset
-    #batch size of the data has to be one!!!
     with open(dataset_path, 'rb') as pickle_file:
         dataloader = pickle.load(pickle_file)
         pickle_file.close()
