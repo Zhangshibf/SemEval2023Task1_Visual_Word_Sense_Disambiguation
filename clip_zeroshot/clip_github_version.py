@@ -35,13 +35,6 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
             t_emds = model.encode_text(t)
             image_inputs = torch.cat([preprocess(Image.open(img)).unsqueeze(0) for img in ps]).to(device)
             i_emds = model.encode_image(image_inputs)
-#            i_emds = list()
-#            for k in images:
-#                input_image = k.to(device)
-#                print(input_image.size())
-#                i_emds.append(model.encode_image(input_image))
-
-#            i_emds = torch.stack(i_emds).squeeze().to(device)
             t_emds = t_emds / t_emds.norm(dim=1, keepdim=True)
             i_emds = i_emds / i_emds.norm(dim=1, keepdim=True)
             similarities = torch.matmul(t_emds, i_emds.transpose(0, 1))
