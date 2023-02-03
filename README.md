@@ -1,4 +1,4 @@
-#SemEval 2023 Task1: Visual Word Sense Disambiguation
+# SemEval 2023 Task1: Visual Word Sense Disambiguation
 
 ## Set up environment
 
