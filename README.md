@@ -4,6 +4,8 @@
 
 . .bashrc
 
-conda env create -f env_csbert.yml
+```
+conda env create -f env_sem.yml
 
 conda activate glp
+```
