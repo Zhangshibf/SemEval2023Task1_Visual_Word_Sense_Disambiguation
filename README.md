@@ -15,4 +15,22 @@ pip install git+https://github.com/openai/CLIP.git
 
 ## Generate Zero-shot prediction on the English test set
 
+
+```
+python 
+
+python
+
+python
+```
+
 ## Generate Zero-shot prediction on the Italian test set
+
+
+```
+python 
+
+python
+
+python
+```
