@@ -8,7 +8,7 @@ from data import ImageTextDataset, custom_collate
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build dataloader')
-    parser.add_argument('--augmentation', help="Augmenting Description Default (True)", default=True)
+    parser.add_argument('--no_augmentation', help="Augmenting Description Default (True)", action='store_false', default=True)
     parser.add_argument('--text_file', help="Input the file in txt format", default="test_data/en.test.data.txt")
     parser.add_argument('--image_dir', help="Input the directory of test images", default="test_data/test_images_resized")
     parser.add_argument('--checkpoint', help="Input the model path", default="ViT-B/32")
