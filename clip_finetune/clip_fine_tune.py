@@ -23,7 +23,7 @@ if __name__== "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
     parser.add_argument('--epochs', type = int, help="Number of Epochs", default=5)
     parser.add_argument('--lr', type = float, help="Learning rate", default=5e-5)
-    parser.add_argument('--augmentation', help="Augmenting Description Default (True)", default=True)
+    parser.add_argument('--no_augmentation', help="Augmenting Description Default (True)", action='store_false', default=True)
     parser.add_argument('--text_file', help="Input Train file in txt format", default="semeval-2023-task-1-V-WSD-train-v1/train_v1/train.data.v1.txt")
     parser.add_argument('--gold_file', help="Input Gold file in txt format", default="semeval-2023-task-1-V-WSD-train-v1/train_v1/train.gold.v1.txt")
     parser.add_argument('--image_dir', help="Input the directory of train images", default="semeval-2023-task-1-V-WSD-train-v1/train_v1/train_images_v1")
