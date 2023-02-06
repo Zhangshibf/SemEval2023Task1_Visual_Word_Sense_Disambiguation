@@ -37,7 +37,7 @@ python
 
 ## Fine-tune CLIP
 ```
-!python clip_fine_tune.py --text_file path/to/text_file --gold_file path/to/gold_file --image_dir path/to/image_dir 
+python clip_fine_tune.py --text_file path/to/text_file --gold_file path/to/gold_file --image_dir path/to/image_dir 
 
 ```
 You can also pass **--epochs** (Default 5) and **--lr** (Default 5e-5). Also, it is possible to fine-tune your model without augmentation by passing **--no_augmentation**
