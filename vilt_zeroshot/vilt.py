@@ -9,6 +9,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 1000000000
 from torch.utils.data import Dataset, DataLoader
 from transformers import ViltProcessor, ViltForImageAndTextRetrieval
 from dataloader import ImageTextDataset, test_collate
+from tqdm import tqdm
 
 
 if __name__ == '__main__':
@@ -40,7 +41,7 @@ if __name__ == '__main__':
 
     test_dataloader = DataLoader(test_ds, shuffle=False, batch_size=1, collate_fn=lambda batch: test_collate(batch))
     submission = []
-    for i, batch in enumerate(test_dataloader):
+    for batch in tqdm(test_dataloader):
         scores = dict()
         for j, image in enumerate(batch['images'][0]):
             

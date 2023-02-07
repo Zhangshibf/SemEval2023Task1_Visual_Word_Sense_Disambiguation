@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 from torch.utils.data import DataLoader
 from data import ImageTextDataset, custom_collate
-
+from tqdm import tqdm
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build dataloader')
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     valid_dataloader = DataLoader(test_ds, shuffle=False, batch_size=1, collate_fn=lambda batch: custom_collate(batch))
 
     results = []
-    for batch in valid_dataloader:
+    for batch in tqdm(valid_dataloader):
         # print(batch)
         names = batch['names'][0]
         images = batch['images'].to(device)
