@@ -32,9 +32,9 @@ python vilt.py --text_file path/to/text_file --image_dir path/to/image_dir --che
 ```
 
 
-## Generate Zero-shot prediction on the Italian test set Using CLIP
+## Generate Zero-shot prediction on the Italian test set
 
-
+### Using CLIP
 ```
 python 
 
