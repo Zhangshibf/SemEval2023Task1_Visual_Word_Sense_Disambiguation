@@ -17,11 +17,11 @@ pip install Wikipedia-API transformers sentence_transformers git+https://github.
 
 ###  Using CLIP
 ```
-python 
+python clip_zeroshot/dataloader_en.py --test_path (the path to test file) --image_folder_path (path to the dolfer that contains all images) --cuda (number of CUDA) --output (path where you would like to save the dataloader)
 
-python
+python clip_zeroshot/prediction_en.py --dataset (path where you saved the dataloader) --device (number of CUDA) --output (path where you would like to save the prediction)
 
-python
+python clip_zeroshot/evaluation.py --prediction_path (path to the file that contains model's predictions) --label_path (path to the file that contains labels)
 ```
 
 ### Using ViLT
@@ -36,11 +36,11 @@ python vilt.py --text_file path/to/text_file --image_dir path/to/image_dir --che
 
 ### Using CLIP
 ```
-python 
+python clip_zeroshot/dataloader_it.py --test_path (the path to test file) --image_folder_path (path to the dolfer that contains all images) --cuda (number of CUDA) --output (path where you would like to save the dataloader)
 
-python
+python clip_zeroshot/prediction_it.py --dataset (path where you saved the dataloader) --device (number of CUDA) --output (path where you would like to save the prediction)
 
-python
+python clip_zeroshot/evaluation.py --prediction_path (path to the file that contains model's predictions) --label_path (path to the file that contains labels)
 ```
 
 
