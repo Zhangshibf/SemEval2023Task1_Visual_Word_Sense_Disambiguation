@@ -21,7 +21,7 @@ def eva(prediction_path,label_path):
     mrr = mrr/total
 
     return hit_rate,mrr
-# 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
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
@@ -34,8 +34,6 @@ if __name__ == "__main__":
     print(hit_rate)
     print(mrr)
 
-#prediction_path = "/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1/mytestfile.txt"
-#label_path = "/home/CE/zhangshi/sem/semeval-2023-task-1-V-WSD-train-v1/train_v1/mytestfile_label.txt"
 
 
 
