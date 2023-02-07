@@ -45,8 +45,8 @@ if __name__== "__main__":
     print(len(train), len(valid))
 
     # Create the dataset
-    train_ds = ImageTextDataset(args.image_dir, train, data_type="train",device = device, text_augmentation=args.augmentation)
-    valid_ds = ImageTextDataset(args.image_dir, valid, data_type="valid",device = device, text_augmentation=args.augmentation)
+    train_ds = ImageTextDataset(args.image_dir, train, data_type="train",device = device, text_augmentation=args.no_augmentation)
+    valid_ds = ImageTextDataset(args.image_dir, valid, data_type="valid",device = device, text_augmentation=args.no_augmentation)
     # Create the dataloader
     train_dataloader = DataLoader(train_ds, shuffle=True, batch_size=32)
     valid_dataloader = DataLoader(valid_ds, shuffle=True, batch_size=32)
