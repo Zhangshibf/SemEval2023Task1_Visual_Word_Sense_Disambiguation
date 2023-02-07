@@ -36,8 +36,26 @@ python
 ```
 
 ## Fine-tune CLIP
+### Training
 ```
 python clip_fine_tune.py --text_file path/to/text_file --gold_file path/to/gold_file --image_dir path/to/image_dir 
 
 ```
 You can also pass **--epochs** (Default 5) and **--lr** (Default 5e-5). Also, it is possible to fine-tune your model without augmentation by passing **--no_augmentation**
+
+### Testing
+
+```
+python test.py --text_file path/to/text_file --image_dir path/to/image_dir --checkpoint path/to/model --output path/to/output_file
+
+```
+By default it will use zero shot CLIP model.
+
+## Generate Zero-shot prediction using ViLT
+
+```
+python vilt.py --text_file path/to/text_file --image_dir path/to/image_dir --checkpoint path/to/model --output path/to/output_file
+
+```
+
+
