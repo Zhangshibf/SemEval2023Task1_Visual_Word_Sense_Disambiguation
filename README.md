@@ -13,9 +13,9 @@ conda activate glp
 pip install Wikipedia-API transformers sentence_transformers git+https://github.com/openai/CLIP.git
 ```
 
-## Generate Zero-shot prediction on the English test set Using CLIP
+## Generate Zero-shot prediction on the English test set
 
-
+###  Using CLIP
 ```
 python 
 
@@ -23,6 +23,14 @@ python
 
 python
 ```
+
+### Using ViLT
+
+```
+python vilt.py --text_file path/to/text_file --image_dir path/to/image_dir --checkpoint path/to/model --output path/to/output_file
+
+```
+
 
 ## Generate Zero-shot prediction on the Italian test set Using CLIP
 
@@ -35,12 +43,6 @@ python
 python
 ```
 
-## Generate Zero-shot prediction using ViLT
-
-```
-python vilt.py --text_file path/to/text_file --image_dir path/to/image_dir --checkpoint path/to/model --output path/to/output_file
-
-```
 
 ## Fine-tune CLIP (which didn't work at all. Accuracy drops drastically after fine-tuning.)
 ### Training
