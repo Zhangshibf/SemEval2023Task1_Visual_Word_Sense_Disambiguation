@@ -48,7 +48,6 @@ python clip_zeroshot/evaluation.py --prediction_path (path to the file that cont
 ### Training
 ```
 python clip_fine_tune.py --text_file path/to/text_file --gold_file path/to/gold_file --image_dir path/to/image_dir 
-
 ```
 You can also pass **--epochs** (Default 5) and **--lr** (Default 5e-5). Also, it is possible to fine-tune your model without augmentation by passing **--no_augmentation**
 
@@ -56,7 +55,6 @@ You can also pass **--epochs** (Default 5) and **--lr** (Default 5e-5). Also, it
 
 ```
 python test.py --text_file path/to/text_file --image_dir path/to/image_dir --checkpoint path/to/model --output path/to/output_file
-
 ```
 By default it will use zero shot CLIP model.
 
