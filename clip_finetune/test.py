@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     
     # Create the dataset
-    test_ds = ImageTextDataset(args.image_dir, data_df, data_type="test",device = device, text_augmentation=args.augmentation)
+    test_ds = ImageTextDataset(args.image_dir, data_df, data_type="test",device = device, text_augmentation=args.no_augmentation)
     # Create the dataloader
 
     valid_dataloader = DataLoader(test_ds, shuffle=False, batch_size=1, collate_fn=lambda batch: custom_collate(batch))
