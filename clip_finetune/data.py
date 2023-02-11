@@ -116,7 +116,6 @@ class ImageTextDataset(Dataset):
         image_names= self.all_image_names[idx]
         #loading images
         label = []
-        # print(type(images))
         image = []
         for i, im in enumerate(image_names):
             path = os.path.join(self.data_dir, im)
@@ -136,6 +135,8 @@ class ImageTextDataset(Dataset):
 
             image.append(img)
             txt = clip.tokenize(context)
+            # making label by setting 1 for gold_image and 0 for rest of the images
+            
             if self.data_type != "test":
                 label.append(1.0) if im == self.gold_images[idx] else label.append(0.0)
 
@@ -145,11 +146,6 @@ class ImageTextDataset(Dataset):
         if self.text_augmentation:
             aug = self.augmentation[idx]
             txt = clip.tokenize(aug, context_length=77, truncate=True)
-            # print("Augmentation")
-            # print(txt)
-
-
-          # sample = {'context':txt, 'images':  torch.stack(image, dim=0), 'label': label}
 
         if self.data_type == "test":
             return txt, images , image_names

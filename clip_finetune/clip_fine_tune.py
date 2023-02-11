@@ -50,10 +50,12 @@ if __name__== "__main__":
     # Create the dataloader
     train_dataloader = DataLoader(train_ds, shuffle=True, batch_size=32)
     valid_dataloader = DataLoader(valid_ds, shuffle=True, batch_size=32)
-
     print(len(train_dataloader), len(valid_dataloader))
-    model, preprocess = clip.load('ViT-B/32', device=device, jit = False)
+    #Loding pretrained model
+    model, preprocess = clip.load('ViT-B/32', device=device, jit = False) #Must set jit=False for training
     model.to(device)
+
+    #setting learning rate, optimizer and weight decay
     lr=args.lr
     optimizer = AdamW(model.parameters(), lr=lr, betas=(0.9,0.98),eps=1e-6,weight_decay=0.2)
     num_epochs = args.epochs
@@ -91,23 +93,25 @@ if __name__== "__main__":
             images = images.to(device)
             context = context.to(device)
             labels = labels.to(device)
+            # Getting image features 
             image_features_ = model.encode_image(images.flatten(0, 1)).reshape(*images.shape[:2], -1)
-
+            #Getting encoded text
             text_features_ = model.encode_text(context.squeeze(1))
             image_features = image_features_ / image_features_.norm(dim=-1, keepdim=True)
             text_features = text_features_ / text_features_.norm(dim=-1, keepdim=True)
             similarity = (image_features @ text_features.unsqueeze(2)).squeeze() * model.logit_scale.exp()
 
+            #calculating cross entropy loss
+            # For example, similarity = [22.2812, 25.8594, 32.8750, 25.0469, 19.6719, 27.0000, 27.4375, 21.8125, 20.5000, 17.5469], labels=[0., 0., 1., 0., 0., 0., 0., 0., 0., 0.]
             loss = loss_fct(similarity, torch.as_tensor(labels))
             train_loss += loss
-            # print(loss)
-            
             loss.backward()
             optimizer.step()
             lr_scheduler.step()
             optimizer.zero_grad()
             progress_bar_train.update(1)
-
+        
+        #Training loss per batch
         train_losses.append((train_loss/len(train_dataloader)).item())
 
         
@@ -131,10 +135,11 @@ if __name__== "__main__":
             eval_loss += loss
             progress_bar_valid.update(1)
         
+        #Validation Loss per batch
         eval_losses.append((eval_loss/len(valid_dataloader)).item())
 
         
-
+        #Saving Model based on lowest validation loss
         if total_loss > eval_loss:
             total_loss = eval_loss
 

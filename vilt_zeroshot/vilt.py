@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', help="Input the name of prediction file", default="predictions.txt")
     args = parser.parse_args()
 
+    #Loading pretrained models
     checkpoint = args.checkpoint
     model = ViltForImageAndTextRetrieval.from_pretrained(checkpoint)
     processor = ViltProcessor.from_pretrained(checkpoint)
@@ -38,9 +39,9 @@ if __name__ == '__main__':
     # Create the dataset
     test_ds = ImageTextDataset(args.image_dir, data_df, data_type="test",device = device, text_augmentation=args.no_augmentation)
     # Create the dataloader
-
     test_dataloader = DataLoader(test_ds, shuffle=False, batch_size=1, collate_fn=lambda batch: test_collate(batch))
     submission = []
+    #Training 
     for batch in tqdm(test_dataloader):
         scores = dict()
         for j, image in enumerate(batch['images'][0]):
@@ -52,7 +53,7 @@ if __name__ == '__main__':
             
             img = transform(img)
 
-
+            #Pre-processing images and text. By default, BERT to tokenize text and ViLTFeatureExtractor to extract feature from images. Max text length 40. 
             encoding = processor(img, batch['context'], return_tensors="pt", padding=True ,truncation=True, max_length=40)
             
             with torch.no_grad():
@@ -60,8 +61,7 @@ if __name__ == '__main__':
             
             scores[image.split('/')[-1]] = outputs.logits[0][0].item()
             
-
-    
+        #sorting images based on similaruty score Descending order.
         scores = dict(sorted(scores.items(), key=lambda item: item[1], reverse = True))
         score = '\t'.join([i for i in scores.keys()])
         

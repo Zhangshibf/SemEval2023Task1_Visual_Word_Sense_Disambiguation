@@ -21,7 +21,7 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f'DEVICE USED: {device}')
 
-    model, preprocess = clip.load("ViT-B/32",device=device) #Must set jit=False for training
+    model, preprocess = clip.load("ViT-B/32",device=device) 
     if checkpoint != "ViT-B/32":
       checkpoint = torch.load(checkpoint)
       model.load_state_dict(checkpoint['model_state_dict'])
@@ -44,7 +44,6 @@ if __name__ == '__main__':
         names = batch['names'][0]
         images = batch['images'].to(device)
         context = batch['context'].to(device)
-        # print(images.size(), context.size())
         with torch.no_grad():
             image_features = model.encode_image(images.flatten(0, 1)).view(*images.shape[:2], -1)
             text_features = model.encode_text(context.squeeze(1))

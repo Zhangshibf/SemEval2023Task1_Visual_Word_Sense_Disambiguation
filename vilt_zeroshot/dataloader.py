@@ -10,7 +10,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 1000000000
 from torch.utils.data import Dataset, DataLoader
 from sentence_transformers import SentenceTransformer, util
 
-
+# Custom DataCollattor
 def test_collate(batch):
   context = []
   images = []
@@ -117,6 +117,6 @@ class ImageTextDataset(Dataset):
             aug = self.augmentation[idx]
             sample['context'] = aug
             return sample
-            #return keyword,context,aug,positive_image,image_name,negative_images,negative_image_names
+            
         else:
             return sample
