@@ -1,5 +1,5 @@
 #fine tune CLIP model
-from load_data_final_prediction import *
+from dataloader_en import *
 from PIL import Image
 import argparse
 from PIL import ImageFile
