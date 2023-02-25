@@ -11,23 +11,29 @@ from torch import optim
 import clip
 def evaluate(model,preprocess,device, dataloader,prediction_path):
     model.eval()
-    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+#    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
+    for keywords, contexts, image_names, image_paths in dataloader:
         image_names = [i.split("#") for i in image_names]
         tokens = list()
+
+        for c in contexts:
+            input_ids = clip.tokenize(c, context_length=77, truncate=True)
+            tokens.append(input_ids)
+
+        """
         for k,c,a in zip(keywords,contexts, augmentations):
             context_augmented = c
 
-#            try:
-#                context_augmented = c + " " + a
-#            except:
-#                if c == "nan bread":
-#                    context_augmented = "Naan bread is a type of bread made with flour. It is a flatbread that is baked in a tandoor. Naan bread often looks like a tear drop. It is often covered in herbs and spices such as garlic to change the taste.Naan bread is made from basic bread ingredients like wheat flour, a leavening agent, salt, and butter or ghee."
-#                elif c == "nan river":
-#                    context_augmented = "The Nan River is a river in Thailand. It is one of the most important tributaries of the Chao Phraya River."
+            try:
+                context_augmented = c + " " + a
+            except:
+                if c == "nan bread":
+                    context_augmented = "Naan bread is a type of bread made with flour. It is a flatbread that is baked in a tandoor. Naan bread often looks like a tear drop. It is often covered in herbs and spices such as garlic to change the taste.Naan bread is made from basic bread ingredients like wheat flour, a leavening agent, salt, and butter or ghee."
+                elif c == "nan river":
+                    context_augmented = "The Nan River is a river in Thailand. It is one of the most important tributaries of the Chao Phraya River."
 
             input_ids = clip.tokenize(context_augmented, context_length=77, truncate=True)
-            tokens.append(input_ids)
-
+            tokens.append(input_ids)"""
         paths = [i.split("#") for i in image_paths]
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
