@@ -20,6 +20,7 @@ class ImageTextDataset(Dataset):
         contexts = list(train_data[1])
         self.keywords = keywords
         self.context = contexts
+        self.text_augmentation = text_augmentation
 
         for i in range(len(train_data)):
             self.image_name.append(list(train_data.loc[i, 2:]))
@@ -96,11 +97,11 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        try self.augmentation:
+        if self.text_augmentation:
             aug = self.augmentation[idx]
             return keyword, context, aug,names, paths
 
-        except:
+        else:
             return keyword, context, names, paths
 
 if __name__ == "__main__":
