@@ -15,7 +15,8 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
         image_names = [i.split("#") for i in image_names]
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-
+            context_augmented = k + " " + c
+"""
             try:
                 context_augmented = c + " " + a
             except:
@@ -23,7 +24,7 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
                     context_augmented = "Naan bread is a type of bread made with flour. It is a flatbread that is baked in a tandoor. Naan bread often looks like a tear drop. It is often covered in herbs and spices such as garlic to change the taste.Naan bread is made from basic bread ingredients like wheat flour, a leavening agent, salt, and butter or ghee."
                 elif c == "nan river":
                     context_augmented = "The Nan River is a river in Thailand. It is one of the most important tributaries of the Chao Phraya River."
-
+"""
             input_ids = clip.tokenize(context_augmented, context_length=77, truncate=True)
             tokens.append(input_ids)
 
