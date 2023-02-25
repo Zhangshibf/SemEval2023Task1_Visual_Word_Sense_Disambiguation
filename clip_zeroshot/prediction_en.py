@@ -15,7 +15,7 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
         image_names = [i.split("#") for i in image_names]
         tokens = list()
         for k,c,a in zip(keywords,contexts, augmentations):
-            context_augmented = k + " " + c
+            context_augmented = c
 
 #            try:
 #                context_augmented = c + " " + a
