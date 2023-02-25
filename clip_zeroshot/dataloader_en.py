@@ -97,11 +97,10 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        return keyword, context, names, paths
 
-#        if self.text_augmentation:
-#            aug = self.augmentation[idx]
-#            return keyword, context, aug,names, paths
+        if self.augmentation:
+            aug = self.augmentation[idx]
+            return keyword, context, aug,names, paths
 
 
 if __name__ == "__main__":
@@ -113,7 +112,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     device = 'cuda:'+str(args.cuda)
     # Create the dataset
-    dataset = ImageTextDataset(test_path = args.test_path,image_folder_path = args.image_folder_path,device = device, text_augmentation=False)
+    dataset = ImageTextDataset(test_path = args.test_path,image_folder_path = args.image_folder_path,device = device, text_augmentation=True)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     path = args.output+"/dataset.pk"

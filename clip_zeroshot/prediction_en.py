@@ -11,16 +11,10 @@ from torch import optim
 import clip
 def evaluate(model,preprocess,device, dataloader,prediction_path):
     model.eval()
-#    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
-    for keywords, contexts, image_names, image_paths in dataloader:
+    for keywords,contexts,augmentations,image_names,image_paths in dataloader:
         image_names = [i.split("#") for i in image_names]
         tokens = list()
 
-        for c in contexts:
-            input_ids = clip.tokenize(c, context_length=77, truncate=True)
-            tokens.append(input_ids)
-
-        """
         for k,c,a in zip(keywords,contexts, augmentations):
             context_augmented = c
 
@@ -33,7 +27,7 @@ def evaluate(model,preprocess,device, dataloader,prediction_path):
                     context_augmented = "The Nan River is a river in Thailand. It is one of the most important tributaries of the Chao Phraya River."
 
             input_ids = clip.tokenize(context_augmented, context_length=77, truncate=True)
-            tokens.append(input_ids)"""
+            tokens.append(input_ids)
         paths = [i.split("#") for i in image_paths]
         for keyword,context,t,ps in zip(keywords,contexts,tokens,paths):
             t = t.to(device)
