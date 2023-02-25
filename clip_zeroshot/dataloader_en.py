@@ -97,12 +97,12 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        if self.text_augmentation:
-            aug = self.augmentation[idx]
-            return keyword, context, aug,names, paths
+        return keyword, context, names, paths
 
-        else:
-            return keyword, context, names, paths
+#        if self.text_augmentation:
+#            aug = self.augmentation[idx]
+#            return keyword, context, aug,names, paths
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build dataloader')
