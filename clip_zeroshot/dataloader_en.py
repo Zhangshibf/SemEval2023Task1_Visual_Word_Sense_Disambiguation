@@ -96,11 +96,11 @@ class ImageTextDataset(Dataset):
         context = self.context[idx]
         keyword = self.keywords[idx]
 
-        if self.augmentation:
+        try self.augmentation:
             aug = self.augmentation[idx]
             return keyword, context, aug,names, paths
 
-        else:
+        except:
             return keyword, context, names, paths
 
 if __name__ == "__main__":
